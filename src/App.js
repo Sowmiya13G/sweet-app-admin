@@ -9,9 +9,12 @@ import {
 import Dashboard from "./components/dashboard";
 import Login from "./components/login";
 import Users from "./components/user";
+import Categories from "./components/categories";
+
 import NotFound from "./components/notFound";
 import PrivateRoute from "./components/privateRoute";
 import Layout from "./components/layout";
+import Orders from "./components/orders";
 
 function App() {
   return (
@@ -24,6 +27,30 @@ function App() {
           element={
             <Layout>
               <Dashboard />
+            </Layout>
+          }
+        />
+        <Route
+          path="/categories"
+          element={
+            <Layout>
+              <Categories />
+            </Layout>
+          }
+        />
+        <Route
+          path="/orders"
+          element={
+            <Layout>
+              <Orders />
+            </Layout>
+          }
+        />
+        <Route
+          path="/tables"
+          element={
+            <Layout>
+              <Users />
             </Layout>
           }
         />

@@ -14,12 +14,12 @@ import PeopleIcon from "@mui/icons-material/People";
 import ContentPasteSearchIcon from "@mui/icons-material/ContentPasteSearch";
 import DinnerDiningIcon from "@mui/icons-material/DinnerDining";
 import TableBarIcon from "@mui/icons-material/TableBar";
-const drawerWidth = 240;
 
-const Sidebar = ({ open }) => {
+const Sidebar = ({ open, setOpen }) => {
   const [isOpen, setIsOpen] = React.useState(false); // State for sidebar visibility
   const [selectedLink, setSelectedLink] = React.useState("/dashboard"); // State to track selected link
 
+  const drawerWidth = open ? "80%" : 240;
   const handleMouseEnter = () => {
     setIsOpen(true);
   };
@@ -29,6 +29,7 @@ const Sidebar = ({ open }) => {
   };
 
   const handleClick = (link) => {
+    setOpen(false);
     setSelectedLink(link);
   };
   useEffect(() => {
@@ -88,15 +89,15 @@ const Sidebar = ({ open }) => {
         <ListItem
           button
           component={Link}
-          to="/users"
+          to="/categories"
           style={{
             margin: "15px",
             height: "70px",
             borderRadius: "15px",
             backgroundColor:
-              selectedLink === "/users" ? "#d79f11" : "transparent", // Set background color to gold (hex code #d79f11) for selected link
+              selectedLink === "/categories" ? "#d79f11" : "transparent", // Set background color to gold (hex code #d79f11) for selected link
           }}
-          onClick={() => handleClick("/users")}
+          onClick={() => handleClick("/categories")}
         >
           <ListItemIcon>
             <DinnerDiningIcon style={{ color: "white" }} />
@@ -109,15 +110,15 @@ const Sidebar = ({ open }) => {
         <ListItem
           button
           component={Link}
-          to="/users"
+          to="/orders"
           style={{
             margin: "15px",
             height: "70px",
             borderRadius: "15px",
             backgroundColor:
-              selectedLink === "/users" ? "#d79f11" : "transparent", // Set background color to gold (hex code #d79f11) for selected link
+              selectedLink === "/orders" ? "#d79f11" : "transparent", // Set background color to gold (hex code #d79f11) for selected link
           }}
-          onClick={() => handleClick("/users")}
+          onClick={() => handleClick("/orders")}
         >
           <ListItemIcon>
             <ContentPasteSearchIcon style={{ color: "white" }} />
@@ -130,15 +131,15 @@ const Sidebar = ({ open }) => {
         <ListItem
           button
           component={Link}
-          to="/users"
+          to="/tables"
           style={{
             margin: "15px",
             height: "70px",
             borderRadius: "15px",
             backgroundColor:
-              selectedLink === "/users" ? "#d79f11" : "transparent", // Set background color to gold (hex code #d79f11) for selected link
+              selectedLink === "/tables" ? "#d79f11" : "transparent", // Set background color to gold (hex code #d79f11) for selected link
           }}
-          onClick={() => handleClick("/users")}
+          onClick={() => handleClick("/tables")}
         >
           <ListItemIcon>
             <TableBarIcon style={{ color: "white" }} />
