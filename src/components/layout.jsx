@@ -10,7 +10,7 @@ import {
 import Sidebar from "./sideBar";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
-
+import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
 const Layout = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false); // State to track sidebar visibility
 
@@ -35,7 +35,7 @@ const Layout = ({ children }) => {
         >
           {isOpen ? (
             <IconButton onClick={handleToggleSidebar}>
-              <CloseIcon style={{ color: "white" }} />
+              <RestaurantMenuIcon style={{ color: "white" }} />
             </IconButton>
           ) : (
             <IconButton onClick={handleToggleSidebar}>
