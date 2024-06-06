@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Drawer,
@@ -16,7 +16,7 @@ import DinnerDiningIcon from "@mui/icons-material/DinnerDining";
 import TableBarIcon from "@mui/icons-material/TableBar";
 const drawerWidth = 240;
 
-const Sidebar = () => {
+const Sidebar = ({ open }) => {
   const [isOpen, setIsOpen] = React.useState(false); // State for sidebar visibility
   const [selectedLink, setSelectedLink] = React.useState("/dashboard"); // State to track selected link
 
@@ -31,18 +31,22 @@ const Sidebar = () => {
   const handleClick = (link) => {
     setSelectedLink(link);
   };
+  useEffect(() => {
+    setIsOpen(open);
+  }, [open]);
   return (
     <Drawer
       variant="permanent"
       sx={{
         width: isOpen ? drawerWidth : 90,
         flexShrink: 0,
+        display: { xs: open ? "block" : "none", md: "block" },
         transition: "width 0.3s ease-in-out",
         "& .MuiDrawer-paper": {
           width: isOpen ? drawerWidth : 90,
           boxSizing: "border-box",
-          backgroundColor: "#000",
-          color: "#fff", // Set overall text color to white
+          backgroundColor: "#22222E",
+          color: "#fff",
           borderTopRightRadius: "30px",
           borderBottomRightRadius: "30px",
           overflow: "hidden",
@@ -66,7 +70,8 @@ const Sidebar = () => {
             margin: "15px",
             height: "70px",
             borderRadius: "15px",
-            backgroundColor: selectedLink === "/dashboard" ? "#d79f11" : "#000", // Set background color to gold (hex code #d79f11) for selected link
+            backgroundColor:
+              selectedLink === "/dashboard" ? "#d79f11" : "transparent", // Set background color to gold (hex code #d79f11) for selected link
           }}
           selected={selectedLink === "/dashboard"}
           onClick={() => handleClick("/dashboard")}
@@ -88,7 +93,8 @@ const Sidebar = () => {
             margin: "15px",
             height: "70px",
             borderRadius: "15px",
-            backgroundColor: selectedLink === "/users" ? "#d79f11" : "#000", // Set background color to gold (hex code #d79f11) for selected link
+            backgroundColor:
+              selectedLink === "/users" ? "#d79f11" : "transparent", // Set background color to gold (hex code #d79f11) for selected link
           }}
           onClick={() => handleClick("/users")}
         >
@@ -108,7 +114,8 @@ const Sidebar = () => {
             margin: "15px",
             height: "70px",
             borderRadius: "15px",
-            backgroundColor: selectedLink === "/users" ? "#d79f11" : "#000", // Set background color to gold (hex code #d79f11) for selected link
+            backgroundColor:
+              selectedLink === "/users" ? "#d79f11" : "transparent", // Set background color to gold (hex code #d79f11) for selected link
           }}
           onClick={() => handleClick("/users")}
         >
@@ -128,7 +135,8 @@ const Sidebar = () => {
             margin: "15px",
             height: "70px",
             borderRadius: "15px",
-            backgroundColor: selectedLink === "/users" ? "#d79f11" : "#000", // Set background color to gold (hex code #d79f11) for selected link
+            backgroundColor:
+              selectedLink === "/users" ? "#d79f11" : "transparent", // Set background color to gold (hex code #d79f11) for selected link
           }}
           onClick={() => handleClick("/users")}
         >
@@ -148,7 +156,8 @@ const Sidebar = () => {
             margin: "15px",
             height: "70px",
             borderRadius: "15px",
-            backgroundColor: selectedLink === "/users" ? "#d79f11" : "#000", // Set background color to gold (hex code #d79f11) for selected link
+            backgroundColor:
+              selectedLink === "/users" ? "#d79f11" : "transparent", // Set background color to gold (hex code #d79f11) for selected link
           }}
           onClick={() => handleClick("/users")}
         >
@@ -168,7 +177,8 @@ const Sidebar = () => {
             margin: "15px",
             height: "70px",
             borderRadius: "15px",
-            backgroundColor: selectedLink === "/users" ? "#d79f11" : "#000", // Set background color to gold (hex code #d79f11) for selected link
+            backgroundColor:
+              selectedLink === "/users" ? "#d79f11" : "transparent", // Set background color to gold (hex code #d79f11) for selected link
           }}
           onClick={() => handleClick("/users")}
         >
