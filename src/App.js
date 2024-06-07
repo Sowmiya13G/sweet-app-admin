@@ -6,15 +6,15 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import Dashboard from "./components/dashboard";
-import Login from "./components/login";
-import Users from "./components/user";
-import Categories from "./components/categories";
+import Dashboard from "./pages/dashboard/dashboard";
+import Login from "./pages/login";
+import Users from "./pages/users/user";
+import Categories from "./pages/category/categories";
 
-import NotFound from "./components/notFound";
+import NotFound from "./pages/notFound";
 import PrivateRoute from "./components/privateRoute";
 import Layout from "./components/layout";
-import Orders from "./components/orders";
+import Orders from "./pages/orders/orders";
 
 function App() {
   return (
