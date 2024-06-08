@@ -29,7 +29,7 @@ const Layout = ({ children }) => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
+          p: 1,
           pt:2,
           height: "auto",
           opacity: isOpen ? 0 : 1,
