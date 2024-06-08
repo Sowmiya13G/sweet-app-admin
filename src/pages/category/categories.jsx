@@ -1,26 +1,33 @@
-import {
-  collection,
-  getDocs,
-  doc,
-  updateDoc,
-  addDoc,
-  onSnapshot,
-} from "firebase/firestore";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import React, { useEffect, useState } from "react";
+
+// mui components
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import { db } from "../../firebaseConfig";
 import {
   Box,
-  Grid,
-  Paper,
-  Typography,
-  TextField,
   Button,
   CircularProgress,
+  Grid,
+  Paper,
+  TextField,
+  Typography,
 } from "@mui/material";
 
+// firebase
+import {
+  addDoc,
+  collection,
+  doc,
+  onSnapshot,
+  updateDoc,
+  deleteDoc
+} from "firebase/firestore";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+
+// firebase service
+import { db } from "../../firebaseConfig";
+
 const Categories = () => {
+  // local states
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [editMode, setEditMode] = useState(false);
@@ -30,6 +37,7 @@ const Categories = () => {
   });
   const [uploading, setUploading] = useState(false);
 
+  // -------------------------------- USE EFFECTS --------------------------------
   useEffect(() => {
     const unsubscribe = onSnapshot(
       collection(db, "categories"),
@@ -57,6 +65,7 @@ const Categories = () => {
     return () => unsubscribe();
   }, []);
 
+  // -------------------------------- COMPONENT STYLES --------------------------------
   const scrollbarStyles = {
     overflowX: "auto",
     "&::-webkit-scrollbar": {
@@ -76,7 +85,7 @@ const Categories = () => {
     alignItems: "start",
     justifyContent: "end",
     borderRadius: 2,
-    width:{ xs: 150, md: 200},
+    width: { xs: 150, md: 200 },
     maxWidth: { xs: 150, md: 200 },
     cursor: "pointer",
     transition: "background-color 0.2s ease-in-out, color 0.2s ease-in-out",
@@ -130,17 +139,23 @@ const Categories = () => {
       color: "white",
     },
   };
+
+  // -------------------------------- FUNCTIONALITIES --------------------------------
+
+  // card click
   const handleCardClick = (category) => {
     setSelectedCategory(category);
     setEditedCategory(category);
     setEditMode(true);
   };
 
+  // Category Name input change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setEditedCategory((prev) => ({ ...prev, [name]: value }));
   };
 
+  // upload image file for the category
   const handleFileChange = async (e) => {
     let file = e.target.files[0];
     if (file) {
@@ -155,6 +170,24 @@ const Categories = () => {
     }
   };
 
+  // adding new category
+  const handleAddChanges = async () => {
+    if (selectedCategory && editedCategory.name.trim() !== "") {
+      try {
+        await addDoc(collection(db, "categories"), {
+          name: editedCategory.name,
+          imgSrc: editedCategory.imgSrc,
+        });
+
+        setEditMode(false);
+      } catch (e) {
+        console.error("Error updating document: ", e);
+        setUploading(false);
+      }
+    }
+  };
+
+  // saving changes in existing category
   const handleSaveChanges = async () => {
     if (selectedCategory && editedCategory.name.trim() !== "") {
       try {
@@ -171,21 +204,22 @@ const Categories = () => {
       }
     }
   };
-  const handleAddChanges = async () => {
-    if (selectedCategory && editedCategory.name.trim() !== "") {
-      try {
-        await addDoc(collection(db, "categories"), {
-          name: editedCategory.name,
-          imgSrc: editedCategory.imgSrc,
-        });
 
+  // deleting category
+  const handleDelete = async () => {
+    if (selectedCategory && selectedCategory.id !== "new-id") {
+      try {
+        const categoryDoc = doc(db, "categories", selectedCategory.id);
+        await deleteDoc(categoryDoc);
         setEditMode(false);
+        // setSelectedCategory(null);
       } catch (e) {
-        console.error("Error updating document: ", e);
-        setUploading(false);
+        console.error("Error deleting document: ", e);
       }
     }
   };
+
+  // -------------------------------- RENDER UI --------------------------------
   return (
     <Box
       sx={{
@@ -325,16 +359,29 @@ const Categories = () => {
                 Add new
               </Button>
             ) : (
-              <Button
-                variant="contained"
-                color="success"
-                onClick={handleSaveChanges}
-                sx={{
-                  height: 40,
-                }}
-              >
-                Save Changes
-              </Button>
+              <>
+                <Button
+                  variant="contained"
+                  color="success"
+                  onClick={handleSaveChanges}
+                  sx={{
+                    height: 40,
+                    marginRight: "5px"
+                  }}
+                >
+                  Save Changes
+                </Button>
+                <Button
+                  variant="contained"
+                  color="warning"
+                  onClick={handleDelete}
+                  sx={{
+                    height: 40,
+                  }}
+                >
+                  Delete Category
+                </Button>
+              </>
             )}
           </Box>
         </Box>
