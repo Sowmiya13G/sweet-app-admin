@@ -19,7 +19,7 @@ import {
   doc,
   onSnapshot,
   updateDoc,
-  deleteDoc
+  deleteDoc,
 } from "firebase/firestore";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 
@@ -294,14 +294,14 @@ const Categories = () => {
               {uploading ? (
                 <Box
                   sx={{
-                    width: "40%",
-                    height: "50%",
+                    width: 200,
+                    height: 200,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     filter: 10,
                     borderRadius: 5,
-                    backgroundColor: "#d7d7d78a",
+                    // backgroundColor: "#d7d7d78a",
                   }}
                 >
                   <CircularProgress />
@@ -366,14 +366,14 @@ const Categories = () => {
                   onClick={handleSaveChanges}
                   sx={{
                     height: 40,
-                    marginRight: "5px"
+                    marginRight: "5px",
                   }}
                 >
                   Save Changes
                 </Button>
                 <Button
                   variant="contained"
-                  color="warning"
+                  color="error"
                   onClick={handleDelete}
                   sx={{
                     height: 40,
