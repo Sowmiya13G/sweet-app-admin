@@ -1,5 +1,4 @@
 import { collection, onSnapshot } from "firebase/firestore"; // Firestore methods
-import { getToken } from "firebase/messaging";
 import React, { useEffect, useState } from "react";
 import {
   Navigate,
@@ -10,20 +9,25 @@ import {
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Layout from "./components/layout";
-import {
-  db,
-  messaging
-} from "./firebaseConfig"; // Import Firestore
+import { db } from "./firebaseConfig"; // Import Firestore
 import Categories from "./pages/category/categories";
 import Dashboard from "./pages/dashboard/dashboard";
 import Login from "./pages/login";
 import NotFound from "./pages/notFound";
 import Orders from "./pages/orders/orders";
 import Users from "./pages/users/user";
-
+import notifisound from "./assets/notification.mp3";
+import { Howl } from "howler";
 
 function App() {
-  const [token, setToken] = useState(null);
+  const sound = new Howl({
+    src: [notifisound],
+    volume: 1,
+  });
+
+  const playSound = () => {
+    sound.play();
+  };
 
   useEffect(() => {
     // Request notification permissions
@@ -58,11 +62,20 @@ function App() {
           });
 
           // Show web notification
+          // Show web notification
           if (Notification.permission === "granted") {
-            new Notification("New Order", {
-              body: `Order ID: ${newOrder.orderID}`,
-              icon: "/path/to/icon.png", // Optional: specify an icon for the notification
-            });
+            const audio = new Audio(notifisound); // Correct the path
+            audio
+              .play()
+              .then(() => {
+                new Notification("New Order", {
+                  body: `Order ID: ${newOrder.orderID}`,
+                  icon: "/path/to/icon.png", // Optional: specify an icon for the notification
+                });
+              })
+              .catch((error) => {
+                console.error("Error playing sound:", error);
+              });
           }
         }
       });
@@ -73,6 +86,14 @@ function App() {
       unsubscribeOrders();
     };
   }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      playSound();
+    }, 3000);
+
+    return () => clearInterval(interval);
+  });
   return (
     <Router>
       <Routes>
