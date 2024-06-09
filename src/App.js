@@ -60,23 +60,29 @@ function App() {
             draggable: true,
             progress: undefined,
           });
-
-          // Show web notification
+          playSound();
           // Show web notification
           if (Notification.permission === "granted") {
-            const audio = new Audio(notifisound); // Correct the path
-            audio
-              .play()
-              .then(() => {
-                new Notification("New Order", {
-                  body: `Order ID: ${newOrder.orderID}`,
-                  icon: "/path/to/icon.png", // Optional: specify an icon for the notification
-                });
-              })
-              .catch((error) => {
-                console.error("Error playing sound:", error);
-              });
+            new Notification("New Order", {
+              body: `Order ID: ${newOrder.orderID}`,
+              icon: "/path/to/icon.png", // Optional: specify an icon for the notification
+            });
           }
+
+          // if (Notification.permission === "granted") {
+          //   const audio = new Audio(notifisound); // Correct the path
+          //   audio
+          //     .play()
+          //     .then(() => {
+          //       new Notification("New Order", {
+          //         body: `Order ID: ${newOrder.orderID}`,
+          //         icon: "/path/to/icon.png", // Optional: specify an icon for the notification
+          //       });
+          //     })
+          //     .catch((error) => {
+          //       console.error("Error playing sound:", error);
+          //     });
+          // }
         }
       });
     });
@@ -87,13 +93,13 @@ function App() {
     };
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      playSound();
-    }, 3000);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     playSound();
+  //   }, 3000);
 
-    return () => clearInterval(interval);
-  });
+  //   return () => clearInterval(interval);
+  // });
   return (
     <Router>
       <Routes>
