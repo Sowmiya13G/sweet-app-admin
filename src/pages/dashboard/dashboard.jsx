@@ -28,6 +28,7 @@ import DiningIcon from "@mui/icons-material/Dining";
 import TakeoutDiningIcon from "@mui/icons-material/TakeoutDining";
 import PersonIcon from "@mui/icons-material/Person";
 import TabBar from "../../components/tabBar/tabBar";
+import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
 
 const Dashboard = () => {
   // Mock state for orders count, tables available, total users, and dish variety
@@ -310,7 +311,7 @@ const Dashboard = () => {
                     ...iconContainerStyle,
                     justifyContent: "space-between",
                     px: 2,
-                    mb: 0,
+                    mb: 2,
                   }}
                 >
                   <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
@@ -320,9 +321,9 @@ const Dashboard = () => {
                     sx={{ ...iconStyle, color: "#626fa0" }}
                   />
                 </Box>
-                <Divider
+                {/* <Divider
                   sx={{ backgroundColor: "#00000090", width: "100%", my: 2 }}
-                />
+                /> */}
               </Paper>
             ))}
         </Box>
@@ -350,7 +351,7 @@ const Dashboard = () => {
                   <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
                     Order ID: {order.orderID}
                   </Typography>
-                  <RamenDiningRoundedIcon
+                  <ArrowCircleRightIcon
                     sx={{ ...iconStyle, color: "#626fa0" }}
                   />
                 </Box>

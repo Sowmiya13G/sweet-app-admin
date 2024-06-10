@@ -8,6 +8,7 @@ import {
   Box,
   Button,
   CircularProgress,
+  Divider,
   Grid,
   MenuItem,
   Paper,
@@ -38,6 +39,7 @@ const Categories = () => {
     imgSrc: "",
   });
   const [uploading, setUploading] = useState(false);
+  const [foodImguploading, setFoodImguploading] = useState(false);
   const [foodList, setFoodList] = useState([]);
   const [foodDetails, setFoodDetails] = useState({
     category: "",
@@ -135,10 +137,11 @@ const Categories = () => {
   const categoriesStyle = {
     cursor: "pointer",
     transition: "background-color 0.2s ease-in-out, color 0.2s ease-in-out",
-    width: "35%",
-    backgroundColor: "#22222e",
+    width: "100%",
+    backgroundColor: "#ffffff",
     padding: "15px",
     borderRadius: "10px",
+    minHeight: 500,
   };
 
   const iconContainerStyle = {
@@ -155,22 +158,11 @@ const Categories = () => {
 
   const textInputStyle = {
     "& .MuiOutlinedInput-root": {
-      "& fieldset": {
-        borderColor: "white",
-      },
-      "&:hover fieldset": {
-        borderColor: "white",
-      },
       "&.Mui-focused fieldset": {
-        borderColor: "white",
+        borderColor: "initial", // Keeps the border color initial (default)
+        // Optional: remove the box-shadow to prevent blue outline
+        boxShadow: "none",
       },
-      color: "white", // text color
-    },
-    "& .MuiInputLabel-root": {
-      color: "white",
-    },
-    "& .MuiInputLabel-root.Mui-focused": {
-      color: "white",
     },
   };
 
@@ -185,18 +177,17 @@ const Categories = () => {
     flexDirection: "column",
     alignItems: "start",
     borderRadius: 2,
-    marginBottom: 2,
     padding: 2,
     cursor: "pointer",
     transition: "background-color 0.2s ease-in-out, color 0.2s ease-in-out",
-    with: "60%",
-    backgroundColor: "#d7d7d78a",
-    marginLeft: "20px",
+    with: "100%",
+    backgroundColor: "#ffffff",
+    height: 500,
   };
 
   const foodItemStyle = {
     width: "100%",
-    height: { xs: 20, md: 60 },
+    height: { xs: 60, md: 60 },
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -204,6 +195,21 @@ const Categories = () => {
     backgroundColor: "#d7d7d78a",
     color: "#000",
     fontSize: 30,
+  };
+
+  const scrollVerbarStyles = {
+    overflowY: "auto",
+    width: "100%",
+
+    // overflowX: "auto",
+    "&::-webkit-scrollbar": {
+      height: 0,
+    },
+    "&::-webkit-scrollbar-thumb": {
+      backgroundColor: "transparent",
+    },
+    "-ms-overflow-style": "none", // IE and Edge
+    "scrollbar-width": "none", // Firefox
   };
 
   // -------------------------------- FUNCTIONALITIES --------------------------------
@@ -298,13 +304,13 @@ const Categories = () => {
     let file = e.target.files[0];
     if (file) {
       let imgSrc = foodDetails.imgSrc;
-      setUploading(true);
+      setFoodImguploading(true);
       const storage = getStorage();
       const storageRef = ref(storage, `foodList/${file.name}`);
       await uploadBytes(storageRef, file);
       imgSrc = await getDownloadURL(storageRef);
       setFoodDetails((prev) => ({ ...prev, imgSrc: imgSrc }));
-      setUploading(false);
+      setFoodImguploading(false);
     }
   };
 
@@ -319,9 +325,9 @@ const Categories = () => {
         await addDoc(collection(db, "foodList"), {
           categoryId: selectedCategory?.id,
           category: selectedCategory?.name,
-          name: foodDetails.dishName,
+          dishName: foodDetails.dishName,
           price: foodDetails.price,
-          imgSrc: foodDetails.imgSrc,
+          img: foodDetails.imgSrc,
           type: foodDetails.type,
           offer: foodDetails.offer,
         });
@@ -352,12 +358,18 @@ const Categories = () => {
           <Box
             sx={{
               ...categoriesStyle,
-              marginLeft: "10px",
+              // marginLeft: "10px",
             }}
           >
-            <Typography variant="h6" gutterBottom sx={{ color: "#fff" }}>
-              Add Food Item under {selectedCategory.name}
+            <Typography
+              gutterBottom
+              sx={{ color: "#000", fontSize: 20, fontWeight: 600 }}
+            >
+              Add Food Item Under {selectedCategory.name}
             </Typography>
+            <Divider
+              sx={{ backgroundColor: "#00000090", width: "100%", my: 1, mb: 2 }}
+            />
             <TextField
               label="Category"
               name="category"
@@ -415,8 +427,8 @@ const Categories = () => {
                 />
               </>
             )}
-            <Box sx={{ my: 2 }}>
-              {uploading ? (
+            <Box sx={{ my: 2, width: 200, height: 200 }}>
+              {foodImguploading ? (
                 <Box
                   sx={{
                     width: 200,
@@ -435,7 +447,7 @@ const Categories = () => {
                   <img
                     src={foodDetails.imgSrc}
                     width={"100%"}
-                    height={"50%"}
+                    height={"100%"}
                     style={{ borderRadius: 10 }}
                     alt="img"
                   />
@@ -463,12 +475,21 @@ const Categories = () => {
               />
             </Button>
             <Box
-              style={{
+              sx={{
                 display: "flex",
                 flexDirection: "row",
-                justifyItems: "space-between",
+                justifyContent: "space-between",
+                width: "100%",
               }}
             >
+              <Button
+                variant="contained"
+                onClick={() => {
+                  setShowEditFields(false);
+                }}
+              >
+                Cancel
+              </Button>
               <Button
                 variant="contained"
                 color="success"
@@ -479,20 +500,7 @@ const Categories = () => {
                   width: "45%",
                 }}
               >
-                Add Food Item
-              </Button>
-              <Button
-                variant="contained"
-                onClick={() => {
-                  setShowEditFields(false);
-                }}
-                sx={{
-                  height: 40,
-                  backgroundColor: "#FFAA33",
-                  width: "45%",
-                }}
-              >
-                Cancel
+                Add Food
               </Button>
             </Box>
           </Box>
@@ -509,7 +517,7 @@ const Categories = () => {
             display: "flex",
             flexDirection: { xs: "column" },
             justifyContent: "space-between",
-            height: "100%",
+            // height: "100%",
           }}
         >
           <TextField
@@ -519,10 +527,10 @@ const Categories = () => {
             onChange={handleInputChange}
             margin="normal"
             sx={textInputStyle}
-            error={editedCategory.name ? false : true}
+            error={!editedCategory.name}
           />
 
-          <Box sx={{ my: 2 }}>
+          <Box sx={{ my: 2, width: 200, height: 200 }}>
             {uploading ? (
               <Box
                 sx={{
@@ -542,7 +550,7 @@ const Categories = () => {
                 <img
                   src={editedCategory.imgSrc}
                   width={"100%"}
-                  height={"50%"}
+                  height={"100%"}
                   style={{ borderRadius: 10 }}
                   alt="img"
                 />
@@ -577,12 +585,24 @@ const Categories = () => {
             onClick={handleAddChanges}
             sx={{
               height: 40,
+              width: "40%",
             }}
           >
             Add new
           </Button>
         ) : (
-          <Box style={{ display: "flex", flexDirection: "column" }}>
+          <Box style={{ display: "flex", justifyContent: "space-between" }}>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={handleDelete}
+              sx={{
+                height: 40,
+                width: "40%",
+              }}
+            >
+              Delete
+            </Button>
             <Button
               variant="contained"
               color="success"
@@ -590,19 +610,10 @@ const Categories = () => {
               sx={{
                 height: 40,
                 marginBottom: "10px",
+                width: "40%",
               }}
             >
               Save Changes
-            </Button>
-            <Button
-              variant="contained"
-              color="error"
-              onClick={handleDelete}
-              sx={{
-                height: 40,
-              }}
-            >
-              Delete Category
             </Button>
           </Box>
         )}
@@ -636,6 +647,7 @@ const Categories = () => {
           >
             Food List
           </Typography>
+
           <Button
             onClick={() => {
               setShowEditFields(true);
@@ -644,31 +656,34 @@ const Categories = () => {
             <AddIcon style={{ color: "#000" }} />
           </Button>
         </Box>
-
-        {filteredFoodList.map((food, index) => (
-          <Box
-            sx={{
-              ...foodItemStyle,
-              justifyContent: "space-between",
-              px: 2,
-              marginBottom: "5px",
-            }}
-          >
+        <Divider sx={{ backgroundColor: "#00000090", width: "100%", mb: 2 }} />
+        <Box sx={{ ...scrollVerbarStyles }}>
+          {filteredFoodList.map((food, index) => (
             <Box
+              key={index}
               sx={{
-                flexDirection: "column",
+                ...foodItemStyle,
+                justifyContent: "space-between",
+                px: 2,
+                marginBottom: "5px",
               }}
             >
-              <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
-                Dish Name: {food.name}
-              </Typography>
-              <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
-                Price: {food.price}
-              </Typography>
+              <Box
+                sx={{
+                  flexDirection: "column",
+                }}
+              >
+                <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
+                  Dish Name: {food.name}
+                </Typography>
+                <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
+                  Price: {food.price}
+                </Typography>
+              </Box>
+              <RamenDiningRoundedIcon sx={{ ...iconStyle, color: "#626fa0" }} />
             </Box>
-            <RamenDiningRoundedIcon sx={{ ...iconStyle, color: "#626fa0" }} />
-          </Box>
-        ))}
+          ))}
+        </Box>
       </Paper>
     );
   };
@@ -727,16 +742,30 @@ const Categories = () => {
 
       {/* --------------------- CATEGORIES BOX --------------------- */}
       <Box
-        style={{
+        sx={{
           display: "flex",
           flexDirection: "row",
           alignItems: "start",
           width: "100%",
+          justifyContent: "space-between",
+          flexDirection: { xs: "column", md: "row" },
         }}
       >
-        {editMode && selectedCategory && <>{editCategoryFields()}</>}
-        {isShowFoodList && <Box>{foodListBox()}</Box>}
-        {isShowEditFields && <>{renderAddFoodFields()}</>}
+        {editMode && selectedCategory && (
+          <Box sx={{ width: { xs: "100%", md: "29%" }, my: 1 }}>
+            {editCategoryFields()}
+          </Box>
+        )}
+        {isShowFoodList && (
+          <Box sx={{ width: { xs: "100%", md: "29%" }, my: 1 }}>
+            {foodListBox()}
+          </Box>
+        )}
+        {isShowEditFields && (
+          <Box sx={{ width: { xs: "100%", md: "39%" }, my: 1 }}>
+            {renderAddFoodFields()}
+          </Box>
+        )}
       </Box>
     </Box>
   );
