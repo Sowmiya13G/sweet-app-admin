@@ -81,7 +81,8 @@ const Dashboard = () => {
     display: "flex",
     flexDirection: "column",
     alignItems: "start",
-    width: { xs: "100%", md: "100%" },
+    width: "100%" ,
+    backgroundColor: "none",
     cursor: "pointer",
   };
   const iconStyle = {
@@ -101,7 +102,8 @@ const Dashboard = () => {
   };
 
   const scrollHorbarStyles = {
-    overflowy: "auto",
+    overflowY: "auto",
+    overflowX: "auto",
     "&::-webkit-scrollbar": {
       height: 0,
     },
@@ -111,6 +113,7 @@ const Dashboard = () => {
     "-ms-overflow-style": "none", // IE and Edge
     "scrollbar-width": "none", // Firefox
   };
+
   const iconContainerStyle = {
     width: "100%",
     height: 60,
@@ -277,12 +280,20 @@ const Dashboard = () => {
         sx={{
           display: "flex",
           width: "100%",
-          ...scrollHorbarStyles,
-          backgroundColor: "#fff",
           height: "40%",
         }}
       >
-        <Box sx={{ width: "40%", }}>
+        <Box
+          sx={{
+            width: "40%",
+            height: 500,
+            mr: 1,
+            py: 2,
+            backgroundColor: "#fff",
+            ...scrollHorbarStyles,
+            borderRadius: 2,
+          }}
+        >
           {orderData
             .sort((a, b) => b.orderTime.seconds - a.orderTime.seconds)
             .map((order, index) => (
@@ -292,7 +303,7 @@ const Dashboard = () => {
                   ...taskGridItemStyles,
                   px: 2,
                 }}
-                onClick={() => handleCardClick(index)}
+                // onClick={() => handleCardClick(index)}
               >
                 <Box
                   sx={{
