@@ -5,6 +5,7 @@ import {
   Route,
   BrowserRouter as Router,
   Routes,
+  useNavigate,
 } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -63,26 +64,14 @@ function App() {
           playSound();
           // Show web notification
           if (Notification.permission === "granted") {
-            new Notification("New Order", {
+            const notification = new Notification("New Order", {
               body: `Order ID: ${newOrder.orderID}`,
               icon: "/path/to/icon.png", // Optional: specify an icon for the notification
             });
+            notification.onclick = () => {
+              window.open("http://localhost:3000/orders", "_blank"); // Open a new tab to localhost
+            };
           }
-
-          // if (Notification.permission === "granted") {
-          //   const audio = new Audio(notifisound); // Correct the path
-          //   audio
-          //     .play()
-          //     .then(() => {
-          //       new Notification("New Order", {
-          //         body: `Order ID: ${newOrder.orderID}`,
-          //         icon: "/path/to/icon.png", // Optional: specify an icon for the notification
-          //       });
-          //     })
-          //     .catch((error) => {
-          //       console.error("Error playing sound:", error);
-          //     });
-          // }
         }
       });
     });
@@ -93,13 +82,6 @@ function App() {
     };
   }, []);
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     playSound();
-  //   }, 3000);
-
-  //   return () => clearInterval(interval);
-  // });
   return (
     <Router>
       <Routes>
