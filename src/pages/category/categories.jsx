@@ -133,16 +133,12 @@ const Categories = () => {
   };
 
   const categoriesStyle = {
-    minHeight: 250,
-    display: "flex",
-    alignItems: "start",
-    flexDirection: "column",
-    borderRadius: 2,
-    width: "35%",
-    padding: 2,
     cursor: "pointer",
     transition: "background-color 0.2s ease-in-out, color 0.2s ease-in-out",
+    width: "35%",
     backgroundColor: "#22222e",
+    padding: "15px",
+    borderRadius: "10px",
   };
 
   const iconContainerStyle = {
@@ -355,12 +351,8 @@ const Categories = () => {
         {showEditFields && selectedCategory && (
           <Box
             sx={{
-              mt: 4,
-              alignSelf: "start",
-              width: "35%",
-              backgroundColor: "#d7d7d78a",
-              padding: "15px",
-              borderRadius: "10px",
+              ...categoriesStyle,
+              marginLeft: "10px",
             }}
           >
             <Typography variant="h6" gutterBottom sx={{ color: "#fff" }}>
@@ -467,10 +459,16 @@ const Categories = () => {
                 type="file"
                 accept=".png,.jpg,.jpeg"
                 hidden
-                onChange={handleFileChange}
+                onChange={handleFoodFileChange}
               />
             </Button>
-            <Box style={{ display: "flex", flexDirection: "column" }}>
+            <Box
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyItems: "space-between",
+              }}
+            >
               <Button
                 variant="contained"
                 color="success"
@@ -478,18 +476,20 @@ const Categories = () => {
                 sx={{
                   height: 40,
                   marginBottom: "10px",
+                  width: "45%",
                 }}
               >
                 Add Food Item
               </Button>
               <Button
                 variant="contained"
-                color="error"
                 onClick={() => {
                   setShowEditFields(false);
                 }}
                 sx={{
                   height: 40,
+                  backgroundColor: "#FFAA33",
+                  width: "45%",
                 }}
               >
                 Cancel
@@ -582,7 +582,7 @@ const Categories = () => {
             Add new
           </Button>
         ) : (
-          <>
+          <Box style={{ display: "flex", flexDirection: "column" }}>
             <Button
               variant="contained"
               color="success"
@@ -604,7 +604,7 @@ const Categories = () => {
             >
               Delete Category
             </Button>
-          </>
+          </Box>
         )}
       </Box>
     );
@@ -736,8 +736,8 @@ const Categories = () => {
       >
         {editMode && selectedCategory && <>{editCategoryFields()}</>}
         {isShowFoodList && <Box>{foodListBox()}</Box>}
+        {isShowEditFields && <>{renderAddFoodFields()}</>}
       </Box>
-      <>{isShowEditFields && <>{renderAddFoodFields()}</>}</>
     </Box>
   );
 };
