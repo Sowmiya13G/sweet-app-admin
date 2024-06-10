@@ -8,7 +8,7 @@ import {
   IconButton,
   Badge,
 } from "@mui/material";
-import Sidebar from "./sideBar";
+import Sidebar from "./sideBar/sideBar";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import NotificationsIcon from "@mui/icons-material/Notifications";
