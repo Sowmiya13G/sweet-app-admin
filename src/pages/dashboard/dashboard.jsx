@@ -28,7 +28,7 @@ import DiningIcon from "@mui/icons-material/Dining";
 import TakeoutDiningIcon from "@mui/icons-material/TakeoutDining";
 import PersonIcon from "@mui/icons-material/Person";
 import TabBar from "../../components/tabBar/tabBar";
-import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
+import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
 
 const Dashboard = () => {
   // Mock state for orders count, tables available, total users, and dish variety
@@ -39,7 +39,7 @@ const Dashboard = () => {
   const [selectedCard, setSelectedCard] = useState(0);
   const [orderData, setOrderData] = useState([]);
   const [selectedTab, setSelectedTab] = useState(1);
-
+  const [orderIDCard, setOrderIDCard] = useState("");
   const tabs = [
     { tbName: "ORDERS", id: 1 },
     { tbName: "TABLES", id: 2 },
@@ -67,22 +67,21 @@ const Dashboard = () => {
     transition: "background-color 0.2s ease-in-out, color 0.2s ease-in-out",
   };
   const subGridItemStyles = {
-    minHeight: { xs: 150, md: 400 },
     display: "flex",
     flexDirection: "column",
     alignItems: "start",
-    borderRadius: 2,
-    width: { xs: "100%", md: "100%" },
-    marginBottom: 2,
-    padding: 2,
     cursor: "pointer",
-    transition: "background-color 0.2s ease-in-out, color 0.2s ease-in-out",
+    width: "100%",
+    padding: 2,
+    border: "none",
+    color: "#000",
+    transition: "color 1.2s ease-in-out, width 1.2s ease-in-out",
   };
   const taskGridItemStyles = {
     display: "flex",
     flexDirection: "column",
     alignItems: "start",
-    width: "100%" ,
+    width: "100%",
     backgroundColor: "none",
     cursor: "pointer",
   };
@@ -137,6 +136,11 @@ const Dashboard = () => {
   const handleCardClick = (index) => {
     setSelectedCard(index);
   };
+
+  const handleOrderCardClick = (index) => {
+    setOrderIDCard(index);
+  };
+
   useEffect(() => {
     const fetchOrderData = () => {
       try {
@@ -167,10 +171,6 @@ const Dashboard = () => {
         p: { xs: 0, md: 2 },
       }}
     >
-      <Typography variant="h5" gutterBottom sx={{ color: "#fff" }}>
-        Welcome to the Admin Dashboard
-      </Typography>
-
       <Box sx={{ ...scrollbarStyles }}>
         {" "}
         <Grid container spacing={2} sx={{ flexWrap: "nowrap" }}>
@@ -279,16 +279,17 @@ const Dashboard = () => {
       </Box>
       <Box
         sx={{
-          display: "flex",
+          display: { xs: "block", md: "flex" },
           width: "100%",
-          height: "40%",
         }}
       >
         <Box
           sx={{
-            width: "40%",
-            height: 500,
+            width: { xs: "100%", md: "40%" },
+            height: 450,
             mr: 1,
+            my: 2,
+
             py: 2,
             backgroundColor: "#fff",
             ...scrollHorbarStyles,
@@ -304,14 +305,62 @@ const Dashboard = () => {
                   ...taskGridItemStyles,
                   px: 2,
                 }}
-                // onClick={() => handleCardClick(index)}
+                onClick={() => handleOrderCardClick(order.orderID)}
+              >
+                <Box
+                  sx={{
+                    ...iconContainerStyle,
+                    justifyContent: "space-between",
+                    backgroundColor:
+                      orderIDCard === order.orderID ? "#22222e" : "#00000011",
+                    color: orderIDCard === order.orderID ? "#fff" : "#000",
+                    px: 2,
+                    transition:
+                      "background-color 0.2s ease-in-out, color 0.2s ease-in-out",
+                    ":hover": {
+                      background:
+                        orderIDCard === order.orderID ? "#22222e" : "#00000020",
+                    },
+                  }}
+                >
+                  <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
+                    Order ID: {order.orderID}
+                  </Typography>
+                  <ArrowCircleRightIcon
+                    sx={{ ...iconStyle, color: "#626fa0", mb: 0 }}
+                  />
+                </Box>
+                {/* <Divider
+                  sx={{ backgroundColor: "#00000090", width: "100%", my: 2 }}
+                /> */}
+              </Paper>
+            ))}
+        </Box>
+        <Box
+          sx={{
+            width: { xs: "100%", md: "60%" },
+            my: 2,
+            height: 450,
+            mr: 1,
+            backgroundColor: "#ffffff",
+            ...scrollHorbarStyles,
+            borderRadius: 2,
+          }}
+        >
+          {orderData
+            .filter((x) => x.orderID === orderIDCard)
+            .map((order, index) => (
+              <Paper
+                key={index}
+                sx={{
+                  ...subGridItemStyles,
+                }}
               >
                 <Box
                   sx={{
                     ...iconContainerStyle,
                     justifyContent: "space-between",
                     px: 2,
-                    mb: 2,
                   }}
                 >
                   <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
@@ -321,40 +370,7 @@ const Dashboard = () => {
                     sx={{ ...iconStyle, color: "#626fa0" }}
                   />
                 </Box>
-                {/* <Divider
-                  sx={{ backgroundColor: "#00000090", width: "100%", my: 2 }}
-                /> */}
-              </Paper>
-            ))}
-        </Box>
-        <Box>
-          {orderData
-            .sort((a, b) => b.orderTime.seconds - a.orderTime.seconds)
-            .map((order, index) => (
-              <Paper
-                key={index}
-                elevation={6}
-                sx={{
-                  ...subGridItemStyles,
-                  backgroundColor: "#fffeee",
-                  color: "#000",
-                }}
-                onClick={() => handleCardClick(index)}
-              >
-                <Box
-                  sx={{
-                    ...iconContainerStyle,
-                    justifyContent: "space-between",
-                    px: 2,
-                  }}
-                >
-                  <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
-                    Order ID: {order.orderID}
-                  </Typography>
-                  <ArrowCircleRightIcon
-                    sx={{ ...iconStyle, color: "#626fa0" }}
-                  />
-                </Box>
+
                 <Divider
                   sx={{ backgroundColor: "#00000090", width: "100%", my: 1 }}
                 />
@@ -409,13 +425,8 @@ const Dashboard = () => {
                     Order Status: {order.orderStatus}
                   </Typography>
                 </Box>
-                <Divider
-                  sx={{ backgroundColor: "#00000090", width: "100%", my: 1 }}
-                />
-                <Typography
-                  // variant="h6"
-                  sx={{ ...textalignCenter, fontWeight: 600 }}
-                >
+
+                <Typography sx={{ ...textalignCenter, fontWeight: 600 }}>
                   Total Price: ₹{order.totalPrice}
                 </Typography>
                 <Divider
@@ -444,9 +455,7 @@ const Dashboard = () => {
                     </ListItem>
                   ))}
                 </List>
-                <Divider
-                  sx={{ backgroundColor: "#00000090", width: "100%", my: 1 }}
-                />
+
                 {/* <Typography variant="h6">Tables Selected:</Typography> */}
                 {/* {order.tablesSelected.map((table, tableIdx) => (
               <Box key={tableIdx} sx={{ marginBottom: 1 }}>
