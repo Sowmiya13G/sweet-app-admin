@@ -34,13 +34,13 @@ const Categories = () => {
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [editMode, setEditMode] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [foodImgUploading, setFoodImgUploading] = useState(false);
+  const [foodList, setFoodList] = useState([]);
   const [editedCategory, setEditedCategory] = useState({
     name: "",
     imgSrc: "",
   });
-  const [uploading, setUploading] = useState(false);
-  const [foodImguploading, setFoodImguploading] = useState(false);
-  const [foodList, setFoodList] = useState([]);
   const [foodDetails, setFoodDetails] = useState({
     category: "",
     dishName: "",
@@ -50,16 +50,16 @@ const Categories = () => {
     type: "",
     offer: "",
   });
-  const [showEditFields, setShowEditFields] = useState(false);
-
+  const [showEditFields, setShowEditFields] = useState(true);
+  const [selectedCard, setSelectedCard] = useState("");
+  const [selectedFoodDetails, setSelectedFoodDetails] = useState(null);
+  
   // variables
   const filteredFoodList = foodList.filter(
     (food) => food.category === selectedCategory?.name
   );
 
-  const isShowFoodList = filteredFoodList.length > 0;
-  const isShowEditFields =
-    editedCategory?.id !== "new-id" && showEditFields && selectedCategory;
+  const isShowEditFields = editedCategory?.id !== "new-id" && selectedCategory;
 
   // -------------------------------- USE EFFECTS --------------------------------
   useEffect(() => {
@@ -77,6 +77,11 @@ const Categories = () => {
         const updatedItems = [newItem, ...items];
 
         setCategories(updatedItems);
+
+        // Select the first category initially
+        if (updatedItems.length > 0) {
+          handleCardClick(updatedItems[1]);
+        }
       },
       (error) => {
         console.error("Error fetching documents: ", error);
@@ -195,6 +200,9 @@ const Categories = () => {
     backgroundColor: "#d7d7d78a",
     color: "#000",
     fontSize: 30,
+
+    // borderLeftColor: Boolean(selectedCard) ? "#000" : "#fff",
+    // borderLeftWidth: "100px",
   };
 
   const scrollVerbarStyles = {
@@ -219,9 +227,17 @@ const Categories = () => {
     setSelectedCategory(category);
     setEditedCategory(category);
     setEditMode(true);
-    filteredFoodList.length > 0
-      ? setShowEditFields(false)
-      : setShowEditFields(true);
+
+    // Reset form
+    setFoodDetails({
+      category: "",
+      dishName: "",
+      price: "",
+      img: "",
+      type: "",
+      offer: "",
+    });
+    setSelectedFoodDetails(null);
   };
 
   // Category Name input change
@@ -253,8 +269,6 @@ const Categories = () => {
           name: editedCategory.name,
           imgSrc: editedCategory.imgSrc,
         });
-
-        setEditMode(false);
       } catch (e) {
         console.error("Error updating document: ", e);
         setUploading(false);
@@ -286,7 +300,6 @@ const Categories = () => {
       try {
         const categoryDoc = doc(db, "categories", selectedCategory.id);
         await deleteDoc(categoryDoc);
-        setEditMode(false);
       } catch (e) {
         console.error("Error deleting document: ", e);
       }
@@ -304,13 +317,13 @@ const Categories = () => {
     let file = e.target.files[0];
     if (file) {
       let imgSrc = foodDetails.imgSrc;
-      setFoodImguploading(true);
+      setFoodImgUploading(true);
       const storage = getStorage();
       const storageRef = ref(storage, `foodList/${file.name}`);
       await uploadBytes(storageRef, file);
       imgSrc = await getDownloadURL(storageRef);
       setFoodDetails((prev) => ({ ...prev, imgSrc: imgSrc }));
-      setFoodImguploading(false);
+      setFoodImgUploading(false);
     }
   };
 
@@ -341,10 +354,28 @@ const Categories = () => {
           type: "",
           offer: "",
         });
-        setShowEditFields(false);
+        // setShowEditFields(false);
       } catch (e) {
         console.error("Error adding food item: ", e);
         setUploading(false);
+      }
+    }
+  };
+
+  const handleFoodCardClick = (food) => {
+    setSelectedCard(food.dishName);
+    setFoodDetails(food);
+    setSelectedFoodDetails(food);
+  };
+
+  // delete food item
+  const handleDeleteFood = async () => {
+    if (selectedCard) {
+      try {
+        await deleteDoc(doc(db, "foodList", selectedCard));
+        setSelectedCard(null);
+      } catch (e) {
+        console.error("Error deleting food item: ", e);
       }
     }
   };
@@ -358,7 +389,6 @@ const Categories = () => {
           <Box
             sx={{
               ...categoriesStyle,
-              // marginLeft: "10px",
             }}
           >
             <Typography
@@ -368,7 +398,12 @@ const Categories = () => {
               Add Food Item Under {selectedCategory.name}
             </Typography>
             <Divider
-              sx={{ backgroundColor: "#00000090", width: "100%", my: 1, mb: 2 }}
+              sx={{
+                backgroundColor: "#00000090",
+                width: "100%",
+                my: 1,
+                mb: 2,
+              }}
             />
             <TextField
               label="Category"
@@ -428,7 +463,7 @@ const Categories = () => {
               </>
             )}
             <Box sx={{ my: 2, width: 200, height: 200 }}>
-              {foodImguploading ? (
+              {foodImgUploading ? (
                 <Box
                   sx={{
                     width: 200,
@@ -474,35 +509,20 @@ const Categories = () => {
                 onChange={handleFoodFileChange}
               />
             </Button>
-            <Box
+            <Button
+              variant="contained"
+              color="success"
+              onClick={handleAddFoodItem}
               sx={{
+                height: 40,
+                marginBottom: "10px",
+                width: "45%",
                 display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                width: "100%",
+                alignSelf: "flex-end",
               }}
             >
-              <Button
-                variant="contained"
-                onClick={() => {
-                  setShowEditFields(false);
-                }}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="contained"
-                color="success"
-                onClick={handleAddFoodItem}
-                sx={{
-                  height: 40,
-                  marginBottom: "10px",
-                  width: "45%",
-                }}
-              >
-                Add Food
-              </Button>
-            </Box>
+              Add Food
+            </Button>
           </Box>
         )}
       </>
@@ -629,61 +649,99 @@ const Categories = () => {
           ...foodGridStyles,
         }}
       >
-        <Box
-          sx={{
-            flexDirection: "row",
-            justifyItems: "space-between",
-            display: "flex",
-            alignItems: "center",
-            marginBottom: "5px",
-          }}
-        >
-          <Typography
-            sx={{
-              fontWeight: "bold",
-              fontSize: 20,
-              color: "#000",
-            }}
-          >
-            Food List
-          </Typography>
-
-          <Button
-            onClick={() => {
-              setShowEditFields(true);
-            }}
-          >
-            <AddIcon style={{ color: "#000" }} />
-          </Button>
-        </Box>
-        <Divider sx={{ backgroundColor: "#00000090", width: "100%", mb: 2 }} />
-        <Box sx={{ ...scrollVerbarStyles }}>
-          {filteredFoodList.map((food, index) => (
+        {filteredFoodList.length > 0 ? (
+          <>
             <Box
-              key={index}
               sx={{
-                ...foodItemStyle,
-                justifyContent: "space-between",
-                px: 2,
+                flexDirection: "row",
+                justifyItems: "space-between",
+                display: "flex",
+                alignItems: "center",
                 marginBottom: "5px",
               }}
             >
-              <Box
+              <Typography
                 sx={{
-                  flexDirection: "column",
+                  fontWeight: "bold",
+                  fontSize: 20,
+                  color: "#000",
                 }}
               >
-                <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
-                  Dish Name: {food.name}
-                </Typography>
-                <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
-                  Price: {food.price}
-                </Typography>
-              </Box>
-              <RamenDiningRoundedIcon sx={{ ...iconStyle, color: "#626fa0" }} />
+                Food List
+              </Typography>
+
+              <Button
+                onClick={() => {
+                  setShowEditFields(true);
+                  // Reset form
+                  setFoodDetails({
+                    category: "",
+                    dishName: "",
+                    price: "",
+                    img: "",
+                    type: "",
+                    offer: "",
+                  });
+                }}
+              >
+                <AddIcon style={{ color: "#000" }} />
+              </Button>
             </Box>
-          ))}
-        </Box>
+            <Divider
+              sx={{ backgroundColor: "#00000090", width: "100%", mb: 2 }}
+            />
+            <Box sx={{ ...scrollVerbarStyles }}>
+              {filteredFoodList.map((food, index) => (
+                <Grid
+                  item
+                  key={food.id}
+                  xs={6}
+                  md={3}
+                  onClick={() => handleFoodCardClick(food)}
+                >
+                  <Paper
+                    key={index}
+                    sx={{
+                      ...foodItemStyle,
+                      justifyContent: "space-between",
+                      px: 2,
+                      marginBottom: "5px",
+                      borderLeft:
+                        selectedCard === food.dishName
+                          ? "5px solid #22222E"
+                          : "none",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        flexDirection: "column",
+                      }}
+                    >
+                      <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
+                        Dish Name: {food.name}
+                      </Typography>
+                      <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
+                        Price: {food.price}
+                      </Typography>
+                    </Box>
+                    <RamenDiningRoundedIcon
+                      sx={{ ...iconStyle, color: "#626fa0" }}
+                    />
+                  </Paper>
+                </Grid>
+              ))}
+            </Box>
+          </>
+        ) : (
+          <>
+            <Typography
+              gutterBottom
+              sx={{ color: "#000", fontSize: 20, fontWeight: 600 }}
+            >
+              No Foods added in list
+            </Typography>
+          </>
+        )}
       </Paper>
     );
   };
@@ -756,7 +814,7 @@ const Categories = () => {
             {editCategoryFields()}
           </Box>
         )}
-        {isShowFoodList && (
+        {editedCategory?.id !== "new-id" && (
           <Box sx={{ width: { xs: "100%", md: "29%" }, my: 1 }}>
             {foodListBox()}
           </Box>
