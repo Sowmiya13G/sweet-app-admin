@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 // mui components
 import AddIcon from "@mui/icons-material/Add";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import RamenDiningRoundedIcon from "@mui/icons-material/RamenDiningRounded";
 import {
   Box,
   Button,
@@ -29,7 +28,19 @@ import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 // firebase service
 import { db } from "../../firebaseConfig";
 
+// component
+import TabBar from "../../components/tabBar/tabBar";
+
+// icons
+import vegIcon from "../../assets/veg.png";
+import nonVegIcon from "../../assets/nonVeg.png";
+
 const Categories = () => {
+  const tabs = [
+    { tbName: "All", id: 1 },
+    { tbName: "Veg", id: 2 },
+    { tbName: "Non-Veg", id: 3 },
+  ];
   // local states
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -45,6 +56,7 @@ const Categories = () => {
     category: "",
     dishName: "",
     price: "",
+    categorized: "",
     imgSrc: "",
     offerAvailable: "",
     type: "",
@@ -53,7 +65,8 @@ const Categories = () => {
   const [showEditFields, setShowEditFields] = useState(true);
   const [selectedCard, setSelectedCard] = useState("");
   const [selectedFoodDetails, setSelectedFoodDetails] = useState(null);
-  
+  const [selectedTab, setSelectedTab] = useState("All");
+
   // variables
   const filteredFoodList = foodList.filter(
     (food) => food.category === selectedCategory?.name
@@ -61,6 +74,13 @@ const Categories = () => {
 
   const isShowEditFields = editedCategory?.id !== "new-id" && selectedCategory;
 
+  const filteredFoodListByTab =
+    selectedTab === "All"
+      ? filteredFoodList
+      : filteredFoodList.filter(
+          (food) =>
+            food.categorized === (selectedTab === "Veg" ? "veg" : "non-veg")
+        );
   // -------------------------------- USE EFFECTS --------------------------------
   useEffect(() => {
     const unsubscribe = onSnapshot(
@@ -233,6 +253,7 @@ const Categories = () => {
       category: "",
       dishName: "",
       price: "",
+      categorized: "",
       img: "",
       type: "",
       offer: "",
@@ -339,6 +360,7 @@ const Categories = () => {
           categoryId: selectedCategory?.id,
           category: selectedCategory?.name,
           dishName: foodDetails.dishName,
+          categorized: foodDetails.categorized,
           price: foodDetails.price,
           img: foodDetails.imgSrc,
           type: foodDetails.type,
@@ -350,6 +372,7 @@ const Categories = () => {
           category: "",
           dishName: "",
           price: "",
+          categorized: "",
           img: "",
           type: "",
           offer: "",
@@ -429,7 +452,18 @@ const Categories = () => {
               fullWidth
               sx={{ mb: 2, ...textInputStyle }}
             />
-
+            <TextField
+              select
+              label="Categorized"
+              name="categorized"
+              value={foodDetails.categorized}
+              onChange={handleFoodInputChange}
+              fullWidth
+              sx={{ mb: 2, ...textInputStyle }}
+            >
+              <MenuItem value="veg">Veg</MenuItem>
+              <MenuItem value="non-veg">Non-Veg</MenuItem>
+            </TextField>
             <TextField
               select
               label="Offer available"
@@ -462,6 +496,7 @@ const Categories = () => {
                 />
               </>
             )}
+
             <Box sx={{ my: 2, width: 200, height: 200 }}>
               {foodImgUploading ? (
                 <Box
@@ -571,7 +606,7 @@ const Categories = () => {
                   src={editedCategory.imgSrc}
                   width={"100%"}
                   height={"50%"}
-                  style={{ borderRadius: 10, objectFit:"contain" }}
+                  style={{ borderRadius: 10, objectFit: "contain" }}
                   alt="img"
                 />
               )
@@ -633,7 +668,7 @@ const Categories = () => {
                 width: "40%",
               }}
             >
-              Save Changes
+              Save
             </Button>
           </Box>
         )}
@@ -687,11 +722,17 @@ const Categories = () => {
                 <AddIcon style={{ color: "#000" }} />
               </Button>
             </Box>
+            <TabBar
+              tabs={tabs}
+              selectedTab={selectedTab}
+              setSelectedTab={setSelectedTab}
+            />
+
             <Divider
               sx={{ backgroundColor: "#00000090", width: "100%", mb: 2 }}
             />
             <Box sx={{ ...scrollVerbarStyles }}>
-              {filteredFoodList.map((food, index) => (
+              {filteredFoodListByTab.map((food, index) => (
                 <Grid
                   item
                   key={food.id}
@@ -718,14 +759,21 @@ const Categories = () => {
                       }}
                     >
                       <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
-                        Dish Name: {food.name}
+                        Dish Name: {food.dishName}
                       </Typography>
                       <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
                         Price: {food.price}
                       </Typography>
                     </Box>
-                    <RamenDiningRoundedIcon
-                      sx={{ ...iconStyle, color: "#626fa0" }}
+                    <img
+                      src={food.categorized == "veg" ? vegIcon : nonVegIcon}
+                      width={"40px"}
+                      height={"35px"}
+                      style={{
+                        borderRadius: 10,
+                        objectFit: "fill",
+                        justifySelf: "right",
+                      }}
                     />
                   </Paper>
                 </Grid>
@@ -810,17 +858,17 @@ const Categories = () => {
         }}
       >
         {editMode && selectedCategory && (
-          <Box sx={{ width: { xs: "100%", md: "29%" }, my: 1 }}>
+          <Box sx={{ width: { xs: "100%", md: "25%" }, my: 1 }}>
             {editCategoryFields()}
           </Box>
         )}
         {editedCategory?.id !== "new-id" && (
-          <Box sx={{ width: { xs: "100%", md: "29%" }, my: 1 }}>
+          <Box sx={{ width: { xs: "100%", md: "34%" }, my: 1 }}>
             {foodListBox()}
           </Box>
         )}
         {isShowEditFields && (
-          <Box sx={{ width: { xs: "100%", md: "39%" }, my: 1 }}>
+          <Box sx={{ width: { xs: "100%", md: "36%" }, my: 1 }}>
             {renderAddFoodFields()}
           </Box>
         )}

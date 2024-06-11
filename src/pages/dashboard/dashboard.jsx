@@ -29,6 +29,7 @@ import TakeoutDiningIcon from "@mui/icons-material/TakeoutDining";
 import PersonIcon from "@mui/icons-material/Person";
 import TabBar from "../../components/tabBar/tabBar";
 import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   // Mock state for orders count, tables available, total users, and dish variety
@@ -44,6 +45,8 @@ const Dashboard = () => {
     { tbName: "ORDERS", id: 1 },
     { tbName: "TABLES", id: 2 },
   ];
+
+  const navigate = useNavigate()
   useEffect(() => {
     // Mock data fetching
     const fetchDashboardData = () => {
@@ -134,6 +137,10 @@ const Dashboard = () => {
   };
 
   const handleCardClick = (index) => {
+
+    if (index == 2){
+      navigate("/users")
+    }
     setSelectedCard(index);
   };
 
@@ -168,7 +175,7 @@ const Dashboard = () => {
     fetchOrderData();
   }, []);
 
-  console.log(orderData);
+
   return (
     <Box
       sx={{

@@ -1,15 +1,15 @@
 import React from "react";
 import { Box, Paper, Typography } from "@mui/material";
 
-const TabBar = ({ tabs, selectedTab, setSelectedTab }) => {
+const TabBar = ({ tabs, selectedTab, setSelectedTab,fontSize  }) => {
   const tabContainer = {
     display: "flex",
     width: "100%",
-    backgroundColor: "#ffffff",
+    backgroundColor: "#c0c0c0c0",
     padding: 1,
     gap: 2,
     borderRadius: 2,
-    height: 60,
+    height: 50,
   };
 
   const tabStyle = {
@@ -19,7 +19,8 @@ const TabBar = ({ tabs, selectedTab, setSelectedTab }) => {
     width: "50%",
     borderRadius: 3,
     cursor: "pointer",
-    transition: "transform 0.3s ease, background-color 0.3s ease, color 0.3s ease",
+    transition:
+      "transform 0.3s ease, background-color 0.3s ease, color 0.3s ease",
   };
 
   const handleTabSelect = (id) => {
@@ -33,12 +34,12 @@ const TabBar = ({ tabs, selectedTab, setSelectedTab }) => {
           key={item.id}
           sx={{
             ...tabStyle,
-            backgroundColor: selectedTab === item.id ? "#3c3c4e" : "#c0c0c0c0",
-            color: selectedTab === item.id ? "#fff" : "#3c3c4e",
+            backgroundColor: selectedTab === item.tbName ? "#3c3c4e" : "#fff",
+            color: selectedTab === item.tbName ? "#fff" : "#3c3c4e",
           }}
-          onClick={() => handleTabSelect(item.id)}
+          onClick={() => handleTabSelect(item.tbName)}
         >
-          <Typography sx={{ fontWeight: 600 }}>{item.tbName}</Typography>
+          <Typography sx={{ fontWeight: 600 , fontSize}}>{item.tbName}</Typography>
         </Paper>
       ))}
     </Box>
