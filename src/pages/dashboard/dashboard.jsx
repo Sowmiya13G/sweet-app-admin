@@ -146,8 +146,15 @@ const Dashboard = () => {
       try {
         const ordersCollection = collection(db, "orders");
         const unsubscribe = onSnapshot(ordersCollection, (orderSnapshot) => {
-          const ordersList = orderSnapshot.docs.map((doc) => doc.data());
+          const ordersList = orderSnapshot.docs
+            .sort(
+              (a, b) => b.data().orderTime.seconds - a.data().orderTime.seconds
+            ) // Ensure correct property access
+            .map((doc) => doc.data());
+
           setOrderData(ordersList);
+          setOrderIDCard(ordersList[0].orderID);
+
           setOrdersCount(ordersList.length);
         });
 
@@ -297,7 +304,7 @@ const Dashboard = () => {
           }}
         >
           {orderData
-            .sort((a, b) => b.orderTime.seconds - a.orderTime.seconds)
+            // .sort((a, b) => b.orderTime.seconds - a.orderTime.seconds)
             .map((order, index) => (
               <Paper
                 key={index}
