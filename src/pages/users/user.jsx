@@ -147,7 +147,10 @@ const Users = () => {
   const handleOrderCardClick = (phoneNumber, index) => {
     setOrderIDCard(phoneNumber);
   };
-    const displayedNumbers = new Set();
+  const filteredOrderData = orderData.filter((order, index, self) => {
+    return index === self.findIndex((o) => o.phoneNumber === order.phoneNumber);
+  });
+
   return (
     <Box
       sx={{
@@ -168,7 +171,7 @@ const Users = () => {
           borderRadius: 2,
         }}
       >
-        {orderData.map((order, index) => (
+        {filteredOrderData.map((order, index) => (
           <Paper
             key={index}
             sx={{
@@ -215,17 +218,7 @@ const Users = () => {
         }}
       >
         {orderData
-
-          .filter((order) => {
-            if (
-              order.phoneNumber === orderIDCard &&
-              !displayedNumbers.has(order.phoneNumber)
-            ) {
-              displayedNumbers.add(order.phoneNumber);
-              return true;
-            }
-            return false;
-          })
+          .filter((x) => x.phoneNumber === orderIDCard)
           .map((order, index) => (
             <Paper
               key={index}
