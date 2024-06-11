@@ -550,12 +550,12 @@ const Categories = () => {
             error={!editedCategory.name}
           />
 
-          <Box sx={{ my: 2, width: 200, height: 200 }}>
+          <Box sx={{ my: 2, width: "100%", height: "60%" }}>
             {uploading ? (
               <Box
                 sx={{
-                  width: 200,
-                  height: 200,
+                  width: "100%",
+                  height: "50%",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -570,8 +570,8 @@ const Categories = () => {
                 <img
                   src={editedCategory.imgSrc}
                   width={"100%"}
-                  height={"100%"}
-                  style={{ borderRadius: 10 }}
+                  height={"50%"}
+                  style={{ borderRadius: 10, objectFit:"contain" }}
                   alt="img"
                 />
               )
