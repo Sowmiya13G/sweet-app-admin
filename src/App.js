@@ -19,6 +19,7 @@ import Orders from "./pages/orders/orders";
 import Users from "./pages/users/user";
 import notifisound from "./assets/notification.mp3";
 import { Howl } from "howler";
+import Tables from "./pages/tables/tables";
 
 function App() {
   const sound = new Howl({
@@ -115,7 +116,7 @@ function App() {
           path="/tables"
           element={
             <Layout>
-              <Users />
+              <Tables />
             </Layout>
           }
         />

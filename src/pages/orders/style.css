@@ -1,0 +1,113 @@
+.table-container {
+  display: flex;
+  min-width: 150px !important;
+  min-height: 90px;
+  border-radius: 10px;
+  /* background-color: #fff; */
+  align-items: center;
+  color: black;
+  justify-content: center;
+  /* box-shadow: 20px 11px 20px 0px rgb(0, 0, 0, 0.1); */
+}
+
+.selected-table-container {
+  display: flex;
+  min-width: 150px !important;
+  min-height: 90px;
+  border-radius: 10px;
+  background-color: black;
+  align-items: center;
+  border: 1px solid black;
+  color: #fff;
+  justify-content: center;
+}
+.dine-table {
+  position: relative;
+  display: flex;
+  width: 100px !important;
+  min-height: 70px;
+  border-radius: 10px;
+  /* background-color: #22222e; */
+  /* background: "linear-gradient(to right bottom, #626fa8,#22222E)"; */
+  align-items: center;
+  border: 1px solid #00002275;
+  color: #fff;
+  justify-content: center;
+  box-shadow: 20px 11px 20px 0px rgba(127, 127, 126, 0.241);
+}
+.table-number {
+  position: absolute;
+  top: 33%;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+}
+.table-plate {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+}
+
+.table-chair-container {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.table-chair {
+  width: 20px;
+  height: 10px;
+  background-color: hsla(0, 0%, 100%, 0.18);
+  border: 1px solid #22222e;
+  border-bottom: 0px;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+.table-chair-booked {
+  width: 20px;
+  height: 10px;
+  background-color: #34cf00;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+.table-chair-bottom {
+  width: 20px;
+  height: 10px;
+  background-color: #ffffff2e;
+  border: 1px solid #22222e;
+  border-top: 0px;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+.table-chair-bottom-booked {
+  width: 20px;
+  height: 10px;
+  background-color: #34cf00;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+.chairBooked-bottom-already {
+  width: 20px;
+  height: 10px;
+  background-color: grey;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+.chairBooked-already {
+  width: 20px;
+  height: 10px;
+  background-color: grey;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+.select-label {
+  font-size: 20px;
+  font-weight: 500;
+  color: #ffffff;
+  margin-left: 28px;
+  margin-top: 20px;
+  letter-spacing: 1px;
+}
+
+.table-GrayScale {
+  filter: grayscale(100%);
+}

@@ -16,6 +16,7 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
+  OutlinedInput,
   Paper,
   Typography,
 } from "@mui/material";
@@ -29,11 +30,230 @@ import { db } from "../../firebaseConfig";
 // component
 import TabBar from "../../components/tabBar/tabBar";
 
+// assets
+import foodOnPlate1 from "../../assets/images/plateOnfood1.png";
+import emptyPlate from "../../assets/images/emptyPlate.png";
+import "./style.css";
 const Orders = () => {
   const [ordersCount, setOrdersCount] = useState(0);
   const [orderData, setOrderData] = useState([]);
   const [selectedTab, setSelectedTab] = useState("All");
   const [orderIDCard, setOrderIDCard] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [tables, setTables] = useState([
+    {
+      table: 1,
+      chairs: [
+        {
+          id: 1,
+          booked: false,
+        },
+        {
+          id: 2,
+          booked: false,
+        },
+        {
+          id: 3,
+          booked: false,
+        },
+        {
+          id: 4,
+          booked: false,
+        },
+      ],
+    },
+    {
+      table: 2,
+      chairs: [
+        {
+          id: 1,
+          booked: false,
+        },
+        {
+          id: 2,
+          booked: false,
+        },
+        {
+          id: 3,
+          booked: false,
+        },
+        {
+          id: 4,
+          booked: false,
+        },
+      ],
+    },
+    {
+      table: 3,
+      chairs: [
+        {
+          id: 1,
+          booked: false,
+        },
+        {
+          id: 2,
+          booked: false,
+        },
+        {
+          id: 3,
+          booked: false,
+        },
+        {
+          id: 4,
+          booked: false,
+        },
+      ],
+    },
+    {
+      table: 4,
+      chairs: [
+        {
+          id: 1,
+          booked: false,
+        },
+        {
+          id: 2,
+          booked: false,
+        },
+        {
+          id: 3,
+          booked: false,
+        },
+        {
+          id: 4,
+          booked: false,
+        },
+      ],
+    },
+    {
+      table: 5,
+      chairs: [
+        {
+          id: 1,
+          booked: false,
+        },
+        {
+          id: 2,
+          booked: false,
+        },
+        {
+          id: 3,
+          booked: false,
+        },
+        {
+          id: 4,
+          booked: false,
+        },
+      ],
+    },
+  ]);
+  const [tablesBooked, setTablesBooked] = useState([
+    {
+      table: 1,
+      chairs: [
+        {
+          id: 1,
+          booked: true,
+        },
+        {
+          id: 2,
+          booked: false,
+        },
+        {
+          id: 3,
+          booked: false,
+        },
+        {
+          id: 4,
+          booked: true,
+        },
+      ],
+    },
+    {
+      table: 2,
+      chairs: [
+        {
+          id: 1,
+          booked: true,
+        },
+        {
+          id: 2,
+          booked: true,
+        },
+        {
+          id: 3,
+          booked: false,
+        },
+        {
+          id: 4,
+          booked: false,
+        },
+      ],
+    },
+    {
+      table: 3,
+      chairs: [
+        {
+          id: 1,
+          booked: false,
+        },
+        {
+          id: 2,
+          booked: false,
+        },
+        {
+          id: 3,
+          booked: false,
+        },
+        {
+          id: 4,
+          booked: false,
+        },
+      ],
+    },
+    {
+      table: 4,
+      chairs: [
+        {
+          id: 1,
+          booked: false,
+        },
+        {
+          id: 2,
+          booked: false,
+        },
+        {
+          id: 3,
+          booked: false,
+        },
+        {
+          id: 4,
+          booked: false,
+        },
+      ],
+    },
+    {
+      table: 5,
+      chairs: [
+        {
+          id: 1,
+          booked: false,
+        },
+        {
+          id: 2,
+          booked: false,
+        },
+        {
+          id: 3,
+          booked: false,
+        },
+        {
+          id: 4,
+          booked: false,
+        },
+      ],
+    },
+  ]);
   const tabs = [
     { tbName: "All", id: 1 },
     { tbName: "Current", id: 2 },
@@ -92,6 +312,18 @@ const Orders = () => {
 
   // -------------------------------- COMPONENT STYLES --------------------------------
 
+  const scrollbarStyles = {
+    overflowX: "auto",
+    "&::-webkit-scrollbar": {
+      height: 0,
+    },
+    "&::-webkit-scrollbar-thumb": {
+      backgroundColor: "transparent",
+    },
+    "-ms-overflow-style": "none",
+    "scrollbar-width": "none",
+  };
+
   const subGridItemStyles = {
     display: "flex",
     flexDirection: "column",
@@ -105,6 +337,7 @@ const Orders = () => {
   };
   const taskGridItemStyles = {
     display: "flex",
+
     flexDirection: "column",
     alignItems: "start",
     width: "100%",
@@ -154,6 +387,25 @@ const Orders = () => {
     setOrderIDCard(index);
   };
 
+  const filteredOrders = orderData.filter((order) => {
+    return order.orderID.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
+  const handleChairClick = (tableId, chairIndex) => {
+    if (!tablesBooked[tableId - 1].chairs[chairIndex].booked) {
+      setTables((prevTables) => {
+        const updatedTables = [...prevTables];
+        const tableIndex = updatedTables.findIndex((x) => x.table === tableId);
+        const chair = updatedTables[tableIndex].chairs[chairIndex];
+        chair.booked = !chair.booked;
+        return updatedTables;
+      });
+      setTimeout(() => {
+        // handleChairError();
+      }, 100);
+    }
+  };
+
   // -------------------------------- RENDER UI --------------------------------
 
   return (
@@ -179,10 +431,18 @@ const Orders = () => {
             my: 2,
             py: 2,
             backgroundColor: "#fff",
-            ...scrollHorbarStyles,
             borderRadius: 2,
           }}
         >
+          <Box sx={{ px: 2, mb: 1 }}>
+            <OutlinedInput
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              sx={{ borderRadius: "10px" }}
+              fullWidth
+              placeholder="Search Order ID"
+            />
+          </Box>
           <Box sx={{ p: "15px" }}>
             <TabBar
               tabs={tabs}
@@ -191,9 +451,16 @@ const Orders = () => {
               fontSize={16}
             />
           </Box>
-          {orderData
-            // .sort((a, b) => b.orderTime.seconds - a.orderTime.seconds)
-            .map((order, index) => (
+          <Box
+            sx={{
+              width: "100%",
+              height: { xs: 220, md: 420 },
+              backgroundColor: "#fff",
+              ...scrollHorbarStyles,
+              borderRadius: 2,
+            }}
+          >
+            {filteredOrders.map((order, index) => (
               <Paper
                 key={index}
                 sx={{
@@ -215,9 +482,9 @@ const Orders = () => {
                     // color: orderIDCard === order.orderID ? "#fff" : "#000",
                     px: 2,
                     transition:
-                      "background-color 0.2s ease-in-out, color 0.2s ease-in-out",
+                      "background-color 0.2s ease-in-out, color 0.2s ease-in-out , border-left 0.2s ease-in-out",
                     ":hover": {
-                      background: "#00000011",
+                      background: "#00000021",
                     },
                   }}
                 >
@@ -230,6 +497,7 @@ const Orders = () => {
                 </Box>
               </Paper>
             ))}
+          </Box>
         </Box>
         <Box
           sx={{
@@ -259,7 +527,7 @@ const Orders = () => {
                   }}
                 >
                   <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
-                    Order ID: {order.orderID}
+                    # Order ID: {order.orderID}
                   </Typography>
                   <RamenDiningRoundedIcon
                     sx={{ ...iconStyle, color: "#626fa0" }}
@@ -350,6 +618,93 @@ const Orders = () => {
                     </ListItem>
                   ))}
                 </List>
+                <Divider
+                  sx={{ backgroundColor: "#00000090", width: "100%", my: 1 }}
+                />
+                <Typography
+                  sx={{
+                    fontSize: 16,
+                    textTransform: "uppercase",
+                    fontWeight: 600,
+                  }}
+                >
+                  Table Booked:
+                </Typography>
+                <Box
+                  sx={{ ...scrollbarStyles, display: "flex", width: "100%" }}
+                >
+                  {order?.tablesSelected.map((table, index) => (
+                    <div
+                      key={index}
+                      className="table-container mx-1 my-3 mb-4 d-flex flex-column"
+                    >
+                      <div className="table-chair-container w-100 px-4">
+                        {table.chairs.slice(0, 2).map((chair, chairIndex) => (
+                          <div
+                            key={chairIndex}
+                            className={
+                              tablesBooked[index].chairs[chairIndex].booked
+                                ? "chairBooked-already"
+                                : chair.booked
+                                ? "table-chair-booked"
+                                : "table-chair"
+                            }
+                            onClick={() =>
+                              handleChairClick(table.table, chairIndex)
+                            }
+                          ></div>
+                        ))}
+                      </div>
+                      <div className="dine-table flex-column  justify-content-evenly">
+                        <div className="d-flex justify-content-evenly w-100 flex-wrap">
+                          {table.chairs.slice(0, 4).map((chair, chairIndex) => (
+                            <div
+                              key={index}
+                              className="mx-1 my-1"
+                              onClick={() =>
+                                handleChairClick(table.table, chairIndex)
+                              }
+                            >
+                              <img
+                                src={
+                                  tablesBooked[index].chairs[chairIndex].booked
+                                    ? foodOnPlate1
+                                    : chair.booked
+                                    ? foodOnPlate1
+                                    : emptyPlate
+                                }
+                                alt="img"
+                                className={`table-plate  ${
+                                  tablesBooked[index].chairs[chairIndex].booked
+                                    ? "table-GrayScale"
+                                    : "none"
+                                }`}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                        <p className="table-number">{table.table}</p>
+                      </div>
+                      <div className="table-chair-container w-100 px-4">
+                        {table.chairs.slice(2, 4).map((chair, chairIndex) => (
+                          <div
+                            key={chairIndex}
+                            className={
+                              tablesBooked[index].chairs[chairIndex + 2].booked
+                                ? "chairBooked-bottom-already"
+                                : chair.booked
+                                ? "table-chair-bottom-booked"
+                                : "table-chair-bottom"
+                            }
+                            onClick={() =>
+                              handleChairClick(table.table, chairIndex + 2)
+                            }
+                          ></div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </Box>
               </Paper>
             ))}
         </Box>

@@ -17,7 +17,7 @@ const TabBar = ({ tabs, selectedTab, setSelectedTab,fontSize  }) => {
     alignItems: "center",
     justifyContent: "center",
     width: "50%",
-    borderRadius: 3,
+    borderRadius: 2,
     cursor: "pointer",
     transition:
       "transform 0.3s ease, background-color 0.3s ease, color 0.3s ease",

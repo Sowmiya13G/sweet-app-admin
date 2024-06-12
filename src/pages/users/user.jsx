@@ -16,6 +16,7 @@ import {
   Paper,
   Typography,
   TextField,
+  OutlinedInput,
 } from "@mui/material";
 import { collection, onSnapshot } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
@@ -198,43 +199,59 @@ const Users = () => {
           my: 2,
           py: 2,
           backgroundColor: "#fff",
-          ...scrollHorbarStyles,
+
           borderRadius: 2,
         }}
       >
-        {filteredOrders.map((order, index) => (
-          <Paper
-            key={index}
-            sx={{
-              ...taskGridItemStyles,
-              px: 2,
-            }}
-            onClick={() => handleOrderCardClick(order.phoneNumber, index)}
-          >
-            <Box
+        <Box sx={{ px: 2, mb: 1 }}>
+          <OutlinedInput
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            sx={{ borderRadius: "10px" }}
+            fullWidth
+            placeholder="Search Name"
+          />
+        </Box>
+        <Box
+          sx={{
+            ...scrollHorbarStyles,
+            width: "100%",
+            height: 360,
+          }}
+        >
+          {filteredOrders.map((order, index) => (
+            <Paper
+              key={index}
               sx={{
-                ...nameCardStyle,
-                borderLeft:
-                  orderIDCard === order.phoneNumber
-                    ? "5px solid #22222E"
-                    : "none",
-                transition:
-                  "background-color 0.2s ease-in-out, color 0.2s ease-in-out",
-                ":hover": {
-                  background:
-                     "#00000020",
-                },
+                ...taskGridItemStyles,
+                px: 2,
               }}
+              onClick={() => handleOrderCardClick(order.phoneNumber, index)}
             >
-              <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
-                Name: {order.name}
-              </Typography>
-              <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
-                Phone Number: {order.phoneNumber}
-              </Typography>
-            </Box>
-          </Paper>
-        ))}
+              <Box
+                sx={{
+                  ...nameCardStyle,
+                  borderLeft:
+                    orderIDCard === order.phoneNumber
+                      ? "5px solid #22222E"
+                      : "none",
+                  transition:
+                    "background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-left 0.2s ease-in-out",
+                  ":hover": {
+                    background: "#00000020",
+                  },
+                }}
+              >
+                <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
+                  Name: {order.name}
+                </Typography>
+                <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
+                  Phone Number: {order.phoneNumber}
+                </Typography>
+              </Box>
+            </Paper>
+          ))}
+        </Box>
       </Box>
     );
   };
@@ -378,7 +395,7 @@ const Users = () => {
           justifyContent: "space-between",
         }}
       >
-        <Box
+        {/* <Box
           sx={{
             display: { xs: "block", md: "block" },
             width: "35%",
@@ -400,7 +417,7 @@ const Users = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             sx={{ borderRadius: "10px" }}
           />
-        </Box>
+        </Box> */}
         <Box
           sx={{
             display: { xs: "block", md: "block" },

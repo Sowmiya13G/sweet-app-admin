@@ -684,102 +684,98 @@ const Categories = () => {
           ...foodGridStyles,
         }}
       >
-        {filteredFoodList.length > 0 ? (
-          <>
-            <Box
-              sx={{
-                flexDirection: "row",
-                justifyItems: "space-between",
-                display: "flex",
-                alignItems: "center",
-                marginBottom: "5px",
-              }}
-            >
-              <Typography
-                sx={{
-                  fontWeight: "bold",
-                  fontSize: 20,
-                  color: "#000",
-                }}
-              >
-                Food List
-              </Typography>
+        <Box
+          sx={{
+            flexDirection: "row",
+            justifyItems: "space-between",
+            display: "flex",
+            alignItems: "center",
+            marginBottom: "5px",
+          }}
+        >
+          <Typography
+            sx={{
+              fontWeight: "bold",
+              fontSize: 20,
+              color: "#000",
+            }}
+          >
+            Food List
+          </Typography>
 
-              <Button
-                onClick={() => {
-                  setShowEditFields(true);
-                  // Reset form
-                  setFoodDetails({
-                    category: "",
-                    dishName: "",
-                    price: "",
-                    img: "",
-                    type: "",
-                    offer: "",
-                  });
-                }}
+          <Button
+            onClick={() => {
+              setShowEditFields(true);
+              // Reset form
+              setFoodDetails({
+                category: "",
+                dishName: "",
+                price: "",
+                img: "",
+                type: "",
+                offer: "",
+              });
+            }}
+          >
+            <AddIcon style={{ color: "#000" }} />
+          </Button>
+        </Box>
+        <TabBar
+          tabs={tabs}
+          selectedTab={selectedTab}
+          setSelectedTab={setSelectedTab}
+        />
+        <Divider sx={{ backgroundColor: "#00000090", width: "100%", mb: 2 }} />
+        {filteredFoodListByTab.length ? (
+          <Box sx={{ ...scrollVerbarStyles }}>
+            {filteredFoodListByTab.map((food, index) => (
+              <Grid
+                item
+                key={food.id}
+                xs={6}
+                md={3}
+                onClick={() => handleFoodCardClick(food)}
               >
-                <AddIcon style={{ color: "#000" }} />
-              </Button>
-            </Box>
-            <TabBar
-              tabs={tabs}
-              selectedTab={selectedTab}
-              setSelectedTab={setSelectedTab}
-            />
-
-            <Divider
-              sx={{ backgroundColor: "#00000090", width: "100%", mb: 2 }}
-            />
-            <Box sx={{ ...scrollVerbarStyles }}>
-              {filteredFoodListByTab.map((food, index) => (
-                <Grid
-                  item
-                  key={food.id}
-                  xs={6}
-                  md={3}
-                  onClick={() => handleFoodCardClick(food)}
+                <Paper
+                  key={index}
+                  sx={{
+                    ...foodItemStyle,
+                    justifyContent: "space-between",
+                    px: 2,
+                    marginBottom: "5px",
+                    borderLeft:
+                      selectedCard === food.dishName
+                        ? "5px solid #22222E"
+                        : "none",
+                  }}
                 >
-                  <Paper
-                    key={index}
+                  <Box
                     sx={{
-                      ...foodItemStyle,
-                      justifyContent: "space-between",
-                      px: 2,
-                      marginBottom: "5px",
-                      borderLeft:
-                        selectedCard === food.dishName
-                          ? "5px solid #22222E"
-                          : "none",
+                      flexDirection: "column",
                     }}
                   >
-                    <Box
-                      sx={{
-                        flexDirection: "column",
-                      }}
-                    >
-                      <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
-                        Dish Name: {food.dishName}
-                      </Typography>
-                      <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
-                        Price: {food.price}
-                      </Typography>
-                    </Box>
-                    <img
-                      src={food.categorized == "veg" ? vegIcon : nonVegIcon}
-                      width={"40px"}
-                      height={"35px"}
-                      style={{
-                        borderRadius: 10,
-                        objectFit: "fill",
-                        justifySelf: "right",
-                      }}
-                    />
-                  </Paper>
-                </Grid>
-              ))}
-            </Box>
-          </>
+                    <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
+                      Dish Name: {food.dishName}
+                    </Typography>
+                    <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
+                      Price: {food.price}
+                    </Typography>
+                  </Box>
+                  <img
+                    src={food.categorized == "veg" ? vegIcon : nonVegIcon}
+                    width={"40px"}
+                    height={"35px"}
+                    style={{
+                      borderRadius: 10,
+                      objectFit: "fill",
+                      justifySelf: "right",
+                    }}
+                    alt="img"
+                  />
+                </Paper>
+              </Grid>
+            ))}
+          </Box>
         ) : (
           <>
             <Typography
