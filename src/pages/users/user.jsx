@@ -1,3 +1,6 @@
+import React, { useEffect, useState } from "react";
+
+// mui components
 import AccountBalanceRoundedIcon from "@mui/icons-material/AccountBalanceRounded";
 import DiningIcon from "@mui/icons-material/Dining";
 import LocalAtmIcon from "@mui/icons-material/LocalAtm";
@@ -18,15 +21,22 @@ import {
   TextField,
   OutlinedInput,
 } from "@mui/material";
+
+// firebase
 import { collection, onSnapshot } from "firebase/firestore";
-import React, { useEffect, useState } from "react";
+
+// firebase services
 import { db } from "../../firebaseConfig";
 
 const Users = () => {
+
+  // local states
   const [orderIDCard, setOrderIDCard] = useState("");
   const [orderData, setOrderData] = useState([]);
   const [ordersCount, setOrdersCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // -------------------------------- USE EFFECTS --------------------------------
 
   useEffect(() => {
     const fetchOrderData = () => {
@@ -54,6 +64,8 @@ const Users = () => {
 
     fetchOrderData();
   }, []);
+
+  // -------------------------------- COMPONENT STYLES --------------------------------
 
   const subGridItemStyles = {
     display: "flex",
@@ -125,6 +137,8 @@ const Users = () => {
     borderRadius: 2,
   };
 
+  // -------------------------------- FUNCTIONALITIES --------------------------------
+
   const handleOrderCardClick = (phoneNumber, index) => {
     setOrderIDCard(phoneNumber);
   };
@@ -143,6 +157,8 @@ const Users = () => {
         order.phoneNumber.includes(searchQuery)
       );
     });
+
+  
 
   const numberToWords = (num) => {
     const ones = [
@@ -188,6 +204,8 @@ const Users = () => {
 
     return num;
   };
+
+  // -------------------------------- RENDER UI --------------------------------
 
   const userList = () => {
     return (

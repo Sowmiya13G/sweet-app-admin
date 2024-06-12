@@ -33,7 +33,10 @@ import TabBar from "../../components/tabBar/tabBar";
 // assets
 import foodOnPlate1 from "../../assets/images/plateOnfood1.png";
 import emptyPlate from "../../assets/images/emptyPlate.png";
+
+// styles
 import "./style.css";
+
 const Orders = () => {
   const [ordersCount, setOrdersCount] = useState(0);
   const [orderData, setOrderData] = useState([]);
@@ -274,6 +277,9 @@ const Orders = () => {
               : "canceled")
         );
 
+  const filteredOrders = orderData.filter((order) => {
+    return order.orderID.toLowerCase().includes(searchQuery.toLowerCase());
+  });
   // -------------------------------- USE EFFECTS --------------------------------
 
   useEffect(() => {
@@ -386,10 +392,6 @@ const Orders = () => {
   const handleOrderCardClick = (index) => {
     setOrderIDCard(index);
   };
-
-  const filteredOrders = orderData.filter((order) => {
-    return order.orderID.toLowerCase().includes(searchQuery.toLowerCase());
-  });
 
   const handleChairClick = (tableId, chairIndex) => {
     if (!tablesBooked[tableId - 1].chairs[chairIndex].booked) {

@@ -27,21 +27,31 @@ const Dashboard = () => {
   const [selectedCard, setSelectedCard] = useState(0);
   const [orderData, setOrderData] = useState([]);
   const [orderIDCard, setOrderIDCard] = useState("");
+  const [foodList, setFoodList] = useState([]);
 
   // variables
   const navigate = useNavigate();
 
-  // use effects
+  const filteredOrders = orderData.filter((order, index, self) => {
+    return index === self.findIndex((o) => o.phoneNumber === order.phoneNumber);
+  });
+
+  const totalUsersCount = filteredOrders.length;
+  const totalDishesVariety = foodList.length;
+
+  // -------------------------------- USE EFFECTS --------------------------------
+
   useEffect(() => {
     const fetchDashboardData = () => {
       setTablesAvailable(15);
-      setTotalUsers(456);
-      setDishVariety(78);
+      setTotalUsers(totalUsersCount);
+      setDishVariety(totalDishesVariety);
     };
 
     fetchDashboardData();
   }, []);
 
+  // fetching orders 
   useEffect(() => {
     const fetchOrderData = () => {
       try {
@@ -69,7 +79,27 @@ const Dashboard = () => {
     fetchOrderData();
   }, []);
 
-  // styles
+  // fetching dishes
+  useEffect(() => {
+    const fetchOrderData = () => {
+      try {
+        const ordersCollection = collection(db, "foodList");
+        const unsubscribe = onSnapshot(ordersCollection, (orderSnapshot) => {
+          const ordersList = orderSnapshot.docs.map((doc) => doc.data());
+          setFoodList(ordersList);
+        });
+
+        // Cleanup subscription on unmount
+        return () => unsubscribe();
+      } catch (error) {
+        console.error("Error fetching order data: ", error);
+      }
+    };
+
+    fetchOrderData();
+  }, []);
+
+  // -------------------------------- COMPONENT STYLES --------------------------------
 
   const gridItemStyles = {
     height: { xs: 150, md: 200 },
@@ -108,7 +138,8 @@ const Dashboard = () => {
     marginBottom: 1,
   };
 
-  // functions
+  // -------------------------------- FUNCTIONALITIES --------------------------------
+
   const handleCardClick = (index) => {
     if (index == 2) {
       navigate("/users");
@@ -116,7 +147,7 @@ const Dashboard = () => {
     setSelectedCard(index);
   };
 
-  // render UI
+  // -------------------------------- RENDER UI --------------------------------
 
   return (
     <Box
