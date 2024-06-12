@@ -14,6 +14,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import ContentPasteSearchIcon from "@mui/icons-material/ContentPasteSearch";
 import DinnerDiningIcon from "@mui/icons-material/DinnerDining";
 import TableBarIcon from "@mui/icons-material/TableBar";
+import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 
 const Sidebar = ({ open, setOpen }) => {
   const [isOpen, setIsOpen] = React.useState(false); // State for sidebar visibility
@@ -105,6 +106,28 @@ const Sidebar = ({ open, setOpen }) => {
           <ListItemText
             style={{ display: isOpen ? "flex" : "none" }}
             primary="Categories"
+          />
+        </ListItem>
+        <ListItem
+          button
+          component={Link}
+          to="/offers"
+          style={{
+            margin: "15px",
+            height: "70px",
+            borderRadius: "15px",
+            backgroundColor:
+              selectedLink === "/offers" ? "#d79f11" : "transparent",
+          }}
+          selected={selectedLink === "/offers"}
+          onClick={() => handleClick("/offers")}
+        >
+          <ListItemIcon>
+            <LocalOfferIcon style={{ color: "white" }} />
+          </ListItemIcon>
+          <ListItemText
+            style={{ display: isOpen ? "flex" : "none" }}
+            primary="Offers"
           />
         </ListItem>
         <ListItem

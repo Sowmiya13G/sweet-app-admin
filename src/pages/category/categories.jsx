@@ -2,17 +2,19 @@ import React, { useEffect, useState } from "react";
 
 // mui components
 import AddIcon from "@mui/icons-material/Add";
+import CancelIcon from "@mui/icons-material/Cancel";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import {
   Box,
   Button,
+  Checkbox,
   CircularProgress,
   Divider,
   Grid,
   MenuItem,
   Paper,
   TextField,
-  Typography,
+  Typography
 } from "@mui/material";
 // firebase
 import {
@@ -32,8 +34,8 @@ import { db } from "../../firebaseConfig";
 import TabBar from "../../components/tabBar/tabBar";
 
 // icons
-import vegIcon from "../../assets/veg.png";
-import nonVegIcon from "../../assets/nonVeg.png";
+import nonVegIcon from "../../assets/images/nonVeg.png";
+import vegIcon from "../../assets/images/veg.png";
 
 const Categories = () => {
   const tabs = [
@@ -58,14 +60,12 @@ const Categories = () => {
     price: "",
     categorized: "",
     imgSrc: "",
-    offerAvailable: "",
-    type: "",
-    offer: "",
   });
   const [showEditFields, setShowEditFields] = useState(true);
   const [selectedCard, setSelectedCard] = useState("");
   const [selectedFoodDetails, setSelectedFoodDetails] = useState(null);
   const [selectedTab, setSelectedTab] = useState("All");
+  const [isChecked, setIsChecked] = useState(false);
 
   // variables
   const filteredFoodList = foodList.filter(
@@ -255,8 +255,6 @@ const Categories = () => {
       price: "",
       categorized: "",
       img: "",
-      type: "",
-      offer: "",
     });
     setSelectedFoodDetails(null);
   };
@@ -363,8 +361,6 @@ const Categories = () => {
           categorized: foodDetails.categorized,
           price: foodDetails.price,
           img: foodDetails.imgSrc,
-          type: foodDetails.type,
-          offer: foodDetails.offer,
         });
 
         // Reset form
@@ -374,8 +370,6 @@ const Categories = () => {
           price: "",
           categorized: "",
           img: "",
-          type: "",
-          offer: "",
         });
         // setShowEditFields(false);
       } catch (e) {
@@ -400,6 +394,17 @@ const Categories = () => {
       } catch (e) {
         console.error("Error deleting food item: ", e);
       }
+    }
+  };
+
+  const handleSoldOutToggle = async (food) => {
+    try {
+      const foodDoc = doc(db, "foodList", food.id);
+      await updateDoc(foodDoc, {
+        isSoldOut: !food.isSoldOut, 
+      });
+    } catch (e) {
+      console.error("Error toggling sold out status: ", e);
     }
   };
 
@@ -464,39 +469,6 @@ const Categories = () => {
               <MenuItem value="veg">Veg</MenuItem>
               <MenuItem value="non-veg">Non-Veg</MenuItem>
             </TextField>
-            <TextField
-              select
-              label="Offer available"
-              name="offerAvailable"
-              value={foodDetails.offerAvailable}
-              onChange={handleFoodInputChange}
-              fullWidth
-              sx={{ mb: 2, ...textInputStyle }}
-            >
-              <MenuItem value="no">No</MenuItem>
-              <MenuItem value="yes">Yes</MenuItem>
-            </TextField>
-            {foodDetails.offerAvailable == "yes" && (
-              <>
-                <TextField
-                  label="Offer Type"
-                  name="type"
-                  value={foodDetails.type}
-                  onChange={handleFoodInputChange}
-                  fullWidth
-                  sx={{ mb: 2, ...textInputStyle }}
-                />
-                <TextField
-                  label="Offer"
-                  name="offer"
-                  value={foodDetails.offer}
-                  onChange={handleFoodInputChange}
-                  fullWidth
-                  sx={{ mb: 2, ...textInputStyle }}
-                />
-              </>
-            )}
-
             <Box sx={{ my: 2, width: 200, height: 200 }}>
               {foodImgUploading ? (
                 <Box
@@ -544,20 +516,39 @@ const Categories = () => {
                 onChange={handleFoodFileChange}
               />
             </Button>
-            <Button
-              variant="contained"
-              color="success"
-              onClick={handleAddFoodItem}
+            <Box
               sx={{
-                height: 40,
-                marginBottom: "10px",
-                width: "45%",
                 display: "flex",
-                alignSelf: "flex-end",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
               }}
             >
-              Add Food
-            </Button>
+              <Button
+                variant="contained"
+                color="error"
+                sx={{
+                  height: 40,
+                  width: "40%",
+                }}
+                onClick={() => handleDeleteFood()}
+              >
+                Delete
+              </Button>
+              <Button
+                variant="contained"
+                color="success"
+                onClick={handleAddFoodItem}
+                sx={{
+                  height: 40,
+                  width: "45%",
+                  display: "flex",
+                  alignSelf: "flex-end",
+                }}
+              >
+                Add Food
+              </Button>
+            </Box>
           </Box>
         )}
       </>
@@ -712,8 +703,6 @@ const Categories = () => {
                 dishName: "",
                 price: "",
                 img: "",
-                type: "",
-                offer: "",
               });
             }}
           >
@@ -751,15 +740,44 @@ const Categories = () => {
                 >
                   <Box
                     sx={{
-                      flexDirection: "column",
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
                     }}
                   >
-                    <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
-                      Dish Name: {food.dishName}
-                    </Typography>
-                    <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
-                      Price: {food.price}
-                    </Typography>
+                    <Checkbox
+                      checked={food.isSoldOut}
+                      onChange={() => handleSoldOutToggle(food)}
+                      icon={
+                        <span
+                          style={{
+                            display: "inline-block",
+                            width: 15,
+                            height: 15,
+                            border: "2px solid black",
+                          }}
+                        />
+                      }
+                      checkedIcon={<CancelIcon style={{ color: "red" }} />}
+                      sx={{
+                        "& .MuiSvgIcon-root": {
+                          color: food.isSoldOut ? "red" : "black",
+                        },
+                      }}
+                    />
+                    <Box
+                      sx={{
+                        flexDirection: "column",
+                        paddingLeft: "15px",
+                      }}
+                    >
+                      <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
+                        Dish Name: {food.dishName}
+                      </Typography>
+                      <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
+                        Price: {food.price}
+                      </Typography>
+                    </Box>
                   </Box>
                   <img
                     src={food.categorized == "veg" ? vegIcon : nonVegIcon}

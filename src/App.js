@@ -20,6 +20,7 @@ import Users from "./pages/users/user";
 import notifisound from "./assets/notification.mp3";
 import { Howl } from "howler";
 import Tables from "./pages/tables/tables";
+import Offers from "./pages/offers/offers";
 
 function App() {
   const sound = new Howl({
@@ -101,6 +102,14 @@ function App() {
           element={
             <Layout>
               <Categories />
+            </Layout>
+          }
+        />
+         <Route
+          path="/offers"
+          element={
+            <Layout>
+              <Offers />
             </Layout>
           }
         />
