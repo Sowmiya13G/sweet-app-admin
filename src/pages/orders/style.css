@@ -27,8 +27,8 @@
   width: 100px !important;
   min-height: 70px;
   border-radius: 10px;
-  /* background-color: #22222e; */
   /* background: "linear-gradient(to right bottom, #626fa8,#22222E)"; */
+  background: linear-gradient(45deg, #5f6585, #1c2a2f, #5f6585);
   align-items: center;
   border: 1px solid #00002275;
   color: #fff;
