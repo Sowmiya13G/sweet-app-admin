@@ -553,7 +553,7 @@ const Offers = () => {
             Special Offers
           </Typography>
         </Box>
-        <Divider sx={{ backgroundColor: "#00000090", width: "100%", mb: 2 }} />
+        <Divider sx={{ backgroundColor: "#00000011", width: "100%", mb: 2 }} />
         <Box sx={{ ...scrollVerbarStyles, width: "100%" }}>
           {specialOffers.length > 0 ? (
             specialOffers.map((food) => {
@@ -565,16 +565,21 @@ const Offers = () => {
                     flexDirection: "row",
                     marginBottom: 2,
                     alignItems: "center",
-                    backgroundColor: "#22222E",
+                    backgroundColor: "#00000011",
                     width: "100%",
                     borderRadius: "10px",
+                    minHeight: 120,
+                    ":hover": {
+                      backgroundColor: "#00000021",
+                      transition: "background-color 0.2s ease-in-out",
+                    },
                   }}
                 >
                   <Box sx={{ flex: 1, padding: "0 10px" }}>
                     <Typography
                       gutterBottom
                       sx={{
-                        color: "#fff",
+                        color: "#000",
                         fontSize: 16,
                         fontWeight: 600,
                       }}
@@ -584,7 +589,7 @@ const Offers = () => {
                     <Typography
                       gutterBottom
                       sx={{
-                        color: "#fff",
+                        color: "#e32626",
                         fontSize: 12,
                         fontWeight: 600,
                         textDecorationLine: "line-through",
@@ -594,24 +599,29 @@ const Offers = () => {
                     </Typography>
                     <Typography
                       gutterBottom
-                      sx={{ color: "#00FF00", fontSize: 12 }}
+                      sx={{ color: "#005700", fontSize: 12, fontWeight: 600 }}
                     >
                       {`offer ${food.offer}%`}
                     </Typography>
                     <Typography
                       gutterBottom
-                      sx={{ color: "#00FF00", fontSize: 16 }}
+                      sx={{ color: "#005700", fontSize: 16, fontWeight: 600 }}
                     >
                       {` ₹ ${food.priceAfterOffer}`}
                     </Typography>
                   </Box>
-                  <img
-                    src={food.img}
-                    width={100}
-                    height={100}
-                    style={{ borderRadius: 5 }}
-                    alt="Food"
-                  />
+                  <Box sx={{ width: 75, minHeight: 75, mx: 2 }}>
+                    <img
+                      src={food.img}
+                      style={{
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                        width: 75,
+                        height: 75,
+                      }}
+                      alt="Food"
+                    />
+                  </Box>
                 </Box>
               );
             })
@@ -668,16 +678,21 @@ const Offers = () => {
                     flexDirection: "row",
                     marginBottom: 2,
                     alignItems: "center",
-                    backgroundColor: "#22222E",
+                    backgroundColor: "#00000011",
                     width: "100%",
                     borderRadius: "10px",
+                    minHeight: 120,
+                    ":hover": {
+                      backgroundColor: "#00000021",
+                      transition: "background-color 0.2s ease-in-out",
+                    },
                   }}
                 >
                   <Box sx={{ flex: 1, padding: "0 10px" }}>
                     <Typography
                       gutterBottom
                       sx={{
-                        color: "#fff",
+                        color: "#000",
                         fontSize: 16,
                         fontWeight: 600,
                       }}
@@ -687,7 +702,7 @@ const Offers = () => {
                     <Typography
                       gutterBottom
                       sx={{
-                        color: "#fff",
+                        color: "#e32626",
                         fontSize: 12,
                         fontWeight: 600,
                         textDecorationLine: "line-through",
@@ -697,13 +712,13 @@ const Offers = () => {
                     </Typography>
                     <Typography
                       gutterBottom
-                      sx={{ color: "#00FF00", fontSize: 12 }}
+                      sx={{ color: "#005700", fontSize: 12, fontWeight: 600 }}
                     >
                       {`Offer: ${food.offer}%`}
                     </Typography>
                     <Typography
                       gutterBottom
-                      sx={{ color: "#00FF00", fontSize: 16 }}
+                      sx={{ color: "#005700", fontSize: 16, fontWeight: 600 }}
                     >
                       {` ₹ ${food.priceAfterOffer}`}
                     </Typography>
@@ -768,13 +783,15 @@ const Offers = () => {
           flexDirection: { xs: "column", md: "row" },
         }}
       >
-        <Box sx={{ width: { xs: "100%", md: "25%" } }}>
+        <Box sx={{ width: { xs: "100%", md: "25%" }, my: 2 }}>
           {renderAddFoodFields()}
         </Box>
-        <Box sx={{ width: { xs: "100%", md: "35%" } }}>
+        <Box sx={{ width: { xs: "100%", md: "35%" }, my: 2 }}>
           {specialOfferList()}
         </Box>
-        <Box sx={{ width: { xs: "100%", md: "35%" } }}>{comboOfferList()}</Box>
+        <Box sx={{ width: { xs: "100%", md: "35%" }, my: 2 }}>
+          {comboOfferList()}
+        </Box>
       </Box>
     </Box>
   );
