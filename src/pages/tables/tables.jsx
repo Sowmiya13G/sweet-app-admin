@@ -1,68 +1,59 @@
-import { Box, Button, Grid, List, Typography, Modal } from "@mui/material";
-import { doc, getDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
+
+// mui components
+import { AddCircleOutlineSharp } from "@mui/icons-material";
+import EventSeatIcon from "@mui/icons-material/EventSeat";
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import TableBarIcon from "@mui/icons-material/TableBarTwoTone";
+import { Box, Button, List, Typography } from "@mui/material";
+import Tooltip from "@mui/material/Tooltip";
+
+// firebase
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
+
+// packages
+import QRCode from "qrcode.react";
 // assets
 import emptyPlate from "../../assets/images/emptyPlate.png";
 import foodOnPlate1 from "../../assets/images/plateOnfood1.png";
+
+// styles
 import "./style.css";
-import TableBarIcon from "@mui/icons-material/TableBarTwoTone";
-import { AddCircleOutlineSharp, AddCircleTwoTone } from "@mui/icons-material";
-import EventSeatIcon from "@mui/icons-material/EventSeat";
-import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
-import Tooltip from "@mui/material/Tooltip";
 
 const Tables = () => {
-  const [tablesBooked, setTablesBooked] = useState([]);
+  // local states
+  const [tables, setTables] = useState([]);
   const [open, setOpen] = useState(false);
   const [addNewOpen, setAddNewOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState(null);
 
+  // -------------------------------- USE EFFECTS --------------------------------
+
   useEffect(() => {
-    const sendTablesBookedToFirestore = async () => {
+    const fetchTablesBookedFromFirestore = async () => {
       try {
         const docRef = doc(db, "bookingData", "tablesBooked");
+        console.log(docRef);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setTablesBooked(docSnap.data().tablesBooked);
+          const data = docSnap.data().tablesBooked;
+          setTables(data);
+          if (data.length > 0) {
+            setSelectedTable(data[0]);
+          }
         }
-        console.log("Data sent to Firestore successfully.");
+        console.log("Data fetched from Firestore successfully.");
       } catch (error) {
-        console.error("Error sending data to Firestore: ", error);
+        console.error("Error fetching data from Firestore: ", error);
       }
     };
 
-    sendTablesBookedToFirestore();
+    fetchTablesBookedFromFirestore();
   }, []);
 
-  // useEffect(() => {
-  //   // const fetchOrderData = () => {
-  //   //   try {
-  //   //     const ordersCollection = collection(db, "orders");
-  //   //     const unsubscribe = onSnapshot(ordersCollection, (orderSnapshot) => {
-  //   //       const ordersList = orderSnapshot.docs
-  //   //         .sort(
-  //   //           (a, b) => b.data().orderTime.seconds - a.data().orderTime.seconds
-  //   //         ) // Ensure correct property access
-  //   //         .map((doc) => doc.data());
+  // -------------------------------- COMPONENTS STYLES  --------------------------------
 
-  //   //       setOrderData(ordersList);
-  //   //       setOrderIDCard(ordersList[0].phoneNumber);
-
-  //   //       setOrdersCount(ordersList.length);
-  //   //     });
-
-  //   //     // Cleanup subscription on unmount
-  //   //     return () => unsubscribe();
-  //   //   } catch (error) {
-  //   //     console.error("Error fetching order data: ", error);
-  //   //   }
-  //   // };
-
-  //   fetchOrderData();
-  // }, []);
-
-  // -------------------------------- COMPONENT STYLES --------------------------------
   const scrollbarStyles = {
     overflowX: "auto",
     "&::-webkit-scrollbar": {
@@ -84,56 +75,98 @@ const Tables = () => {
     backgroundColor: "#00000011",
     marginBottom: 1,
   };
-  const modalstyle = {
-    width: "100%",
-    height: 60,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-around",
-    borderRadius: 2,
-    backgroundColor: "#00000011",
-    marginBottom: 1,
-  };
-  const iconStyle = {
-    fontSize: 40,
-    marginBottom: 1,
-  };
 
   // -------------------------------- FUNCTIONALITIES --------------------------------
 
   const handleClickTable = (table, index) => {
-    console.log(table);
     setSelectedTable(table);
     setOpen(true);
     setAddNewOpen(false);
   };
-  const handleClose = () => {
-    setOpen(false);
+
+  const handleDelete = async () => {
+    if (!selectedTable) return;
+
+    try {
+      const tableToDelete = selectedTable.table;
+
+      const updatedTables = tables.filter(
+        (table) => table.table !== tableToDelete
+      );
+      setTables(updatedTables);
+
+      const tablesRef = doc(db, "bookingData", "tablesBooked");
+      await updateDoc(tablesRef, {
+        tablesBooked: updatedTables,
+      });
+
+      console.log("Table deleted successfully!");
+
+      if (updatedTables.length > 0) {
+        setSelectedTable(updatedTables[updatedTables.length - 1]);
+      } else {
+        setSelectedTable(null);
+      }
+    } catch (error) {
+      console.error("Error deleting table from Firestore: ", error);
+    }
+  };
+
+  const handleAddTable = async () => {
     setSelectedTable(null);
-    setAddNewOpen(false);
+    try {
+      const newTable = {
+        table: selectedTable.table,
+        chairs: selectedTable.chairs.map((chair) => ({ ...chair })),
+        tableQRDetails: {
+          table: selectedTable.table,
+          chairs: selectedTable.chairs.map((chair) => ({ ...chair })),
+        },
+      };
+
+      const tablesRef = doc(db, "bookingData", "tablesBooked");
+      await updateDoc(tablesRef, {
+        tablesBooked: [...tables, newTable],
+      });
+
+      setTables([...tables, newTable]);
+      setSelectedTable(newTable);
+      console.log("Table added successfully!");
+    } catch (error) {
+      console.error("Error adding table to Firestore: ", error);
+    }
   };
-  const handleDelete = () => {
-    // Implement your delete logic here
-    handleClose();
+
+  const generateQRCodeData = (table) => {
+    if (!table) return "";
+    const qrData = {
+      tableNumber: table.table,
+      chairs: table.chairs.map((chair) => ({
+        id: chair.id,
+        booked: chair.booked,
+      })),
+    };
+    return JSON.stringify(qrData);
   };
+
+  // -------------------------------- RENDER UI --------------------------------
 
   return (
     <Box
       sx={{
-        display: { xs: "block", md: "flex" },
         width: "100%",
-        // m: "10px",
       }}
     >
       <Box
         sx={{
-          width: { xs: "100%", md: "45%" },
+          width: {
+            xs: "100%",
+            md: "95%",
+          },
           height: { xs: 400, md: 600 },
           m: 3,
           p: 2,
-          backgroundColor: "#ffffff",
-          // backgroundImage:
-          //   "url('https://cdn.pixabay.com/photo/2016/06/02/02/33/triangles-1430105_1280.png')",
+          backgroundColor: "#eee",
           backgroundSize: "cover",
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
@@ -154,8 +187,50 @@ const Tables = () => {
               sx={{ color: "#626fa0", mx: 2, fontSize: 30, my: 2 }}
             />
           </Typography>
-        </Box>
+          <Button
+            onClick={() => {
+              setOpen(true);
+              setAddNewOpen(true);
 
+              const newTableId = `${tables.length + 1}`;
+              setSelectedTable({
+                table: newTableId,
+                chairs: [
+                  {
+                    booked: false,
+                    id: 1,
+                  },
+                  {
+                    booked: false,
+                    id: 2,
+                  },
+                  {
+                    booked: false,
+                    id: 3,
+                  },
+                  {
+                    booked: false,
+                    id: 4,
+                  },
+                ],
+              });
+            }}
+            variant="outlined"
+            sx={{
+              borderColor: "#626fa0",
+              "&:hover": {
+                borderColor: "#626fa0",
+              },
+            }}
+          >
+            <AddCircleOutlineSharp style={{ color: "#626fa0" }} />
+            <Typography
+              sx={{ fontWeight: "bold", fontSize: 16, mx: 2, color: "#626fa0" }}
+            >
+              ADD NEW
+            </Typography>
+          </Button>
+        </Box>
         <Box
           sx={{
             ...iconContainerStyle,
@@ -183,172 +258,17 @@ const Tables = () => {
             />
           </Typography>
         </Box>
-        <Box sx={{ ...scrollbarStyles, width: "100%" }}>
-          <List
-            key={1}
-            container
-            spacing={2}
-            sx={{
-              flexWrap: "wrap",
-              display: "flex",
-              justifyContent: "space-evenly",
-            }}
-          >
-            {tablesBooked?.map((table, index) => (
-              <div
-                key={index}
-                className="table-container-page mx-1 my-3 mb-4 d-flex flex-column"
-              >
-                <div className="table-chair-container-page w-100 px-4">
-                  {table.chairs.slice(0, 2).map((chair, chairIndex) => (
-                    <Tooltip
-                      key={chairIndex}
-                      title={
-                        chair.booked
-                          ? "This chair is booked #ORD0012"
-                          : "This chair is available"
-                      }
-                      arrow
-                    >
-                      <div
-                        className={
-                          tablesBooked[index].chairs[chairIndex].booked
-                            ? "chairBooked-already-page"
-                            : chair.booked
-                            ? "table-chair-booked-page"
-                            : "table-chair-page"
-                        }
-                      ></div>
-                    </Tooltip>
-                  ))}
-                </div>
-                <div
-                  className="dine-table-page flex-column  justify-content-evenly"
-                  onClick={() => {
-                    handleClickTable(table, index);
-                  }}
-                >
-                  <div className="d-flex justify-content-evenly w-100 flex-wrap">
-                    {table.chairs.slice(0, 4).map((chair, chairIndex) => (
-                      <div key={index} className="mx-1 my-1">
-                        <img
-                          src={
-                            tablesBooked[index].chairs[chairIndex].booked
-                              ? foodOnPlate1
-                              : chair.booked
-                              ? foodOnPlate1
-                              : emptyPlate
-                          }
-                          alt="img"
-                          className={`table-plate-page `}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                  <p className="table-number">{table.table}</p>
-                </div>
-                <div className="table-chair-container-page w-100 px-4">
-                  {table.chairs.slice(2, 4).map((chair, chairIndex) => (
-                    <Tooltip
-                      key={chairIndex}
-                      title={
-                        chair.booked
-                          ? "This chair is booked #ORD001"
-                          : "This chair is available"
-                      }
-                      arrow
-                    >
-                      <div
-                        className={
-                          tablesBooked[index].chairs[chairIndex + 2].booked
-                            ? "chairBooked-bottom-already-page"
-                            : chair.booked
-                            ? "table-chair-bottom-booked-page"
-                            : "table-chair-bottom-page"
-                        }
-                      ></div>
-                    </Tooltip>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </List>
-        </Box>
-      </Box>
-      <Box
-        sx={{
-          width: { xs: "100%", md: "50%" },
-          height: { xs: 400, md: 600 },
-          m: 3,
-          p: 2,
-          backgroundColor: "#ffffff",
-          // backgroundImage:
-          //   "url('https://cdn.pixabay.com/photo/2016/06/02/02/33/triangles-1430105_1280.png')",
-          backgroundSize: "cover",
-          backgroundRepeat: "no-repeat",
-          backgroundPosition: "center",
-          borderRadius: 2,
-          borderRadius: 2,
-        }}
-      >
         <Box
           sx={{
-            ...iconContainerStyle,
+            display: "flex",
+            flexDirection: "row",
             justifyContent: "space-between",
-            px: 2,
+            width: "100%",
+            height: "75%",
+            borderRadius: "15px",
           }}
         >
-          <Typography sx={{ fontWeight: "bold", fontSize: 20 }}>
-            {addNewOpen ? "Add New Table" : "Details About Tables"}
-            <TableBarIcon
-              sx={{ color: "#626fa0", mx: 2, fontSize: 30, my: 2 }}
-            />
-          </Typography>
-          <Button
-            onClick={() => {
-              setOpen(true);
-              setAddNewOpen(true);
-              setSelectedTable({
-                chairs: [
-                  {
-                    booked: false,
-                    id: 1,
-                  },
-                  {
-                    id: 2,
-                    booked: false,
-                  },
-                  {
-                    booked: false,
-                    id: 3,
-                  },
-                  {
-                    id: 4,
-                    booked: false,
-                  },
-                ],
-                table: "",
-              });
-            }}
-            variant="outlined"
-            sx={{
-              borderColor: "#626fa0",
-              "&:hover": {
-                borderColor: "#626fa0",
-              },
-            }}
-          >
-            <AddCircleOutlineSharp style={{ color: "#626fa0" }} />
-            <Typography
-              sx={{ fontWeight: "bold", fontSize: 16, mx: 2, color: "#626fa0" }}
-            >
-              ADD NEW
-            </Typography>
-          </Button>
-        </Box>
-
-        <Box sx={{ ...scrollbarStyles, width: "100%" }}>
-          <Box sx={{ display: "flex" }}>
+          <Box sx={{ ...scrollbarStyles, width: "60%" }}>
             <List
               key={1}
               container
@@ -356,111 +276,256 @@ const Tables = () => {
               sx={{
                 flexWrap: "wrap",
                 display: "flex",
-                justifyContent: "start",
-                width: "50%",
+                justifyContent: "space-evenly",
               }}
             >
-              <div
-                key={1}
-                className="table-container-page mx-1 my-3 mb-4 d-flex flex-column"
-              >
-                <div className="table-chair-container-page w-100 px-4">
-                  {selectedTable?.chairs
-                    .slice(0, 2)
-                    .map((chair, chairIndex) => (
-                      <Tooltip
-                        key={chairIndex}
-                        title={
-                          chair.booked
-                            ? "This chair is booked #ORD0012"
-                            : "This chair is available"
-                        }
-                        arrow
-                      >
-                        {console.log(chair)}
-                        <div
-                          className={
-                            chair.booked
-                              ? "chairBooked-already-page"
-                              : "table-chair-page"
-                          }
-                        ></div>
-                      </Tooltip>
-                    ))}
-                </div>
-                <div className="dine-table-page flex-column  justify-content-evenly">
-                  <div className="d-flex justify-content-evenly w-100 flex-wrap">
-                    {selectedTable?.chairs
-                      .slice(0, 4)
-                      .map((chair, chairIndex) => (
-                        <div key={chairIndex} className="mx-1 my-1">
-                          <img
-                            src={
+              {tables.length > 0 ? (
+                <>
+                  {tables?.map((table, index) => (
+                    <div
+                      key={index}
+                      className="table-container-page mx-1 my-3 mb-4 d-flex flex-column"
+                    >
+                      <div className="table-chair-container-page w-100 px-4">
+                        {table.chairs.slice(0, 2).map((chair, chairIndex) => (
+                          <Tooltip
+                            key={chairIndex}
+                            title={
                               chair.booked
-                                ? foodOnPlate1
-                                : chair.booked
-                                ? foodOnPlate1
-                                : emptyPlate
+                                ? "This chair is booked #ORD0012"
+                                : "This chair is available"
                             }
-                            alt="img"
-                            className={`table-plate-page `}
-                          />
-                        </div>
-                      ))}
-                  </div>
-                  <p className="table-number">{selectedTable?.table}</p>
-                </div>
-                <div className="table-chair-container-page w-100 px-4">
-                  {selectedTable?.chairs
-                    .slice(2, 4)
-                    .map((chair, chairIndex) => (
-                      <Tooltip
-                        key={chairIndex}
-                        title={
-                          chair.booked
-                            ? "This chair is booked #ORD001"
-                            : "This chair is available"
-                        }
-                        arrow
+                            arrow
+                          >
+                            <div
+                              className={
+                                tables[index].chairs[chairIndex].booked
+                                  ? "chairBooked-already-page"
+                                  : chair.booked
+                                  ? "table-chair-booked-page"
+                                  : "table-chair-page"
+                              }
+                            ></div>
+                          </Tooltip>
+                        ))}
+                      </div>
+                      <div
+                        className="dine-table-page flex-column  justify-content-evenly"
+                        onClick={() => {
+                          handleClickTable(table, index);
+                        }}
                       >
-                        <div
-                          className={
-                            chair.booked
-                              ? "chairBooked-bottom-already-page"
-                              : "table-chair-bottom-page"
-                          }
-                        ></div>
-                      </Tooltip>
-                    ))}
-                </div>
-              </div>
+                        <div className="d-flex justify-content-evenly w-100 flex-wrap">
+                          {table.chairs.slice(0, 4).map((chair, chairIndex) => (
+                            <div key={index} className="mx-1 my-1">
+                              <img
+                                src={
+                                  tables[index].chairs[chairIndex].booked
+                                    ? foodOnPlate1
+                                    : chair.booked
+                                    ? foodOnPlate1
+                                    : emptyPlate
+                                }
+                                alt="img"
+                                className={`table-plate-page `}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                        <p className="table-number">{table.table}</p>
+                      </div>
+                      <div className="table-chair-container-page w-100 px-4">
+                        {table.chairs.slice(2, 4).map((chair, chairIndex) => (
+                          <Tooltip
+                            key={chairIndex}
+                            title={
+                              chair.booked
+                                ? "This chair is booked #ORD001"
+                                : "This chair is available"
+                            }
+                            arrow
+                          >
+                            <div
+                              className={
+                                tables[index].chairs[chairIndex + 2].booked
+                                  ? "chairBooked-bottom-already-page"
+                                  : chair.booked
+                                  ? "table-chair-bottom-booked-page"
+                                  : "table-chair-bottom-page"
+                              }
+                            ></div>
+                          </Tooltip>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </>
+              ) : (
+                <>
+                  <Typography> ADD TABLES </Typography>
+                </>
+              )}
             </List>
-            {selectedTable && (
+          </Box>
+
+          <Box
+            sx={{
+              ...scrollbarStyles,
+              width: "35%",
+              backgroundColor:   "#00000011",
+              display: "flex",
+              flexDirection: "column",
+              padding: "10px",
+              borderRadius:"10px"
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
               <List
-                key={2}
+                key={1}
                 container
                 spacing={2}
                 sx={{
                   flexWrap: "wrap",
                   display: "flex",
-                  justifyContent: "center",
-                  alignItems: "start ",
-                  flexDirection:"column",
+                  justifyContent: "start",
                   width: "50%",
                 }}
               >
-                {selectedTable.chairs.map((chair, index) => (
-                  <ul key={index}>
-                    {chair.booked ? (
-                      <li>
-                        Chair {index + 1} - #{chair.orderId}
-                      </li>
-                    ) : (
-                      <li>Chair {index + 1} - Available</li>
-                    )}
-                  </ul>
-                ))}
+                <div
+                  key={1}
+                  className="table-container-page mx-1 my-3 mb-4 d-flex flex-column"
+                >
+                  <div className="table-chair-container-page w-100 px-4">
+                    {selectedTable?.chairs
+                      .slice(0, 2)
+                      .map((chair, chairIndex) => (
+                        <Tooltip
+                          key={chairIndex}
+                          title={
+                            chair.booked
+                              ? "This chair is booked #ORD0012"
+                              : "This chair is available"
+                          }
+                          arrow
+                        >
+                          <div
+                            className={
+                              chair.booked
+                                ? "chairBooked-already-page"
+                                : "table-chair-page"
+                            }
+                          ></div>
+                        </Tooltip>
+                      ))}
+                  </div>
+                  <div className="dine-table-page flex-column  justify-content-evenly">
+                    <div className="d-flex justify-content-evenly w-100 flex-wrap">
+                      {selectedTable?.chairs
+                        .slice(0, 4)
+                        .map((chair, chairIndex) => (
+                          <div key={chairIndex} className="mx-1 my-1">
+                            <img
+                              src={
+                                chair.booked
+                                  ? foodOnPlate1
+                                  : chair.booked
+                                  ? foodOnPlate1
+                                  : emptyPlate
+                              }
+                              alt="img"
+                              className={`table-plate-page `}
+                            />
+                          </div>
+                        ))}
+                    </div>
+                    <p className="table-number">{selectedTable?.table}</p>
+                  </div>
+                  <div className="table-chair-container-page w-100 px-4">
+                    {selectedTable?.chairs
+                      .slice(2, 4)
+                      .map((chair, chairIndex) => (
+                        <Tooltip
+                          key={chairIndex}
+                          title={
+                            chair.booked
+                              ? "This chair is booked #ORD001"
+                              : "This chair is available"
+                          }
+                          arrow
+                        >
+                          <div
+                            className={
+                              chair.booked
+                                ? "chairBooked-bottom-already-page"
+                                : "table-chair-bottom-page"
+                            }
+                          ></div>
+                        </Tooltip>
+                      ))}
+                  </div>
+                </div>
               </List>
+              {Boolean(selectedTable?.tableQRDetails)&&(
+
+              <QRCode
+                value={generateQRCodeData(selectedTable)}
+                style={{ height: 80, width: 80 }}
+              />
+              )
+
+              }
+            </Box>
+            {selectedTable && (
+              <>
+                <List
+                  key={2}
+                  container
+                  spacing={2}
+                  sx={{
+                    flexWrap: "wrap",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "start ",
+                    flexDirection: "column",
+                    width: "50%",
+                  }}
+                >
+                  {selectedTable.chairs.map((chair, index) => (
+                    <ul key={index}>
+                      {chair.booked ? (
+                        <li style={{ color: "#fff" }}>
+                          Chair {index + 1} - #{chair.orderId}
+                        </li>
+                      ) : (
+                        <li style={{ color: "#fff" }}>
+                          Chair {index + 1} - Available
+                        </li>
+                      )}
+                    </ul>
+                  ))}
+                </List>
+                <Button
+                  variant="contained"
+                  onClick={Boolean(addNewOpen) ? handleAddTable : handleDelete}
+                  sx={{
+                    height: 40,
+                    width: "40%",
+                    mt: "10px",
+                    backgroundColor: "#fff",
+                    color: "#000",
+                    alignSelf: "center",
+                    justifySelf: "end",
+                  }}
+                >
+                  {Boolean(addNewOpen) ? "Add Table" : "Delete Table"}
+                </Button>
+              </>
             )}
           </Box>
         </Box>

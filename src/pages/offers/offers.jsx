@@ -2,19 +2,20 @@ import React, { useEffect, useState } from "react";
 
 // mui components
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import CancelIcon from "@mui/icons-material/Cancel";
 import {
-    Box,
-    Button,
-    CircularProgress,
-    Divider,
-    MenuItem,
-    Paper,
-    TextField,
-    Typography,
-    Select,
-    Chip,
-    OutlinedInput,
-  } from "@mui/material";
+  Box,
+  Button,
+  CircularProgress,
+  Divider,
+  MenuItem,
+  Paper,
+  TextField,
+  Typography,
+  Select,
+  Chip,
+  OutlinedInput,
+} from "@mui/material";
 // firebase
 import {
   addDoc,
@@ -43,6 +44,7 @@ const Offers = () => {
     priceAfterOffer: "",
   });
   const [selectedFoods, setSelectedFoods] = useState([]);
+  const [comboImages, setComboImages] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCard, setSelectedCard] = useState("");
 
@@ -93,7 +95,28 @@ const Offers = () => {
         const food = foods.find((f) => f.dishName === foodName);
         return total + (food ? parseFloat(food.price) : 0);
       }, 0);
-      setFoodDetails((prev) => ({ ...prev, price: totalComboPrice.toFixed(2) }));
+
+      if (foodDetails.offer) {
+        const offerPercentage = parseFloat(foodDetails.offer);
+        const originalPrice = parseFloat(totalComboPrice);
+        let priceAfterOfferCombo = (
+          originalPrice -
+          (originalPrice * offerPercentage) / 100
+        ).toFixed(2);
+        const images = selectedFoods.map((foodName) => {
+          const food = foods.find((f) => f.dishName === foodName);
+          console.log(food);
+          return food.img;
+        });
+        setComboImages(images);
+        setFoodDetails((prev) => ({
+          ...prev,
+          dishName: selectedFoods,
+          price: totalComboPrice.toFixed(2),
+          priceAfterOffer: priceAfterOfferCombo,
+          imgSrc: comboImages,
+        }));
+      }
     }
   }, [selectedFoods]);
 
@@ -131,15 +154,40 @@ const Offers = () => {
     backgroundColor: "#ffffff",
     height: 500,
   };
+  const scrollVerbarStyles = {
+    overflowY: "auto",
+    width: "100%",
 
+    // overflowX: "auto",
+    "&::-webkit-scrollbar": {
+      height: 0,
+    },
+    "&::-webkit-scrollbar-thumb": {
+      backgroundColor: "transparent",
+    },
+    "-ms-overflow-style": "none", // IE and Edge
+    "scrollbar-width": "none", // Firefox
+  };
+  const scrollbarStyles = {
+    overflowX: "auto",
+    "&::-webkit-scrollbar": {
+      height: 0,
+    },
+    "&::-webkit-scrollbar-thumb": {
+      backgroundColor: "transparent",
+    },
+    "-ms-overflow-style": "none",
+    "scrollbar-width": "none",
+  };
   // -------------------------------- FUNCTIONALITIES --------------------------------
 
   // food details input change
   const handleFoodInputChange = (e) => {
     const { name, value } = e.target;
+
     if (name === "dishName") {
       const selectedFood = foods.find((food) => food.dishName === value);
-      console.log(selectedFood)
+      console.log(selectedFood);
       if (selectedFood) {
         setFoodDetails({
           ...foodDetails,
@@ -148,7 +196,24 @@ const Offers = () => {
           img: selectedFood.img,
         });
       } else {
-        setFoodDetails({ ...foodDetails, [name]: value, price: "", imgSrc: "" });
+        setFoodDetails({
+          ...foodDetails,
+          [name]: value,
+          price: "",
+          imgSrc: "",
+        });
+      }
+      if (name === "type") {
+        setFoodDetails({
+          dishName: "",
+          price: "",
+          imgSrc: "",
+          type: "",
+          offer: "",
+          priceAfterOffer: "",
+        });
+        setSelectedFoods([]);
+        setComboImages([]);
       }
     } else {
       setFoodDetails({ ...foodDetails, [name]: value });
@@ -187,7 +252,9 @@ const Offers = () => {
           offer: "",
           priceAfterOffer: "",
         });
+
         setSelectedFoods([]);
+        setComboImages([]);
       } catch (e) {
         console.error("Error adding food item: ", e);
       } finally {
@@ -196,7 +263,6 @@ const Offers = () => {
     }
   };
 
-  
   const handleDeleteFood = async () => {
     if (selectedCard) {
       try {
@@ -208,8 +274,7 @@ const Offers = () => {
     }
   };
 
-
-const handleFoodSearch = (e) => {
+  const handleFoodSearch = (e) => {
     setSearchTerm(e.target.value);
   };
 
@@ -221,29 +286,52 @@ const handleFoodSearch = (e) => {
     const {
       target: { value },
     } = event;
-    setSelectedFoods(
-      typeof value === 'string' ? value.split(',') : value,
+    const selectedValues = Array.isArray(value) ? value : [value];
+    setSelectedFoods(selectedValues);
+  };
+
+  const handleDeleteClick = (event, foodToDelete) => {
+    event.stopPropagation();
+    const updatedSelected = selectedFoods.filter(
+      (food) => food !== foodToDelete
     );
+    setSelectedFoods(updatedSelected);
   };
 
   const calculateAfterOfferPrice = () => {
     if (foodDetails.offer && foodDetails.price) {
       const offerPercentage = parseFloat(foodDetails.offer);
       const originalPrice = parseFloat(foodDetails.price);
-      return (originalPrice - (originalPrice * offerPercentage) / 100).toFixed(2);
+      return (originalPrice - (originalPrice * offerPercentage) / 100).toFixed(
+        2
+      );
     }
     return "";
   };
+
+  // const generateRandomColor = () => {
+  //   const letters = '0123456789ABCDEF';
+  //   let color = '#';
+  //   for (let i = 0; i < 6; i++) {
+  //     color += letters[Math.floor(Math.random() * 16)];
+  //   }
+  //   return color;
+  // };
 
   // -------------------------------- RENDER UI --------------------------------
 
   const renderAddFoodFields = () => {
     return (
       <Box sx={categoriesStyle}>
-        <Typography gutterBottom sx={{ color: "#000", fontSize: 20, fontWeight: 600 }}>
+        <Typography
+          gutterBottom
+          sx={{ color: "#000", fontSize: 20, fontWeight: 600 }}
+        >
           Add Offers
         </Typography>
-        <Divider sx={{ backgroundColor: "#00000090", width: "100%", my: 1, mb: 2 }} />
+        <Divider
+          sx={{ backgroundColor: "#00000090", width: "100%", my: 1, mb: 2 }}
+        />
         <TextField
           label="Offer Type"
           name="type"
@@ -256,42 +344,48 @@ const handleFoodSearch = (e) => {
           <MenuItem value="special">Special</MenuItem>
           <MenuItem value="combo">Combo</MenuItem>
         </TextField>
-        <TextField
-          label="Offer"
-          name="offer"
-          value={foodDetails.offer}
-          onChange={handleFoodInputChange}
-          fullWidth
-          sx={{ mb: 2, ...textInputStyle }}
-        />
         {foodDetails.type === "combo" ? (
-          <Select
-            multiple
-            displayEmpty
-            value={selectedFoods}
-            onChange={handleComboFoodChange}
-            input={<OutlinedInput />}
-            renderValue={(selected) => {
-              if (selected.length === 0) {
-                return <em>Food Name</em>;
-              }
-              return (
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                  {selected.map((value) => (
-                    <Chip key={value} label={value} />
-                  ))}
-                </Box>
-              );
-            }}
-            fullWidth
-            sx={{ mb: 2, ...textInputStyle }}
-          >
-            {filteredFoods.map((food) => (
-              <MenuItem key={food.id} value={food.dishName}>
-                {food.dishName}
-              </MenuItem>
-            ))}
-          </Select>
+          <>
+            <Box
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 1,
+                padding: "10px",
+              }}
+            >
+              {selectedFoods.map((value) => (
+                <Chip
+                  key={value}
+                  label={value}
+                  onDelete={(event) => handleDeleteClick(event, value)}
+                  deleteIcon={<CancelIcon />}
+                />
+              ))}
+            </Box>
+
+            <Select
+              multiple
+              displayEmpty
+              value={selectedFoods}
+              onChange={handleComboFoodChange}
+              input={<OutlinedInput />}
+              renderValue={() => {
+                if (selectedFoods.length === 0) {
+                  return <em>Select Foods </em>;
+                }
+                return <em>Selected Foods for combo</em>;
+              }}
+              fullWidth
+              sx={{ mb: 2, ...textInputStyle }}
+            >
+              {filteredFoods.map((food) => (
+                <MenuItem key={food.id} value={food.dishName}>
+                  {food.dishName}
+                </MenuItem>
+              ))}
+            </Select>
+          </>
         ) : (
           <TextField
             label="Food Name"
@@ -310,6 +404,14 @@ const handleFoodSearch = (e) => {
           </TextField>
         )}
         <TextField
+          label="Offer"
+          name="offer"
+          value={foodDetails.offer}
+          onChange={handleFoodInputChange}
+          fullWidth
+          sx={{ mb: 2, ...textInputStyle }}
+        />
+        <TextField
           label="Price"
           name="price"
           value={foodDetails.price}
@@ -318,42 +420,57 @@ const handleFoodSearch = (e) => {
           disabled={foodDetails.type === "combo"}
           sx={{ mb: 2, ...textInputStyle }}
         />
-          <TextField
-            label="After Offer Price"
-            name="afterOfferPrice"
-            value={calculateAfterOfferPrice()}
-            fullWidth
-            disabled
-            sx={{ mb: 2, ...textInputStyle }}
-          />
-        <Box sx={{ my: 2, width: 200, height: 200 }}>
-          {foodImgUploading ? (
-            <Box
-              sx={{
-                width: 200,
-                height: 200,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                filter: 10,
-                borderRadius: 5,
-              }}
-            >
-              <CircularProgress />
-            </Box>
-          ) : (
-            foodDetails.img && (
-              <img
-                src={foodDetails.img}
-                width={"100%"}
-                height={"100%"}
-                style={{ borderRadius: 10 }}
-                alt="img"
-              />
-            )
-          )}
-        </Box>
-        {console.log(foodDetails)}
+        <TextField
+          label="After Offer Price"
+          name="afterOfferPrice"
+          value={calculateAfterOfferPrice()}
+          fullWidth
+          disabled
+          sx={{ mb: 2, ...textInputStyle }}
+        />
+        {Boolean(foodDetails.dishName) && (
+          <Box sx={{ my: 2, width: 200, height: 200 }}>
+            {foodImgUploading ? (
+              <Box
+                sx={{
+                  width: 200,
+                  height: 200,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  filter: 10,
+                  borderRadius: 5,
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            ) : foodDetails.type === "combo" ? (
+              comboImages.map((item, index) => (
+                <Box sx={{ display: "flex", flexDirection: "column" }}>
+                  <img
+                    key={index}
+                    src={item}
+                    width={"50%"}
+                    height={"50%"}
+                    style={{ borderRadius: 10 }}
+                    alt="img"
+                  />
+                </Box>
+              ))
+            ) : (
+              foodDetails.img && (
+                <img
+                  src={foodDetails.img}
+                  width={"100%"}
+                  height={"100%"}
+                  style={{ borderRadius: 10 }}
+                  alt="img"
+                />
+              )
+            )}
+          </Box>
+        )}
+        {/* 
         <Button
           variant="outlined"
           component="label"
@@ -373,7 +490,7 @@ const handleFoodSearch = (e) => {
             hidden
             onChange={handleFoodFileChange}
           />
-        </Button>
+        </Button> */}
         <Box
           sx={{
             display: "flex",
@@ -394,7 +511,12 @@ const handleFoodSearch = (e) => {
             variant="contained"
             color="success"
             onClick={handleAddFoodItem}
-            sx={{ height: 40, width: "45%", display: "flex", alignSelf: "flex-end" }}
+            sx={{
+              height: 40,
+              width: "45%",
+              display: "flex",
+              alignSelf: "flex-end",
+            }}
           >
             Add
           </Button>
@@ -402,9 +524,9 @@ const handleFoodSearch = (e) => {
       </Box>
     );
   };
+
   const specialOfferList = () => {
     const specialOffers = foodList.filter((food) => food.type === "special");
-
     return (
       <Paper
         elevation={6}
@@ -432,79 +554,82 @@ const handleFoodSearch = (e) => {
           </Typography>
         </Box>
         <Divider sx={{ backgroundColor: "#00000090", width: "100%", mb: 2 }} />
-        {specialOffers.length > 0 ? (
-          specialOffers.map((food, index) => (
-            <Box
-              key={food.id}
-              sx={{
-                display: "flex",
-                flexDirection: index % 2 === 0 ? "row" : "row-reverse",
-                marginBottom: 2,
-                alignItems: "center",
-                backgroundColor: index % 2 === 0 ? "#3c3c4e" : "#d7d7d78a",
-                width: "100%",
-                justifyContent: "space-between",
-                borderRadius: "10px",
-                border: "2px solid #3c3c4e ",
-              }}
+        <Box sx={{ ...scrollVerbarStyles, width: "100%" }}>
+          {specialOffers.length > 0 ? (
+            specialOffers.map((food) => {
+              return (
+                <Box
+                  key={food.id}
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    marginBottom: 2,
+                    alignItems: "center",
+                    backgroundColor: "#22222E",
+                    width: "100%",
+                    borderRadius: "10px",
+                  }}
+                >
+                  <Box sx={{ flex: 1, padding: "0 10px" }}>
+                    <Typography
+                      gutterBottom
+                      sx={{
+                        color: "#fff",
+                        fontSize: 16,
+                        fontWeight: 600,
+                      }}
+                    >
+                      Dish Name: {food.dishName}
+                    </Typography>
+                    <Typography
+                      gutterBottom
+                      sx={{
+                        color: "#fff",
+                        fontSize: 12,
+                        fontWeight: 600,
+                        textDecorationLine: "line-through",
+                      }}
+                    >
+                      {`Price: ₹ ${food.price}`}
+                    </Typography>
+                    <Typography
+                      gutterBottom
+                      sx={{ color: "#00FF00", fontSize: 12 }}
+                    >
+                      {`offer ${food.offer}%`}
+                    </Typography>
+                    <Typography
+                      gutterBottom
+                      sx={{ color: "#00FF00", fontSize: 16 }}
+                    >
+                      {` ₹ ${food.priceAfterOffer}`}
+                    </Typography>
+                  </Box>
+                  <img
+                    src={food.img}
+                    width={100}
+                    height={100}
+                    style={{ borderRadius: 5 }}
+                    alt="Food"
+                  />
+                </Box>
+              );
+            })
+          ) : (
+            <Typography
+              gutterBottom
+              sx={{ color: "#000", fontSize: 20, fontWeight: 600 }}
             >
-              <Box sx={{ flex: 1, padding: "0 10px" }}>
-                <Typography
-                  gutterBottom
-                  sx={{
-                    color: index % 2 === 0 ? "#fff" : "#000",
-                    fontSize: 16,
-                    fontWeight: 600,
-                  }}
-                >
-                  {food.dishName}
-                </Typography>
-                <Typography
-                  gutterBottom
-                  sx={{
-                    color: index % 2 === 0 ? "#fff" : "#000",
-                    fontSize: 12,
-                    fontWeight: 600,
-                    textDecorationLine: "line-through",
-                  }}
-                >
-                  Price : {food.price}
-                </Typography>
-                <Typography
-                  gutterBottom
-                  sx={{ color: "#00FF00", fontSize: 12 }}
-                >
-                  {`offer ${food.offer}%`}
-                </Typography>
-                <Typography
-                  gutterBottom
-                  sx={{ color: "#00FF00", fontSize: 16 }}
-                >
-                  {food.priceAfterOffer}
-                </Typography>
-              </Box>
-              <img
-                src={food.img}
-                width={100}
-                height={100}
-                style={{ borderRadius: 5 }}
-                alt="Food"
-              />
-            </Box>
-          ))
-        ) : (
-          <Typography
-            gutterBottom
-            sx={{ color: "#000", fontSize: 20, fontWeight: 600 }}
-          >
-            No Special Offers added yet.
-          </Typography>
-        )}
+              No Special Offers added yet.
+            </Typography>
+          )}
+        </Box>
       </Paper>
     );
   };
 
   const comboOfferList = () => {
+    const comboOffers = foodList.filter((food) => food.type === "combo");
     return (
       <Paper
         elevation={6}
@@ -532,12 +657,88 @@ const handleFoodSearch = (e) => {
           </Typography>
         </Box>
         <Divider sx={{ backgroundColor: "#00000090", width: "100%", mb: 2 }} />
-        <Typography
-          gutterBottom
-          sx={{ color: "#000", fontSize: 20, fontWeight: 600 }}
-        >
-          No Foods added in list
-        </Typography>
+        <Box sx={{ ...scrollVerbarStyles, width: "100%" }}>
+          {comboOffers.length > 0 ? (
+            comboOffers.map((food) => {
+              return (
+                <Box
+                  key={food.id}
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    marginBottom: 2,
+                    alignItems: "center",
+                    backgroundColor: "#22222E",
+                    width: "100%",
+                    borderRadius: "10px",
+                  }}
+                >
+                  <Box sx={{ flex: 1, padding: "0 10px" }}>
+                    <Typography
+                      gutterBottom
+                      sx={{
+                        color: "#fff",
+                        fontSize: 16,
+                        fontWeight: 600,
+                      }}
+                    >
+                      Dish Name: {food.dishName.join(", ")}
+                    </Typography>
+                    <Typography
+                      gutterBottom
+                      sx={{
+                        color: "#fff",
+                        fontSize: 12,
+                        fontWeight: 600,
+                        textDecorationLine: "line-through",
+                      }}
+                    >
+                      {`Price: ₹ ${food.price}`}
+                    </Typography>
+                    <Typography
+                      gutterBottom
+                      sx={{ color: "#00FF00", fontSize: 12 }}
+                    >
+                      {`Offer: ${food.offer}%`}
+                    </Typography>
+                    <Typography
+                      gutterBottom
+                      sx={{ color: "#00FF00", fontSize: 16 }}
+                    >
+                      {` ₹ ${food.priceAfterOffer}`}
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      gap: "10px",
+                      flexDirection: "row",
+                      paddingRight: "10px",
+                    }}
+                  >
+                    {food.imgSrc.map((src, idx) => (
+                      <img
+                        key={idx}
+                        src={src}
+                        width={50}
+                        height={50}
+                        style={{ borderRadius: 5 }}
+                        alt={`Food ${idx + 1}`}
+                      />
+                    ))}
+                  </Box>
+                </Box>
+              );
+            })
+          ) : (
+            <Typography
+              gutterBottom
+              sx={{ color: "#000", fontSize: 20, fontWeight: 600 }}
+            >
+              No Combo Offers added yet.
+            </Typography>
+          )}
+        </Box>
       </Paper>
     );
   };
