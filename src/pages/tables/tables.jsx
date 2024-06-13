@@ -131,6 +131,7 @@ const Tables = () => {
 
       setTables([...tables, newTable]);
       setSelectedTable(newTable);
+      setAddNewOpen(false);
       console.log("Table added successfully!");
     } catch (error) {
       console.error("Error adding table to Firestore: ", error);
@@ -146,9 +147,13 @@ const Tables = () => {
         booked: chair.booked,
       })),
     };
-    return JSON.stringify(qrData);
+    const jsonString = JSON.stringify(qrData);
+    const base64Data = btoa(jsonString); // Encode JSON string in base64
+    const url = `https://food-order-eight-iota.vercel.app/?data=${encodeURIComponent(
+      base64Data
+    )}`;
+    return url;
   };
-
   // -------------------------------- RENDER UI --------------------------------
 
   return (
@@ -372,11 +377,11 @@ const Tables = () => {
             sx={{
               ...scrollbarStyles,
               width: "35%",
-              backgroundColor:   "#00000011",
+              backgroundColor: "#00000011",
               display: "flex",
               flexDirection: "column",
               padding: "10px",
-              borderRadius:"10px"
+              borderRadius: "10px",
             }}
           >
             <Box
@@ -471,15 +476,22 @@ const Tables = () => {
                   </div>
                 </div>
               </List>
-              {Boolean(selectedTable?.tableQRDetails)&&(
-
-              <QRCode
-                value={generateQRCodeData(selectedTable)}
-                style={{ height: 80, width: 80 }}
-              />
-              )
-
-              }
+              {Boolean(selectedTable?.tableQRDetails) && (
+                <QRCode
+                  value={generateQRCodeData(selectedTable)}
+                  size={10000}
+                  bgColor="#fff"
+                  fgColor="black" // Higher resolution
+                  level={"H"} // High error correction level
+                  style={{
+                    height: 250,
+                    width: 250,
+                    background: "#fff",
+                    padding: 10,
+                    borderRadius: 10,
+                  }}
+                />
+              )}
             </Box>
             {selectedTable && (
               <>
@@ -499,11 +511,23 @@ const Tables = () => {
                   {selectedTable.chairs.map((chair, index) => (
                     <ul key={index}>
                       {chair.booked ? (
-                        <li style={{ color: "#fff" }}>
+                        <li
+                          style={{
+                            color: "#000",
+                            fontSize: 16,
+                            fontWeight: 600,
+                          }}
+                        >
                           Chair {index + 1} - #{chair.orderId}
                         </li>
                       ) : (
-                        <li style={{ color: "#fff" }}>
+                        <li
+                          style={{
+                            color: "#000",
+                            fontSize: 16,
+                            fontWeight: 600,
+                          }}
+                        >
                           Chair {index + 1} - Available
                         </li>
                       )}
