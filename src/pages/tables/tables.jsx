@@ -198,7 +198,7 @@ const Tables = () => {
   };
 
   const handleDownloadQRCode = () => {
-    const canvas = qrCodeRef.current.querySelector('canvas');
+    const canvas = qrCodeRef.current.querySelector("canvas");
     if (canvas) {
       const pngUrl = canvas.toDataURL("image/png");
       const downloadLink = document.createElement("a");
@@ -211,9 +211,6 @@ const Tables = () => {
       console.error("Canvas element not found.");
     }
   };
-
-  
-  
 
   // -------------------------------- RENDER UI --------------------------------
 
@@ -232,7 +229,7 @@ const Tables = () => {
           height: { xs: 400, md: 600 },
           m: 3,
           p: 2,
-          backgroundColor: "#eee",
+          backgroundColor: "#eeeeee",
           backgroundSize: "cover",
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
@@ -645,15 +642,17 @@ const Tables = () => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: openQR ? 300 : 350,
+            width: 450,
             bgcolor: "background.paper",
             border: "none",
             boxShadow: 24,
             borderRadius: 5,
             p: 4,
             display: "flex",
-            flexDirection: openQR ? "column" : "row",
+            flexDirection: !openQR ? "row" : "column",
             alignItems: "center",
+            justifyContent: "space-around",
+            transition: "all 1.3s ease",
           }}
         >
           <IconButton
@@ -662,11 +661,23 @@ const Tables = () => {
           >
             <CancelIcon />
           </IconButton>
-          <Box  ref={qrCodeRef} sx={{ display: "flex", justifyContent: "center", mb: 2 }} >
+          <Box
+            ref={qrCodeRef}
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              mb: 2,
+              backgroundColor: "#fff",
+              p: 2,
+              height: openQR ? 300 : 100,
+              width: openQR ? 300 : 100,
+              transition: "all 0.3s ease",
+            }}
+          >
             <QRCode
-            id="qr-canvas"
-            level="H"
-            size={openQR ? 400 : 200} 
+              id="qr-canvas"
+              size={1000}
+              level="H"
               value={qrData}
               onClick={() => {
                 // setQrModalOpen(false);
@@ -675,8 +686,9 @@ const Tables = () => {
               }}
               style={{
                 cursor: "pointer",
-                height: openQR ? 200 : 100,
-                width: openQR ? 200 : 100,
+                height: openQR ? 300 : 100,
+                width: openQR ? 300 : 100,
+                transition: "all 0.3s ease",
               }}
             />
           </Box>
@@ -688,17 +700,21 @@ const Tables = () => {
               alignItems: "center",
             }}
           >
-            <Typography variant="h6">
-              Table {selectedTable?.table} - Chair {chairId}
-            </Typography>
-            <Button
-              onClick={handleDownloadQRCode}
-              variant="outlined"
-              startIcon={<DownloadIcon />}
-              sx={{ mt: 2 }}
-            >
-              Download
-            </Button>
+            {!openQR && (
+              <>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  Table {selectedTable?.table} - Chair {chairId}
+                </Typography>
+                <Button
+                  onClick={handleDownloadQRCode}
+                  variant="outlined"
+                  startIcon={<DownloadIcon />}
+                  sx={{ mt: 2 }}
+                >
+                  Download
+                </Button>
+              </>
+            )}
           </Box>
         </Box>
       </Modal>
