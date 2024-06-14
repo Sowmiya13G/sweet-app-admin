@@ -203,7 +203,7 @@ const Tables = () => {
       const pngUrl = canvas.toDataURL("image/png");
       const downloadLink = document.createElement("a");
       downloadLink.href = pngUrl;
-      downloadLink.download = `table-${selectedTable?.table}-chair-${chairId}.png`;
+      downloadLink.download = `table-${selectedTable?.table}_chair-${chairId}.png`;
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
@@ -665,7 +665,8 @@ const Tables = () => {
           <Box  ref={qrCodeRef} sx={{ display: "flex", justifyContent: "center", mb: 2 }} >
             <QRCode
             id="qr-canvas"
-
+            level="H"
+            size={openQR ? 400 : 200} 
               value={qrData}
               onClick={() => {
                 // setQrModalOpen(false);
