@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 // mui components
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
@@ -27,7 +27,8 @@ import { db } from "../../firebaseConfig";
 
 // packages
 import QRCode from "react-qr-code";
-
+import { toJpeg } from 'html-to-image';
+import html2canvas from 'html2canvas';
 // assets
 import emptyPlate from "../../assets/images/emptyPlate.png";
 import foodOnPlate1 from "../../assets/images/plateOnfood1.png";
@@ -36,6 +37,9 @@ import foodOnPlate1 from "../../assets/images/plateOnfood1.png";
 import "./style.css";
 
 const Tables = () => {
+
+  // use ref
+  const qrCodeRef = useRef(null);
   // local states
   const [tables, setTables] = useState([]);
   const [open, setOpen] = useState(false);
@@ -44,6 +48,7 @@ const Tables = () => {
   const [qrModalOpen, setQrModalOpen] = useState(false);
   const [qrData, setQrData] = useState("");
   const [openQR, setOpenQR] = useState(false);
+  const [chairId, setChairId]= useState("")
 
   // -------------------------------- USE EFFECTS --------------------------------
 
@@ -170,21 +175,21 @@ const Tables = () => {
       tableNumber: selectedTable.table,
       chairs: {
         id: chair.id,
-        booked: chair.booked,
+        booked: true,
       },
     };
     const jsonString = JSON.stringify(qrData);
     const base64Data = btoa(jsonString); // Encode JSON string in base64
-    const url = `https://food-order-eight-iota.vercel.app/?data=${encodeURIComponent(
-      base64Data
-    )}`;
-    return url;
+    // const url = `https://food-order-eight-iota.vercel.app/?data=${encodeURIComponent(
+    //   base64Data
+    // )}`;
+    return jsonString;
   };
 
   const handleShowQr = (chair) => {
-    console.log(chair);
     const qrCodeUrl = generateQRCodeData(chair);
     setQrData(qrCodeUrl);
+    setChairId(chair?.id)
     setQrModalOpen(true);
   };
 
@@ -194,10 +199,20 @@ const Tables = () => {
     setQrData("");
   };
 
-  console.log(openQR);
-
-  const handleDownloadQRCode = () => {
-    alert("Implement download functionality here.");
+  const handleDownloadQRCode = async () => {
+    if (!qrCodeRef.current) return;
+  
+    try {
+      const dataUrl = await html2canvas(qrCodeRef.current); // Assuming 'qrCodeRef.current' is the canvas element
+      const link = document.createElement("a");
+      link.href = dataUrl.toDataURL('image/jpeg');
+      link.download = `table${selectedTable?.table}chair${chairId}.jpeg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Error converting QR code to image:", error);
+    }
   };
 
   // -------------------------------- RENDER UI --------------------------------
@@ -623,29 +638,23 @@ const Tables = () => {
         onClose={handleCloseQrModal}
         aria-labelledby="qr-code-modal"
         aria-describedby="qr-code-modal-description"
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
       >
         <Box
           sx={{
             position: "absolute",
-            width: openQR ? "20%" : "25%",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: openQR? 300: 350,
+            bgcolor: "background.paper",
+            border: "none",
             boxShadow: 24,
+            borderRadius: 5,
             p: 4,
-            outline: "none",
-            borderRadius: 2,
-            textAlign: "center",
             display: "flex",
             flexDirection: openQR ? "column" : "row",
-            alignItems: "center",
-            height: openQR && "50%",
-            paddingY: openQR && "50px",
-            bgcolor:"#fff"
+            alignItems:"center"
           }}
-        
         >
           <IconButton
             onClick={handleCloseQrModal}
@@ -673,10 +682,11 @@ const Tables = () => {
               display: "flex",
               flexDirection: "column",
               paddingX: "20px",
+              alignItems:"center"
             }}
           >
             <Typography variant="h6">
-              Table {selectedTable?.table} - Chair {qrData.chairNumber}
+              Table {selectedTable?.table} - Chair {chairId}
             </Typography>
             <Button
               onClick={handleDownloadQRCode}
