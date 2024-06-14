@@ -1,19 +1,33 @@
 import React, { useEffect, useState } from "react";
 
 // mui components
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { AddCircleOutlineSharp } from "@mui/icons-material";
+import DeleteIcon from "@mui/icons-material/Delete";
 import EventSeatIcon from "@mui/icons-material/EventSeat";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import TableBarIcon from "@mui/icons-material/TableBarTwoTone";
-import { Box, Button, List, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  List,
+  Typography,
+  Modal,
+  IconButton,
+  Grid,
+} from "@mui/material";
 import Tooltip from "@mui/material/Tooltip";
+import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
+import CancelIcon from "@mui/icons-material/Cancel";
+import DownloadIcon from "@mui/icons-material/Download";
 
 // firebase
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
 
 // packages
-import QRCode from "qrcode.react";
+import QRCode from "react-qr-code";
+
 // assets
 import emptyPlate from "../../assets/images/emptyPlate.png";
 import foodOnPlate1 from "../../assets/images/plateOnfood1.png";
@@ -27,6 +41,9 @@ const Tables = () => {
   const [open, setOpen] = useState(false);
   const [addNewOpen, setAddNewOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState(null);
+  const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [qrData, setQrData] = useState("");
+  const [openQR, setOpenQR] = useState(false);
 
   // -------------------------------- USE EFFECTS --------------------------------
 
@@ -43,7 +60,6 @@ const Tables = () => {
             setSelectedTable(data[0]);
           }
         }
-        console.log("Data fetched from Firestore successfully.");
       } catch (error) {
         console.error("Error fetching data from Firestore: ", error);
       }
@@ -75,6 +91,20 @@ const Tables = () => {
     backgroundColor: "#00000011",
     marginBottom: 1,
   };
+  const chairCardStyle = {
+    color: "#000",
+    fontSize: 16,
+    fontWeight: 600,
+    width: "100%",
+    height: 60,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-around",
+    borderRadius: 2,
+    backgroundColor: "#00000011",
+    marginBottom: "10px",
+    padding: "10px",
+  };
 
   // -------------------------------- FUNCTIONALITIES --------------------------------
 
@@ -99,9 +129,6 @@ const Tables = () => {
       await updateDoc(tablesRef, {
         tablesBooked: updatedTables,
       });
-
-      console.log("Table deleted successfully!");
-
       if (updatedTables.length > 0) {
         setSelectedTable(updatedTables[updatedTables.length - 1]);
       } else {
@@ -132,20 +159,19 @@ const Tables = () => {
       setTables([...tables, newTable]);
       setSelectedTable(newTable);
       setAddNewOpen(false);
-      console.log("Table added successfully!");
     } catch (error) {
       console.error("Error adding table to Firestore: ", error);
     }
   };
 
-  const generateQRCodeData = (table) => {
-    if (!table) return "";
+  const generateQRCodeData = (chair) => {
+    if (!chair) return "";
     const qrData = {
-      tableNumber: table.table,
-      chairs: table.chairs.map((chair) => ({
+      tableNumber: selectedTable.table,
+      chairs: {
         id: chair.id,
         booked: chair.booked,
-      })),
+      },
     };
     const jsonString = JSON.stringify(qrData);
     const base64Data = btoa(jsonString); // Encode JSON string in base64
@@ -154,6 +180,26 @@ const Tables = () => {
     )}`;
     return url;
   };
+
+  const handleShowQr = (chair) => {
+    console.log(chair);
+    const qrCodeUrl = generateQRCodeData(chair);
+    setQrData(qrCodeUrl);
+    setQrModalOpen(true);
+  };
+
+  const handleCloseQrModal = () => {
+    setOpenQR(false);
+    setQrModalOpen(false);
+    setQrData("");
+  };
+
+  console.log(openQR);
+
+  const handleDownloadQRCode = () => {
+    alert("Implement download functionality here.");
+  };
+
   // -------------------------------- RENDER UI --------------------------------
 
   return (
@@ -380,7 +426,7 @@ const Tables = () => {
               backgroundColor: "#00000011",
               display: "flex",
               flexDirection: "column",
-              padding: "10px",
+              padding: "5px",
               borderRadius: "10px",
             }}
           >
@@ -389,6 +435,7 @@ const Tables = () => {
                 display: "flex",
                 flexDirection: "row",
                 alignItems: "center",
+                width: "100%",
               }}
             >
               <List
@@ -476,22 +523,26 @@ const Tables = () => {
                   </div>
                 </div>
               </List>
-              {Boolean(selectedTable?.tableQRDetails) && (
-                <QRCode
-                  value={generateQRCodeData(selectedTable)}
-                  size={10000}
-                  bgColor="#fff"
-                  fgColor="black" // Higher resolution
-                  level={"H"} // High error correction level
-                  style={{
-                    height: 250,
-                    width: 250,
-                    background: "#fff",
-                    padding: 10,
-                    borderRadius: 10,
-                  }}
-                />
-              )}
+
+              <Button
+                variant="contained"
+                onClick={Boolean(addNewOpen) ? handleAddTable : handleDelete}
+                sx={{
+                  height: 40,
+                  width: "40%",
+                  backgroundColor: "#fff",
+                  color: "#000",
+                  alignItems: "center",
+                  justifyContent: "space-around",
+                }}
+              >
+                {Boolean(addNewOpen) ? (
+                  <AddCircleOutlineIcon />
+                ) : (
+                  <DeleteIcon />
+                )}
+                {Boolean(addNewOpen) ? "Add Table" : "Delete Table"}
+              </Button>
             </Box>
             {selectedTable && (
               <>
@@ -505,55 +556,139 @@ const Tables = () => {
                     justifyContent: "center",
                     alignItems: "start ",
                     flexDirection: "column",
-                    width: "50%",
+                    width: "100%",
                   }}
                 >
                   {selectedTable.chairs.map((chair, index) => (
-                    <ul key={index}>
+                    <ul
+                      key={index}
+                      style={{
+                        width: "100%",
+                        display: "flex",
+                        justifyContent: "space-around",
+                      }}
+                    >
                       {chair.booked ? (
                         <li
                           style={{
-                            color: "#000",
-                            fontSize: 16,
-                            fontWeight: 600,
+                            ...chairCardStyle,
                           }}
                         >
                           Chair {index + 1} - #{chair.orderId}
+                          <Button
+                            onClick={() => handleShowQr(chair)}
+                            variant="outlined"
+                            sx={{
+                              borderColor: "#626fa0",
+                              "&:hover": {
+                                borderColor: "#626fa0",
+                              },
+                            }}
+                          >
+                            show <QrCodeScannerIcon sx={{ ml: 2 }} />
+                          </Button>
                         </li>
                       ) : (
                         <li
                           style={{
-                            color: "#000",
-                            fontSize: 16,
-                            fontWeight: 600,
+                            ...chairCardStyle,
                           }}
                         >
                           Chair {index + 1} - Available
+                          <Button
+                            onClick={() => handleShowQr(chair)}
+                            variant="outlined"
+                            sx={{
+                              borderColor: "#626fa0",
+                              "&:hover": {
+                                borderColor: "#626fa0",
+                              },
+                            }}
+                          >
+                            show
+                            <QrCodeScannerIcon sx={{ ml: 2 }} />
+                          </Button>
                         </li>
                       )}
                     </ul>
                   ))}
                 </List>
-                <Button
-                  variant="contained"
-                  onClick={Boolean(addNewOpen) ? handleAddTable : handleDelete}
-                  sx={{
-                    height: 40,
-                    width: "40%",
-                    mt: "10px",
-                    backgroundColor: "#fff",
-                    color: "#000",
-                    alignSelf: "center",
-                    justifySelf: "end",
-                  }}
-                >
-                  {Boolean(addNewOpen) ? "Add Table" : "Delete Table"}
-                </Button>
               </>
             )}
           </Box>
         </Box>
       </Box>
+      <Modal
+        open={qrModalOpen}
+        onClose={handleCloseQrModal}
+        aria-labelledby="qr-code-modal"
+        aria-describedby="qr-code-modal-description"
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            width: openQR ? "20%" : "25%",
+            boxShadow: 24,
+            p: 4,
+            outline: "none",
+            borderRadius: 2,
+            textAlign: "center",
+            display: "flex",
+            flexDirection: openQR ? "column" : "row",
+            alignItems: "center",
+            height: openQR && "50%",
+            paddingY: openQR && "50px",
+            bgcolor:"#fff"
+          }}
+        
+        >
+          <IconButton
+            onClick={handleCloseQrModal}
+            sx={{ position: "absolute", top: 10, right: 10 }}
+          >
+            <CancelIcon />
+          </IconButton>
+          <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
+            <QRCode
+              value={qrData}
+              onClick={() => {
+                // setQrModalOpen(false);
+                // setTimeout(() => setQrModalOpen(true), 200);
+                setOpenQR(!openQR);
+              }}
+              style={{
+                cursor: "pointer",
+                height: openQR ? 200 : 100,
+                width: openQR ? 200 : 100,
+              }}
+            />
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              paddingX: "20px",
+            }}
+          >
+            <Typography variant="h6">
+              Table {selectedTable?.table} - Chair {qrData.chairNumber}
+            </Typography>
+            <Button
+              onClick={handleDownloadQRCode}
+              variant="outlined"
+              startIcon={<DownloadIcon />}
+              sx={{ mt: 2 }}
+            >
+              Download
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
     </Box>
   );
 };
