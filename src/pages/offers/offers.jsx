@@ -25,7 +25,7 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
-
+import EditIcon from "@mui/icons-material/Edit";
 // firebase service
 import { db } from "../../firebaseConfig";
 
@@ -569,6 +569,7 @@ const Offers = () => {
                     width: "100%",
                     borderRadius: "10px",
                     minHeight: 120,
+                    position: "relative",
                     ":hover": {
                       backgroundColor: "#00000021",
                       transition: "background-color 0.2s ease-in-out",
@@ -610,14 +611,25 @@ const Offers = () => {
                       {` ₹ ${food.priceAfterOffer}`}
                     </Typography>
                   </Box>
-                  <Box sx={{ width: 75, minHeight: 75, mx: 2 }}>
+                  <Box sx={{ position: "absolute", top: 5, right: 5 }}>
+                    <EditIcon />
+                  </Box>
+                  <Box
+                    sx={{
+                      width: 75,
+                      minHeight: 75,
+                      m: "auto",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
                     <img
                       src={food.img}
                       style={{
                         borderRadius: "50%",
                         objectFit: "cover",
-                        width: 75,
-                        height: 75,
+                        width: 55,
+                        height: 55,
                       }}
                       alt="Food"
                     />
@@ -682,6 +694,7 @@ const Offers = () => {
                     width: "100%",
                     borderRadius: "10px",
                     minHeight: 120,
+                    position: "relative",
                     ":hover": {
                       backgroundColor: "#00000021",
                       transition: "background-color 0.2s ease-in-out",
@@ -723,21 +736,31 @@ const Offers = () => {
                       {` ₹ ${food.priceAfterOffer}`}
                     </Typography>
                   </Box>
+                  <Box sx={{ position: "absolute", top: 5, right: 5 }}>
+                    <EditIcon />
+                  </Box>
                   <Box
                     sx={{
                       display: "flex",
                       gap: "10px",
                       flexDirection: "row",
                       paddingRight: "10px",
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
                   >
-                    {food.imgSrc.map((src, idx) => (
+                    {food.imgSrc.slice(0, 2).map((src, idx) => (
                       <img
                         key={idx}
                         src={src}
-                        width={50}
-                        height={50}
-                        style={{ borderRadius: 5 }}
+                        style={{
+                          borderRadius: "50%",
+                          objectFit: "cover",
+                          width: 55,
+                          height: 55,
+                          position: "absolute",
+                          right: idx * 20 + 30,
+                        }}
                         alt={`Food ${idx + 1}`}
                       />
                     ))}

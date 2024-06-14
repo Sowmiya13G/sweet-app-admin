@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Paper, Typography } from "@mui/material";
 
-const TabBar = ({ tabs, selectedTab, setSelectedTab,fontSize  }) => {
+const TabBar = ({ tabs, selectedTab, setSelectedTab, fontSize }) => {
   const tabContainer = {
     display: "flex",
     width: "100%",
@@ -36,10 +36,22 @@ const TabBar = ({ tabs, selectedTab, setSelectedTab,fontSize  }) => {
             ...tabStyle,
             backgroundColor: selectedTab === item.tbName ? "#3c3c4e" : "#fff",
             color: selectedTab === item.tbName ? "#fff" : "#3c3c4e",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            px: 1,
           }}
           onClick={() => handleTabSelect(item.tbName)}
         >
-          <Typography sx={{ fontWeight: 600 , fontSize}}>{item.tbName}</Typography>
+          <Typography
+            sx={{
+              fontWeight: 600,
+              fontSize,
+              textOverflow: "ellipsis",
+              overflow: "hidden",
+            }}
+          >
+            {item.tbName}
+          </Typography>
         </Paper>
       ))}
     </Box>
