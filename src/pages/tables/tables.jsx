@@ -26,9 +26,8 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
 
 // packages
-import QRCode from "react-qr-code";
-import { toJpeg } from 'html-to-image';
-import html2canvas from 'html2canvas';
+// import QRCode from "react-qr-code";
+import QRCode from "qrcode.react";
 // assets
 import emptyPlate from "../../assets/images/emptyPlate.png";
 import foodOnPlate1 from "../../assets/images/plateOnfood1.png";
@@ -37,7 +36,6 @@ import foodOnPlate1 from "../../assets/images/plateOnfood1.png";
 import "./style.css";
 
 const Tables = () => {
-
   // use ref
   const qrCodeRef = useRef(null);
   // local states
@@ -48,7 +46,7 @@ const Tables = () => {
   const [qrModalOpen, setQrModalOpen] = useState(false);
   const [qrData, setQrData] = useState("");
   const [openQR, setOpenQR] = useState(false);
-  const [chairId, setChairId]= useState("")
+  const [chairId, setChairId] = useState("");
 
   // -------------------------------- USE EFFECTS --------------------------------
 
@@ -189,7 +187,7 @@ const Tables = () => {
   const handleShowQr = (chair) => {
     const qrCodeUrl = generateQRCodeData(chair);
     setQrData(qrCodeUrl);
-    setChairId(chair?.id)
+    setChairId(chair?.id);
     setQrModalOpen(true);
   };
 
@@ -199,21 +197,23 @@ const Tables = () => {
     setQrData("");
   };
 
-  const handleDownloadQRCode = async () => {
-    if (!qrCodeRef.current) return;
-  
-    try {
-      const dataUrl = await html2canvas(qrCodeRef.current); // Assuming 'qrCodeRef.current' is the canvas element
-      const link = document.createElement("a");
-      link.href = dataUrl.toDataURL('image/jpeg');
-      link.download = `table${selectedTable?.table}chair${chairId}.jpeg`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (error) {
-      console.error("Error converting QR code to image:", error);
+  const handleDownloadQRCode = () => {
+    const canvas = qrCodeRef.current.querySelector('canvas');
+    if (canvas) {
+      const pngUrl = canvas.toDataURL("image/png");
+      const downloadLink = document.createElement("a");
+      downloadLink.href = pngUrl;
+      downloadLink.download = `table-${selectedTable?.table}-chair-${chairId}.png`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    } else {
+      console.error("Canvas element not found.");
     }
   };
+
+  
+  
 
   // -------------------------------- RENDER UI --------------------------------
 
@@ -645,7 +645,7 @@ const Tables = () => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: openQR? 300: 350,
+            width: openQR ? 300 : 350,
             bgcolor: "background.paper",
             border: "none",
             boxShadow: 24,
@@ -653,7 +653,7 @@ const Tables = () => {
             p: 4,
             display: "flex",
             flexDirection: openQR ? "column" : "row",
-            alignItems:"center"
+            alignItems: "center",
           }}
         >
           <IconButton
@@ -662,8 +662,10 @@ const Tables = () => {
           >
             <CancelIcon />
           </IconButton>
-          <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
+          <Box  ref={qrCodeRef} sx={{ display: "flex", justifyContent: "center", mb: 2 }} >
             <QRCode
+            id="qr-canvas"
+
               value={qrData}
               onClick={() => {
                 // setQrModalOpen(false);
@@ -682,7 +684,7 @@ const Tables = () => {
               display: "flex",
               flexDirection: "column",
               paddingX: "20px",
-              alignItems:"center"
+              alignItems: "center",
             }}
           >
             <Typography variant="h6">
