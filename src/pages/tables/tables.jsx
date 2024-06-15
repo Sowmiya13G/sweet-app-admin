@@ -22,7 +22,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import DownloadIcon from "@mui/icons-material/Download";
 
 // firebase
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
 
 // packages
@@ -55,14 +55,21 @@ const Tables = () => {
       try {
         const docRef = doc(db, "bookingData", "tablesBooked");
         console.log(docRef);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data().tablesBooked;
-          setTables(data);
-          if (data.length > 0) {
-            setSelectedTable(data[0]);
+        // Listen to real-time updates
+        const unsubscribe = onSnapshot(docRef, (docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data().tablesBooked;
+            setTables(data);
+            if (data.length > 0) {
+              setSelectedTable(data[0]);
+            }
+          } else {
+            console.log("No such document!");
           }
-        }
+        });
+
+        // Cleanup subscription on unmount
+        return () => unsubscribe();
       } catch (error) {
         console.error("Error fetching data from Firestore: ", error);
       }
@@ -102,8 +109,8 @@ const Tables = () => {
     height: 60,
     display: "flex",
     alignItems: "center",
-    justifyContent: "space-around",
-    borderRadius: 2,
+    justifyContent: "space-between",
+    borderRadius: 5,
     backgroundColor: "#00000011",
     marginBottom: "10px",
     padding: "10px",
@@ -148,10 +155,6 @@ const Tables = () => {
       const newTable = {
         table: selectedTable.table,
         chairs: selectedTable.chairs.map((chair) => ({ ...chair })),
-        tableQRDetails: {
-          table: selectedTable.table,
-          chairs: selectedTable.chairs.map((chair) => ({ ...chair })),
-        },
       };
 
       const tablesRef = doc(db, "bookingData", "tablesBooked");
@@ -167,6 +170,9 @@ const Tables = () => {
     }
   };
 
+  // const url = `https://food-order-eight-iota.vercel.app/?data=${encodeURIComponent(
+  //   base64Data
+  // )}`;
   const generateQRCodeData = (chair) => {
     if (!chair) return "";
     const qrData = {
@@ -178,10 +184,10 @@ const Tables = () => {
     };
     const jsonString = JSON.stringify(qrData);
     const base64Data = btoa(jsonString); // Encode JSON string in base64
-    // const url = `https://food-order-eight-iota.vercel.app/?data=${encodeURIComponent(
-    //   base64Data
-    // )}`;
-    return jsonString;
+    const url = `https://0e99-2405-201-e020-d999-bc9a-f81-b1ed-b15c.ngrok-free.app/?data=${encodeURIComponent(
+      base64Data
+    )}`;
+    return url;
   };
 
   const handleShowQr = (chair) => {
@@ -215,19 +221,11 @@ const Tables = () => {
   // -------------------------------- RENDER UI --------------------------------
 
   return (
-    <Box
-      sx={{
-        width: "100%",
-      }}
-    >
+    <Box sx={{ p: 2 }}>
       <Box
         sx={{
-          width: {
-            xs: "100%",
-            md: "95%",
-          },
-          height: { xs: 400, md: 600 },
-          m: 3,
+          width: "100%",
+          height: { xs: "auto", md: 600 },
           p: 2,
           backgroundColor: "#eeeeee",
           backgroundSize: "cover",
@@ -244,17 +242,21 @@ const Tables = () => {
             px: 2,
           }}
         >
-          <Typography sx={{ fontWeight: "bold", fontSize: 20 }}>
+          <Typography sx={{ fontWeight: "bold", fontSize: { xs: 14, md: 20 } }}>
             Avaliable Table list
             <TableBarIcon
-              sx={{ color: "#626fa0", mx: 2, fontSize: 30, my: 2 }}
+              sx={{
+                color: "#626fa0",
+                mx: 2,
+                fontSize: { xs: 16, md: 20 },
+                my: 2,
+              }}
             />
           </Typography>
           <Button
             onClick={() => {
               setOpen(true);
               setAddNewOpen(true);
-
               const newTableId = `${tables.length + 1}`;
               setSelectedTable({
                 table: newTableId,
@@ -286,9 +288,12 @@ const Tables = () => {
               },
             }}
           >
-            <AddCircleOutlineSharp style={{ color: "#626fa0" }} />
             <Typography
-              sx={{ fontWeight: "bold", fontSize: 16, mx: 2, color: "#626fa0" }}
+              sx={{
+                fontWeight: "bold",
+                fontSize: { xs: 12, md: 16 },
+                color: "#626fa0",
+              }}
             >
               ADD NEW
             </Typography>
@@ -297,33 +302,43 @@ const Tables = () => {
         <Box
           sx={{
             ...iconContainerStyle,
-            justifyContent: "start ",
+            justifyContent: { xs: "space-between", md: "start " },
             px: 2,
           }}
         >
-          <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
-            <FiberManualRecordIcon
-              sx={{ color: "#000000", mr: 1, fontSize: 10, my: 2 }}
-            />
+          <Typography sx={{ fontWeight: "bold", fontSize: { xs: 12, md: 20 } }}>
             Not Avaliable
             <EventSeatIcon
-              sx={{ color: "#1ab46a", mx: 2, fontSize: 30, my: 2 }}
+              sx={{
+                color: "#1ab46a",
+                mx: { xs: 0, md: 2 },
+                ml: 2,
+                fontSize: { xs: 20, md: 30 },
+              }}
             />
           </Typography>{" "}
           |
-          <Typography sx={{ fontWeight: "bold", fontSize: 16, ml: 2 }}>
-            <FiberManualRecordIcon
-              sx={{ color: "#000000", mr: 1, fontSize: 10, my: 2 }}
-            />
+          <Typography
+            sx={{
+              fontWeight: "bold",
+              fontSize: { xs: 12, md: 20 },
+              mx: { xs: 0, md: 2 },
+              ml: 2,
+            }}
+          >
             Avaliable
             <EventSeatIcon
-              sx={{ color: "#000000", mx: 2, fontSize: 30, my: 2 }}
+              sx={{
+                color: "#000000",
+                mx: 2,
+                fontSize: { xs: 20, md: 30 },
+              }}
             />
           </Typography>
         </Box>
         <Box
           sx={{
-            display: "flex",
+            display: { xs: "block", md: "flex" },
             flexDirection: "row",
             justifyContent: "space-between",
             width: "100%",
@@ -331,13 +346,13 @@ const Tables = () => {
             borderRadius: "15px",
           }}
         >
-          <Box sx={{ ...scrollbarStyles, width: "60%" }}>
+          <Box sx={{ ...scrollbarStyles, width: { xs: "100%", md: "60%" } }}>
             <List
               key={1}
               container
               spacing={2}
               sx={{
-                flexWrap: "wrap",
+                flexWrap: { xs: "nowrap", md: "wrap" },
                 display: "flex",
                 justifyContent: "space-evenly",
               }}
@@ -355,7 +370,7 @@ const Tables = () => {
                             key={chairIndex}
                             title={
                               chair.booked
-                                ? "This chair is booked #ORD0012"
+                                ? `This chair is booked ${chair.orderId}`
                                 : "This chair is available"
                             }
                             arrow
@@ -403,7 +418,7 @@ const Tables = () => {
                             key={chairIndex}
                             title={
                               chair.booked
-                                ? "This chair is booked #ORD001"
+                                ? `This chair is booked ${chair.orderId}`
                                 : "This chair is available"
                             }
                             arrow
@@ -434,11 +449,11 @@ const Tables = () => {
           <Box
             sx={{
               ...scrollbarStyles,
-              width: "35%",
+              width: { xs: "100%", md: "35%" },
               backgroundColor: "#00000011",
               display: "flex",
               flexDirection: "column",
-              padding: "5px",
+              // padding: "5px",
               borderRadius: "10px",
             }}
           >
@@ -569,6 +584,7 @@ const Tables = () => {
                     alignItems: "start ",
                     flexDirection: "column",
                     width: "100%",
+                    px: 2,
                   }}
                 >
                   {selectedTable.chairs.map((chair, index) => (
@@ -576,8 +592,9 @@ const Tables = () => {
                       key={index}
                       style={{
                         width: "100%",
-                        display: "flex",
+                        display: "flex  ",
                         justifyContent: "space-around",
+                        padding: 0,
                       }}
                     >
                       {chair.booked ? (
