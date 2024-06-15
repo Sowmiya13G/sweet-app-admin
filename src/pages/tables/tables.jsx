@@ -244,14 +244,14 @@ const Tables = () => {
         >
           <Typography sx={{ fontWeight: "bold", fontSize: { xs: 14, md: 20 } }}>
             Avaliable Table list
-            <TableBarIcon
+            {/* <TableBarIcon
               sx={{
                 color: "#626fa0",
                 mx: 2,
-                fontSize: { xs: 16, md: 20 },
+                fontSize: { xs: 18, md: 20 },
                 my: 2,
               }}
-            />
+            /> */}
           </Typography>
           <Button
             onClick={() => {
@@ -280,19 +280,21 @@ const Tables = () => {
                 ],
               });
             }}
-            variant="outlined"
+            variant="contained"
             sx={{
-              borderColor: "#626fa0",
+              background: "#626fa0",
+              color: "#fff",
               "&:hover": {
-                borderColor: "#626fa0",
+                color: "#fff",
+                background: "#626fa0",
               },
             }}
           >
             <Typography
               sx={{
-                fontWeight: "bold",
-                fontSize: { xs: 12, md: 16 },
-                color: "#626fa0",
+                fontSize: { xs: 10, md: 14 },
+                color: "#fff",
+                textTransform: "capitalize",
               }}
             >
               ADD NEW
@@ -306,13 +308,18 @@ const Tables = () => {
             px: 2,
           }}
         >
-          <Typography sx={{ fontWeight: "bold", fontSize: { xs: 12, md: 20 } }}>
+          <Typography
+            sx={{
+              fontWeight: "bold",
+              fontSize: { xs: 12, md: 20 },
+            }}
+          >
             Not Avaliable
             <EventSeatIcon
               sx={{
                 color: "#1ab46a",
-                mx: { xs: 0, md: 2 },
-                ml: 2,
+                mx: { xs: 2, md: 2 },
+                mr: { xs: 0 },
                 fontSize: { xs: 20, md: 30 },
               }}
             />
@@ -550,26 +557,46 @@ const Tables = () => {
                   </div>
                 </div>
               </List>
-
-              <Button
-                variant="contained"
-                onClick={Boolean(addNewOpen) ? handleAddTable : handleDelete}
+              <Box
                 sx={{
-                  height: 40,
-                  width: "40%",
-                  backgroundColor: "#fff",
-                  color: "#000",
-                  alignItems: "center",
-                  justifyContent: "space-around",
+                  width: "50%",
+                  display: "flex",
+                  justifyContent: "end",
+                  mx: 2,
                 }}
               >
-                {Boolean(addNewOpen) ? (
-                  <AddCircleOutlineIcon />
-                ) : (
-                  <DeleteIcon />
-                )}
-                {Boolean(addNewOpen) ? "Add Table" : "Delete Table"}
-              </Button>
+                <Button
+                  variant="outlined"
+                  onClick={Boolean(addNewOpen) ? handleAddTable : handleDelete}
+                  sx={{
+                    height: 40,
+                    // width: "100%",
+                    color: "#000",
+                    background: "#fff",
+                    alignItems: "center",
+                    justifyContent: "space-around",
+                    fontWeight: "bold",
+                    fontSize: { xs: 10, md: 12 },
+                    color: Boolean(addNewOpen) ? "#626fa0" : "red",
+                    borderColor: "none",
+                    textTransform: "capitalize",
+
+                    border: "none",
+                    "&:hover": {
+                      borderColor: "none",
+                      border: "none",
+                      background: "#fff",
+                    },
+                  }}
+                >
+                  {Boolean(addNewOpen) ? (
+                    <AddCircleOutlineIcon />
+                  ) : (
+                    <DeleteIcon />
+                  )}
+                  {Boolean(addNewOpen) ? "Add Table" : "Delete Table"}
+                </Button>
+              </Box>
             </Box>
             {selectedTable && (
               <>
@@ -608,13 +635,20 @@ const Tables = () => {
                             onClick={() => handleShowQr(chair)}
                             variant="outlined"
                             sx={{
+                              fontWeight: "bold",
+                              display: "flex",
+                              justifyContent: "space-between",
+                              fontSize: { xs: 10, md: 12 },
+                              color: "#626fa0",
+                              textTransform: "capitalize",
                               borderColor: "#626fa0",
                               "&:hover": {
                                 borderColor: "#626fa0",
                               },
                             }}
                           >
-                            show <QrCodeScannerIcon sx={{ ml: 2 }} />
+                            show
+                            <QrCodeScannerIcon sx={{ ml: 2, fontSize: 18 }} />
                           </Button>
                         </li>
                       ) : (
@@ -628,6 +662,12 @@ const Tables = () => {
                             onClick={() => handleShowQr(chair)}
                             variant="outlined"
                             sx={{
+                              fontWeight: "bold",
+                              display: "flex",
+                              justifyContent: "space-between",
+                              fontSize: { xs: 10, md: 12 },
+                              color: "#626fa0",
+                              textTransform: "capitalize",
                               borderColor: "#626fa0",
                               "&:hover": {
                                 borderColor: "#626fa0",
@@ -635,7 +675,7 @@ const Tables = () => {
                             }}
                           >
                             show
-                            <QrCodeScannerIcon sx={{ ml: 2 }} />
+                            <QrCodeScannerIcon sx={{ ml: 2, fontSize: 18 }} />
                           </Button>
                         </li>
                       )}
@@ -659,7 +699,7 @@ const Tables = () => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: 450,
+            width: { xs: "90%", md: 450 },
             bgcolor: "background.paper",
             border: "none",
             boxShadow: 24,
