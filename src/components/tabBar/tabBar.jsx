@@ -9,7 +9,7 @@ const TabBar = ({ tabs, selectedTab, setSelectedTab, fontSize }) => {
     padding: 1,
     gap: 2,
     borderRadius: 2,
-    height: 50,
+    minHeight: 50,
   };
 
   const tabStyle = {

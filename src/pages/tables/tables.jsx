@@ -2,27 +2,23 @@ import React, { useEffect, useRef, useState } from "react";
 
 // mui components
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import { AddCircleOutlineSharp } from "@mui/icons-material";
+import CancelIcon from "@mui/icons-material/Cancel";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DownloadIcon from "@mui/icons-material/Download";
 import EventSeatIcon from "@mui/icons-material/EventSeat";
-import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
-import TableBarIcon from "@mui/icons-material/TableBarTwoTone";
+import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
 import {
   Box,
   Button,
-  List,
-  Typography,
-  Modal,
   IconButton,
-  Grid,
+  List,
+  Modal,
+  Typography,
 } from "@mui/material";
 import Tooltip from "@mui/material/Tooltip";
-import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
-import CancelIcon from "@mui/icons-material/Cancel";
-import DownloadIcon from "@mui/icons-material/Download";
 
 // firebase
-import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
+import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
 
 // packages
@@ -571,7 +567,6 @@ const Tables = () => {
                   sx={{
                     height: 40,
                     // width: "100%",
-                    color: "#000",
                     background: "#fff",
                     alignItems: "center",
                     justifyContent: "space-around",

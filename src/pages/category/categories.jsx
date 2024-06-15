@@ -425,14 +425,22 @@ const Categories = () => {
   const handleFoodCardClick = (food) => {
     setSelectedCard(food.dishName);
     setFoodDetails(food);
+    setAddNewFoodList(false);
   };
 
   // delete food item
-  const handleDeleteFood = async () => {
+  const handleDeleteFood = async (food) => {
     if (selectedCard) {
       try {
-        await deleteDoc(doc(db, "foodList", selectedCard));
+        await deleteDoc(doc(db, "foodList", food.id));
         setSelectedCard(null);
+        setFoodDetails({
+          category: "",
+          dishName: "",
+          price: "",
+          categorized: "",
+          img: "",
+        });
       } catch (e) {
         console.error("Error deleting food item: ", e);
       }
@@ -580,25 +588,49 @@ const Categories = () => {
                   }}
                 >
                   <Button
-                    variant="contained"
-                    color="error"
+                    variant="outlined"
                     sx={{
                       height: 40,
+                      marginBottom: "10px",
                       width: "40%",
+                      // width: "100%",
+                      color: "red",
+                      background: "#fff",
+                      alignItems: "center",
+                      justifyContent: "space-around",
+                      fontWeight: "bold",
+                      fontSize: { xs: 12, md: 12 },
+                      borderColor: "red",
+                      textTransform: "capitalize",
+                      "&:hover": {
+                        borderColor: "red",
+                        background: "#fff",
+                      },
                     }}
-                    onClick={() => handleDeleteFood()}
+                    onClick={() => handleDeleteFood(foodDetails)}
                   >
                     Delete
                   </Button>
                   <Button
-                    variant="contained"
-                    color="success"
+                    variant="outlined"
                     onClick={() => handleSaveFoodItem(foodDetails)}
                     sx={{
                       height: 40,
-                      width: "45%",
-                      display: "flex",
-                      alignSelf: "flex-end",
+                      marginBottom: "10px",
+                      width: "40%",
+                      // width: "100%",
+                      color: "green",
+                      background: "#fff",
+                      alignItems: "center",
+                      justifyContent: "space-around",
+                      fontWeight: "bold",
+                      fontSize: { xs: 12, md: 12 },
+                      borderColor: "green",
+                      textTransform: "capitalize",
+                      "&:hover": {
+                        borderColor: "green",
+                        background: "#fff",
+                      },
                     }}
                   >
                     Save
@@ -606,14 +638,25 @@ const Categories = () => {
                 </Box>
               ) : (
                 <Button
-                  variant="contained"
-                  color="success"
+                  variant="outlined"
                   onClick={() => handleAddFoodItem()}
                   sx={{
                     height: 40,
-                    width: "45%",
-                    display: "flex",
-                    alignSelf: "flex-end",
+                    marginBottom: "10px",
+                    width: "40%",
+                    // width: "100%",
+                    color: "green",
+                    background: "#fff",
+                    alignItems: "center",
+                    justifyContent: "space-around",
+                    fontWeight: "bold",
+                    fontSize: { xs: 12, md: 12 },
+                    borderColor: "green",
+                    textTransform: "capitalize",
+                    "&:hover": {
+                      borderColor: "green",
+                      background: "#fff",
+                    },
                   }}
                 >
                   Add Food
@@ -710,24 +753,49 @@ const Categories = () => {
         ) : (
           <Box style={{ display: "flex", justifyContent: "space-between" }}>
             <Button
-              variant="contained"
-              color="error"
+              variant="outlined"
               onClick={handleDelete}
               sx={{
                 height: 40,
+                marginBottom: "10px",
                 width: "40%",
+                // width: "100%",
+                color: "red",
+                background: "#fff",
+                alignItems: "center",
+                justifyContent: "space-around",
+                fontWeight: "bold",
+                fontSize: { xs: 12, md: 12 },
+                borderColor: "red",
+                textTransform: "capitalize",
+                "&:hover": {
+                  borderColor: "red",
+                  background: "#fff",
+                },
               }}
             >
               Delete
             </Button>
             <Button
-              variant="contained"
-              color="success"
+              variant="outlined"
               onClick={handleSaveChanges}
               sx={{
                 height: 40,
                 marginBottom: "10px",
                 width: "40%",
+                // width: "100%",
+                color: "green",
+                background: "#fff",
+                alignItems: "center",
+                justifyContent: "space-around",
+                fontWeight: "bold",
+                fontSize: { xs: 12, md: 12 },
+                borderColor: "green",
+                textTransform: "capitalize",
+                "&:hover": {
+                  borderColor: "green",
+                  background: "#fff",
+                },
               }}
             >
               Save
@@ -848,11 +916,11 @@ const Categories = () => {
                         paddingLeft: "15px",
                       }}
                     >
-                      <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
+                      <Typography sx={{ fontSize: 14 }}>
                         Dish Name: {food.dishName}
                       </Typography>
-                      <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
-                        Price: {food.price}
+                      <Typography sx={{ fontSize: 14 }}>
+                        Price: ₹{food.price}
                       </Typography>
                     </Box>
                   </Box>
