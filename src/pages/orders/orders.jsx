@@ -189,7 +189,7 @@ const Orders = () => {
     alignItems: "center",
     justifyContent: "start",
     paddingLeft: 2,
-    width: { xs: "100%", md: "50%" },
+    width: { xs: "100%", md: "60%" },
     marginBottom: 2,
   };
 
@@ -362,6 +362,7 @@ const Orders = () => {
                   ...subGridItemStyles,
                 }}
               >
+              {console.log(order, "order")}
                 <Box
                   sx={{
                     ...iconContainerStyle,
@@ -386,54 +387,71 @@ const Orders = () => {
                     width: "100%",
                     flexWrap: "wrap",
                     fontSize: 10,
+                    flexDirection: "column",
                   }}
                 >
                   <Typography sx={textalignCenter}>
-                    Name:
-                    <PersonIcon sx={{ m: 0, color: "#626fa0", fontSize: 25 }} />
-                    {order.name}
-                  </Typography>
-                  <Typography sx={textalignCenter}>
-                    Phone Number:
-                    <LocalPhoneIcon
-                      sx={{ m: 0, color: "#626fa0", fontSize: 25 }}
+                    <PersonIcon
+                      sx={{ m: 0, color: "#626fa0", fontSize: 25, mr: 2 }}
                     />
-                    {order.phoneNumber}
+                    Name:
+                    <Typography sx={{ fontWeight: 600, ml: 1 }}>
+                      {order.name}
+                    </Typography>
                   </Typography>
                   <Typography sx={textalignCenter}>
-                    Delivery Method:
+                    <LocalPhoneIcon
+                      sx={{ m: 0, color: "#626fa0", fontSize: 25, mr: 2 }}
+                    />
+                    Phone Number:
+                    <Typography sx={{ fontWeight: 600, ml: 1 }}>
+                      {order.phoneNumber}
+                    </Typography>
+                  </Typography>
+                  <Typography sx={textalignCenter}>
                     {order.deliveryMethod == "Dine-In" ? (
                       <DiningIcon
-                        sx={{ m: 0, color: "#626fa0", fontSize: 25 }}
+                        sx={{ m: 0, color: "#626fa0", fontSize: 25, mr: 2 }}
                       />
                     ) : (
                       <TakeoutDiningIcon
-                        sx={{ m: 0, color: "#626fa0", fontSize: 25 }}
+                        sx={{ m: 0, color: "#626fa0", fontSize: 25, mr: 2 }}
                       />
                     )}
-                    {order.deliveryMethod}
+                    Delivery Method:
+                    <Typography sx={{ fontWeight: 600, ml: 1 }}>
+                      {`${order.deliveryMethod}`}
+                    </Typography>
                   </Typography>
 
                   <Typography sx={textalignCenter}>
-                    Payment Method:
                     {order.paymentMethod == "online" ? (
                       <AccountBalanceRoundedIcon
-                        sx={{ m: 0, color: "#626fa0", fontSize: 25 }}
+                        sx={{ m: 0, color: "#626fa0", fontSize: 25, mr: 2 }}
                       />
                     ) : (
                       <LocalAtmIcon
-                        sx={{ m: 0, color: "#626fa0", fontSize: 25 }}
+                        sx={{ m: 0, color: "#626fa0", fontSize: 25, mr: 2 }}
                       />
                     )}
-                    {order.paymentMethod}
+                    Payment Method:
+                    <Typography sx={{ fontWeight: 600, ml: 1 }}>
+                      {order.paymentMethod}
+                    </Typography>
                   </Typography>
                   <Typography sx={textalignCenter}>
-                    Order Status: {order.orderStatus}
+                    Order Status:
+                    <Typography sx={{ fontWeight: 600, ml: 1 }}>
+                      {order.orderStatus}
+                    </Typography>
                   </Typography>
                 </Box>
 
                 <Typography sx={{ ...textalignCenter, fontWeight: 600 }}>
-                  Total Price: ₹{order.totalPrice}
+                  Total Price:
+                  <Typography sx={{ fontWeight: 600, ml: 1 }}>
+                    ₹{order.totalPrice}
+                  </Typography>
                 </Typography>
                 <Divider
                   sx={{ backgroundColor: "#00000090", width: "100%", my: 1 }}
