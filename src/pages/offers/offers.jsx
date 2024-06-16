@@ -196,9 +196,7 @@ const Offers = () => {
   // food details input change
   const handleFoodInputChange = (e) => {
     const { name, value } = e.target;
-    console.log("aasfhkj", name);
     if (name === "type") {
-      console.log("aasfhkj");
       setFoodDetails({
         dishName: "",
         price: "",
@@ -213,7 +211,6 @@ const Offers = () => {
     if (name === "dishName") {
       const selectedFood = foods.find((food) => food.dishName === value);
       if (selectedFood) {
-        console.log(selectedFood?.imgSrc, "img");
         setFoodDetails({
           ...foodDetails,
           [name]: value,
@@ -316,7 +313,6 @@ const Offers = () => {
 
   // Handle edit food
   const handleEditFood = (food) => {
-    console.log(food, "food");
     setSelectedCard(food);
     setEdit(true);
     if (food.type === "special") {
@@ -346,7 +342,6 @@ const Offers = () => {
   };
 
   const handleUpdateFood = async () => {
-    console.log(selectedCard?.id);
     if (
       foodDetails &&
       foodDetails.dishName &&
@@ -654,7 +649,7 @@ const Offers = () => {
             </Typography>
           )}
         </Box>
-        <Toaster position="top-right" /> 
+        <Toaster position="top-right" reverseOrder={false} />
       </Paper>
     );
   };

@@ -1,11 +1,19 @@
+import { useState } from "react";
+
+// mui components
 import BorderColorIcon from "@mui/icons-material/BorderColor";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Box, Button, Checkbox, IconButton, Typography } from "@mui/material";
+
+// firestore
 import { doc, updateDoc } from "firebase/firestore";
-import { useState } from "react";
+
+// packages
+import { toast } from "react-hot-toast";
 import { useSwipeable } from "react-swipeable";
+
+// fb services
 import { db } from "../firebaseConfig";
-import { toast } from 'react-hot-toast';
 
 const SpecialOfferItem = ({
   food,
@@ -26,6 +34,7 @@ const SpecialOfferItem = ({
     trackMouse: true,
   });
 
+  // top recommend 
   const handleCheckToggle = async (food) => {
     try {
       const foodDoc = doc(db, "offers", food?.id);
@@ -33,7 +42,7 @@ const SpecialOfferItem = ({
         topRec: !food.topRec,
       });
       toast.success("Updated successfully");
-      console.log("updated successfully")
+      console.log("updated successfully");
     } catch (e) {
       console.error("Error toggling sold out status: ", e);
     }
@@ -57,7 +66,7 @@ const SpecialOfferItem = ({
           overflow: "hidden",
           transition: "background-color 0.2s ease-in-out",
           transform:
-            food?.id === swipedCardId ? "translateX(-10%)" : "translateX(0)",
+            food?.id === swipedCardId ? "translateX(-2%)" : "translateX(0)",
         }}
       >
         <Checkbox
@@ -75,14 +84,15 @@ const SpecialOfferItem = ({
             />
           }
           sx={{
-            // "& .MuiSvgIcon-root": {
-            //   color: foodDetails?.topRec ? "Green" : "black",
-            // },
             color: "#626fa0",
+            "& .MuiSvgIcon-root": {
+              color: "#626fa0",
+            },
             position: "absolute",
             top: isSpecial ? "10px" : "1px",
           }}
         />
+
         <Box sx={{ flex: 1, padding: "0 10px", px: 5 }}>
           <Typography sx={{ color: "#000", fontSize: 16, fontWeight: 600 }}>
             {`Dish Name: ${
