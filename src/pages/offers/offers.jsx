@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from "react";
 
 // mui components
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import BorderColorIcon from "@mui/icons-material/BorderColor";
 import CancelIcon from "@mui/icons-material/Cancel";
 import {
   Box,
   Button,
+  Chip,
   CircularProgress,
   Divider,
   MenuItem,
+  OutlinedInput,
   Paper,
+  Select,
   TextField,
   Typography,
-  Select,
-  Chip,
-  OutlinedInput,
 } from "@mui/material";
+
 // firebase
 import {
   addDoc,
@@ -23,11 +24,13 @@ import {
   deleteDoc,
   doc,
   onSnapshot,
+  updateDoc,
 } from "firebase/firestore";
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
-import EditIcon from "@mui/icons-material/Edit";
 // firebase service
 import { db } from "../../firebaseConfig";
+
+//packages
+import SpecialOfferItem from "../../components/foodItem";
 
 const Offers = () => {
   // local states
@@ -46,9 +49,9 @@ const Offers = () => {
   const [selectedFoods, setSelectedFoods] = useState([]);
   const [comboImages, setComboImages] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCard, setSelectedCard] = useState("");
-
-  // variables
+  const [selectedCard, setSelectedCard] = useState(null);
+  const [edit, setEdit] = useState(false);
+  const [list, setList] = useState([]);
 
   // -------------------------------- USE EFFECTS --------------------------------
   useEffect(() => {
@@ -90,25 +93,21 @@ const Offers = () => {
   }, []);
 
   useEffect(() => {
-    if (foodDetails.type === "combo" && selectedFoods.length > 0) {
+    if (foodDetails.type === "combo" && selectedFoods?.length > 0) {
       const totalComboPrice = selectedFoods.reduce((total, foodName) => {
         const food = foods.find((f) => f.dishName === foodName);
         return total + (food ? parseFloat(food.price) : 0);
       }, 0);
-
-      if (foodDetails.offer) {
+      console.log( totalComboPrice.toFixed(2))
         const offerPercentage = parseFloat(foodDetails.offer);
         const originalPrice = parseFloat(totalComboPrice);
         let priceAfterOfferCombo = (
           originalPrice -
           (originalPrice * offerPercentage) / 100
         ).toFixed(2);
-        const images = selectedFoods.map((foodName) => {
-          const food = foods.find((f) => f.dishName === foodName);
-          console.log(food);
-          return food.img;
-        });
-        setComboImages(images);
+        let imgArr=findImages(selectedFoods, foods)
+        console.log(imgArr)
+        setComboImages(imgArr)
         setFoodDetails((prev) => ({
           ...prev,
           dishName: selectedFoods,
@@ -116,9 +115,33 @@ const Offers = () => {
           priceAfterOffer: priceAfterOfferCombo,
           imgSrc: comboImages,
         }));
-      }
+
     }
   }, [selectedFoods]);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      collection(db, "offers"),
+      (snapshot) => {
+        const items = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        const newItem = {
+          id: "new-id",
+          name: "Add New",
+        };
+        const updatedItems = [newItem, ...items];
+        setList(updatedItems);
+      },
+      (error) => {
+        console.error("Error fetching documents: ", error);
+      }
+    );
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []);
 
   // -------------------------------- COMPONENT STYLES --------------------------------
 
@@ -187,7 +210,6 @@ const Offers = () => {
 
     if (name === "dishName") {
       const selectedFood = foods.find((food) => food.dishName === value);
-      console.log(selectedFood);
       if (selectedFood) {
         setFoodDetails({
           ...foodDetails,
@@ -220,20 +242,6 @@ const Offers = () => {
     }
   };
 
-  // upload image file for the food item
-  const handleFoodFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFoodImgUploading(true);
-      const storage = getStorage();
-      const storageRef = ref(storage, `foodList/${file.name}`);
-      await uploadBytes(storageRef, file);
-      const imgSrc = await getDownloadURL(storageRef);
-      setFoodDetails((prev) => ({ ...prev, imgSrc }));
-      setFoodImgUploading(false);
-    }
-  };
-
   // adding food item under selected category
   const handleAddFoodItem = async () => {
     if (foodDetails.dishName && foodDetails.price) {
@@ -263,24 +271,30 @@ const Offers = () => {
     }
   };
 
-  const handleDeleteFood = async () => {
-    if (selectedCard) {
-      try {
-        await deleteDoc(doc(db, "foodList", selectedCard));
-        setSelectedCard(null);
-      } catch (e) {
-        console.error("Error deleting food item: ", e);
-      }
-    }
-  };
-
-  const handleFoodSearch = (e) => {
-    setSearchTerm(e.target.value);
-  };
-
   const filteredFoods = foods.filter((food) =>
     food.dishName.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  function findImages(selectedFoodsItem, foodsItem) {
+    console.log("selectedFoods, foods", selectedFoodsItem, foodsItem);
+    let foodMap = {};
+    foodsItem.forEach((food) => {
+      foodMap[food.dishName] = food.img;
+    });
+
+    let selectedImages = selectedFoodsItem.map((selectedFood) => {
+      if (foodMap[selectedFood]) {
+        return foodMap[selectedFood];
+      } else {
+        console.log(`No matching food found for '${selectedFood}'.`);
+        return null;
+      }
+    });
+
+    selectedImages = selectedImages.filter((img) => img !== null);
+
+    return selectedImages;
+  }
 
   const handleComboFoodChange = (event) => {
     const {
@@ -309,14 +323,115 @@ const Offers = () => {
     return "";
   };
 
-  // const generateRandomColor = () => {
-  //   const letters = '0123456789ABCDEF';
-  //   let color = '#';
-  //   for (let i = 0; i < 6; i++) {
-  //     color += letters[Math.floor(Math.random() * 16)];
-  //   }
-  //   return color;
-  // };
+  // Handle edit food
+  const handleEditFood = (food) => {
+    let selectedCard = null;
+    for (const item of list) {
+      if (item.dishName === food.dishName) {
+        selectedCard = item;
+        break;
+      }
+    }
+    setSelectedCard(food);
+    setEdit(true);
+    if (food.type === "special") {
+      setFoodDetails({
+        dishName: food?.dishName,
+        price: food?.price,
+        imgSrc: food?.img,
+        type: food?.type,
+        offer: food?.offer,
+        priceAfterOffer: food?.priceAfterOffer,
+      });
+    }
+    if (food.type === "combo") {
+      setSelectedFoods(food?.dishName);
+      setComboImages(food?.imgSrc);
+      setFoodDetails({
+        dishName: food?.dishName,
+        price: food?.price,
+        imgSrc: food?.imgSrc,
+        type: food?.type,
+        offer: food?.offer,
+        priceAfterOffer: food?.priceAfterOffer,
+      });
+    }
+  };
+
+  const handleUpdateFood = async () => {
+    let selectedCard = null;
+    for (const item of list) {
+      if (item.dishName === foodDetails.dishName) {
+        selectedCard = item;
+        break;
+      }
+    }
+    setSelectedCard(selectedCard);
+    if (
+      foodDetails &&
+      foodDetails.dishName &&
+      foodDetails.price &&
+      selectedCard &&
+      selectedCard?.id
+    ) {
+      try {
+        const priceAfterOffer = calculateAfterOfferPrice();
+        const foodDocRef = doc(db, "offers", selectedCard?.id);
+        await updateDoc(foodDocRef, {
+          dishName: foodDetails.dishName,
+          price: foodDetails.price,
+          offer: foodDetails.offer,
+          priceAfterOffer: priceAfterOffer,
+          img: foodDetails.imgSrc,
+          imgSrc: foodDetails.imgSrc,
+          type: foodDetails.type,
+        });
+
+        setSelectedCard(null);
+
+        setFoodDetails({
+          dishName: "",
+          price: "",
+          imgSrc: "",
+          type: "",
+          offer: "",
+          priceAfterOffer: "",
+        });
+        setSelectedFoods([]);
+        setComboImages([]);
+
+        console.log("Food item updated successfully");
+      } catch (error) {
+        console.error("Error updating food item:", error);
+        console.log(JSON.stringify(error));
+      }
+    } else {
+      console.error(
+        "Missing required properties in foodDetails object for update."
+      );
+    }
+  };
+
+  const handleDeleteFood = async (food) => {
+    let selectedCard = null;
+    for (const item of list) {
+      if (item.dishName === food.dishName) {
+        selectedCard = item;
+        break;
+      }
+    }
+    setSelectedCard(selectedCard);
+
+    if (selectedCard) {
+      try {
+        const foodDoc = doc(db, "offers", selectedCard.id);
+        await deleteDoc(foodDoc);
+        setSelectedCard(null);
+      } catch (e) {
+        console.error("Error deleting food item: ", e);
+      }
+    }
+  };
 
   // -------------------------------- RENDER UI --------------------------------
 
@@ -444,7 +559,7 @@ const Offers = () => {
               >
                 <CircularProgress />
               </Box>
-            ) : foodDetails.type === "combo" ? (
+            ) : foodDetails?.type === "combo" ? (
               comboImages.map((item, index) => (
                 <Box sx={{ display: "flex", flexDirection: "column" }}>
                   <img
@@ -458,9 +573,9 @@ const Offers = () => {
                 </Box>
               ))
             ) : (
-              foodDetails.img && (
+              foodDetails.imgSrc && (
                 <img
-                  src={foodDetails.img}
+                  src={foodDetails.imgSrc}
                   width={"100%"}
                   height={"100%"}
                   style={{ borderRadius: 10 }}
@@ -470,27 +585,6 @@ const Offers = () => {
             )}
           </Box>
         )}
-        {/* 
-        <Button
-          variant="outlined"
-          component="label"
-          sx={{
-            justifyContent: "space-between",
-            display: "flex",
-            height: 50,
-            background: "transparent",
-            marginBottom: "10px",
-          }}
-        >
-          Upload File
-          <CloudUploadIcon />
-          <input
-            type="file"
-            accept=".png,.jpg,.jpeg"
-            hidden
-            onChange={handleFoodFileChange}
-          />
-        </Button> */}
         <Box
           sx={{
             display: "flex",
@@ -499,18 +593,11 @@ const Offers = () => {
             justifyContent: "space-between",
           }}
         >
+          <Box sx={{ height: 40, width: "40%" }} />
           <Button
             variant="contained"
-            color="error"
-            sx={{ height: 40, width: "40%" }}
-            onClick={handleDeleteFood}
-          >
-            Delete
-          </Button>
-          <Button
-            variant="contained"
-            color="success"
-            onClick={handleAddFoodItem}
+            color={edit ? "info" : "success"}
+            onClick={edit ? handleUpdateFood : handleAddFoodItem}
             sx={{
               height: 40,
               width: "45%",
@@ -518,7 +605,7 @@ const Offers = () => {
               alignSelf: "flex-end",
             }}
           >
-            Add
+            {edit ? "Update" : "Add"}
           </Button>
         </Box>
       </Box>
@@ -556,85 +643,18 @@ const Offers = () => {
         <Divider sx={{ backgroundColor: "#00000011", width: "100%", mb: 2 }} />
         <Box sx={{ ...scrollVerbarStyles, width: "100%" }}>
           {specialOffers.length > 0 ? (
-            specialOffers.map((food) => {
+            specialOffers.map((food, index) => {
               return (
-                <Box
-                  key={food.id}
-                  sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    marginBottom: 2,
-                    alignItems: "center",
-                    backgroundColor: "#00000011",
-                    width: "100%",
-                    borderRadius: "10px",
-                    minHeight: 120,
-                    position: "relative",
-                    ":hover": {
-                      backgroundColor: "#00000021",
-                      transition: "background-color 0.2s ease-in-out",
-                    },
-                  }}
-                >
-                  <Box sx={{ flex: 1, padding: "0 10px" }}>
-                    <Typography
-                      gutterBottom
-                      sx={{
-                        color: "#000",
-                        fontSize: 16,
-                        fontWeight: 600,
-                      }}
-                    >
-                      Dish Name: {food.dishName}
-                    </Typography>
-                    <Typography
-                      gutterBottom
-                      sx={{
-                        color: "#e32626",
-                        fontSize: 12,
-                        fontWeight: 600,
-                        textDecorationLine: "line-through",
-                      }}
-                    >
-                      {`Price: ₹ ${food.price}`}
-                    </Typography>
-                    <Typography
-                      gutterBottom
-                      sx={{ color: "#005700", fontSize: 12, fontWeight: 600 }}
-                    >
-                      {`offer ${food.offer}%`}
-                    </Typography>
-                    <Typography
-                      gutterBottom
-                      sx={{ color: "#005700", fontSize: 16, fontWeight: 600 }}
-                    >
-                      {` ₹ ${food.priceAfterOffer}`}
-                    </Typography>
-                  </Box>
-                  <Box sx={{ position: "absolute", top: 5, right: 5 }}>
-                    <EditIcon />
-                  </Box>
-                  <Box
-                    sx={{
-                      width: 75,
-                      minHeight: 75,
-                      m: "auto",
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    <img
-                      src={food.img}
-                      style={{
-                        borderRadius: "50%",
-                        objectFit: "cover",
-                        width: 55,
-                        height: 55,
-                      }}
-                      alt="Food"
-                    />
-                  </Box>
-                </Box>
+                <>
+                  <SpecialOfferItem
+                    key={food.id}
+                    food={food}
+                    deleteFood={() => handleDeleteFood(food)}
+                    handleEditFood={() => handleEditFood(food)}
+                    selectedCard={selectedCard}
+                    index={index}
+                  />
+                </>
               );
             })
           ) : (
@@ -736,9 +756,15 @@ const Offers = () => {
                       {` ₹ ${food.priceAfterOffer}`}
                     </Typography>
                   </Box>
-                  <Box sx={{ position: "absolute", top: 5, right: 5 }}>
-                    <EditIcon />
-                  </Box>
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditFood(food);
+                    }}
+                    sx={{ position: "absolute", top: 5, right: 0 }}
+                  >
+                    <BorderColorIcon sx={{ height: 15, color: "#000" }} />
+                  </Button>
                   <Box
                     sx={{
                       display: "flex",
