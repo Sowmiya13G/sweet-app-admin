@@ -1,7 +1,7 @@
 import BorderColorIcon from "@mui/icons-material/BorderColor";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Box, Button, IconButton, Typography } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSwipeable } from "react-swipeable";
 
 const SpecialOfferItem = ({
@@ -9,6 +9,7 @@ const SpecialOfferItem = ({
   deleteFood,
   handleEditFood,
   selectedCard,
+  index,
 }) => {
   const [swipedCardId, setSwipedCardId] = useState(null);
 

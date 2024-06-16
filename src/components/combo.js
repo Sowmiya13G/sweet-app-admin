@@ -137,6 +137,3 @@ const comboOfferList = () => {
   };
 
 
-//   <Box sx={{ width: { xs: "100%", md: "35%" }, my: 2 }}>
-//   {comboOfferList()}
-// </Box>

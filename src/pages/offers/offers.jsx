@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 // mui components
+import BorderColorIcon from "@mui/icons-material/BorderColor";
 import CancelIcon from "@mui/icons-material/Cancel";
 import {
   Box,
@@ -15,8 +16,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import BorderColorIcon from "@mui/icons-material/BorderColor";
-import DeleteIcon from "@mui/icons-material/Delete";
+
 // firebase
 import {
   addDoc,
@@ -30,7 +30,6 @@ import {
 import { db } from "../../firebaseConfig";
 
 //packages
-import { useSwipeable } from "react-swipeable";
 import SpecialOfferItem from "../../components/foodItem";
 
 const Offers = () => {
@@ -53,7 +52,6 @@ const Offers = () => {
   const [selectedCard, setSelectedCard] = useState(null);
   const [edit, setEdit] = useState(false);
   const [list, setList] = useState([]);
-  const [swipedItemId, setSwipedItemId] = useState(null);
 
   // -------------------------------- USE EFFECTS --------------------------------
   useEffect(() => {
@@ -95,25 +93,21 @@ const Offers = () => {
   }, []);
 
   useEffect(() => {
-    if (foodDetails.type === "combo" && selectedFoods.length > 0) {
+    if (foodDetails.type === "combo" && selectedFoods?.length > 0) {
       const totalComboPrice = selectedFoods.reduce((total, foodName) => {
         const food = foods.find((f) => f.dishName === foodName);
         return total + (food ? parseFloat(food.price) : 0);
       }, 0);
-
-      if (foodDetails.offer) {
+      console.log( totalComboPrice.toFixed(2))
         const offerPercentage = parseFloat(foodDetails.offer);
         const originalPrice = parseFloat(totalComboPrice);
         let priceAfterOfferCombo = (
           originalPrice -
           (originalPrice * offerPercentage) / 100
         ).toFixed(2);
-        const images = selectedFoods.map((foodName) => {
-          const food = foods.find((f) => f.dishName === foodName);
-          console.log(food);
-          return food.img;
-        });
-        setComboImages(images);
+        let imgArr=findImages(selectedFoods, foods)
+        console.log(imgArr)
+        setComboImages(imgArr)
         setFoodDetails((prev) => ({
           ...prev,
           dishName: selectedFoods,
@@ -121,7 +115,7 @@ const Offers = () => {
           priceAfterOffer: priceAfterOfferCombo,
           imgSrc: comboImages,
         }));
-      }
+
     }
   }, [selectedFoods]);
 
@@ -216,7 +210,6 @@ const Offers = () => {
 
     if (name === "dishName") {
       const selectedFood = foods.find((food) => food.dishName === value);
-      console.log(selectedFood);
       if (selectedFood) {
         setFoodDetails({
           ...foodDetails,
@@ -282,6 +275,27 @@ const Offers = () => {
     food.dishName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  function findImages(selectedFoodsItem, foodsItem) {
+    console.log("selectedFoods, foods", selectedFoodsItem, foodsItem);
+    let foodMap = {};
+    foodsItem.forEach((food) => {
+      foodMap[food.dishName] = food.img;
+    });
+
+    let selectedImages = selectedFoodsItem.map((selectedFood) => {
+      if (foodMap[selectedFood]) {
+        return foodMap[selectedFood];
+      } else {
+        console.log(`No matching food found for '${selectedFood}'.`);
+        return null;
+      }
+    });
+
+    selectedImages = selectedImages.filter((img) => img !== null);
+
+    return selectedImages;
+  }
+
   const handleComboFoodChange = (event) => {
     const {
       target: { value },
@@ -311,7 +325,6 @@ const Offers = () => {
 
   // Handle edit food
   const handleEditFood = (food) => {
-    console.log(food);
     let selectedCard = null;
     for (const item of list) {
       if (item.dishName === food.dishName) {
@@ -354,7 +367,6 @@ const Offers = () => {
       }
     }
     setSelectedCard(selectedCard);
-    console.log(foodDetails, selectedCard, "foodDetails");
     if (
       foodDetails &&
       foodDetails.dishName &&
@@ -365,8 +377,6 @@ const Offers = () => {
       try {
         const priceAfterOffer = calculateAfterOfferPrice();
         const foodDocRef = doc(db, "offers", selectedCard?.id);
-        console.log(selectedCard.id, "foodDocRef", foodDocRef);
-
         await updateDoc(foodDocRef, {
           dishName: foodDetails.dishName,
           price: foodDetails.price,
@@ -549,7 +559,7 @@ const Offers = () => {
               >
                 <CircularProgress />
               </Box>
-            ) : foodDetails.type === "combo" ? (
+            ) : foodDetails?.type === "combo" ? (
               comboImages.map((item, index) => (
                 <Box sx={{ display: "flex", flexDirection: "column" }}>
                   <img
@@ -633,15 +643,16 @@ const Offers = () => {
         <Divider sx={{ backgroundColor: "#00000011", width: "100%", mb: 2 }} />
         <Box sx={{ ...scrollVerbarStyles, width: "100%" }}>
           {specialOffers.length > 0 ? (
-            specialOffers.map((food) => {
+            specialOffers.map((food, index) => {
               return (
                 <>
                   <SpecialOfferItem
                     key={food.id}
                     food={food}
                     deleteFood={() => handleDeleteFood(food)}
-                    handleEditFood={()=>handleEditFood(food)}
+                    handleEditFood={() => handleEditFood(food)}
                     selectedCard={selectedCard}
+                    index={index}
                   />
                 </>
               );
@@ -652,6 +663,143 @@ const Offers = () => {
               sx={{ color: "#000", fontSize: 20, fontWeight: 600 }}
             >
               No Special Offers added yet.
+            </Typography>
+          )}
+        </Box>
+      </Paper>
+    );
+  };
+
+  const comboOfferList = () => {
+    const comboOffers = foodList.filter((food) => food.type === "combo");
+    return (
+      <Paper
+        elevation={6}
+        sx={{
+          ...foodGridStyles,
+        }}
+      >
+        <Box
+          sx={{
+            flexDirection: "row",
+            justifyItems: "space-between",
+            display: "flex",
+            alignItems: "center",
+            marginBottom: "5px",
+          }}
+        >
+          <Typography
+            sx={{
+              fontWeight: "bold",
+              fontSize: 20,
+              color: "#000",
+            }}
+          >
+            Combo Offers
+          </Typography>
+        </Box>
+        <Divider sx={{ backgroundColor: "#00000090", width: "100%", mb: 2 }} />
+        <Box sx={{ ...scrollVerbarStyles, width: "100%" }}>
+          {comboOffers.length > 0 ? (
+            comboOffers.map((food) => {
+              return (
+                <Box
+                  key={food.id}
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    marginBottom: 2,
+                    alignItems: "center",
+                    backgroundColor: "#00000011",
+                    width: "100%",
+                    borderRadius: "10px",
+                    minHeight: 120,
+                    position: "relative",
+                    ":hover": {
+                      backgroundColor: "#00000021",
+                      transition: "background-color 0.2s ease-in-out",
+                    },
+                  }}
+                >
+                  <Box sx={{ flex: 1, padding: "0 10px" }}>
+                    <Typography
+                      gutterBottom
+                      sx={{
+                        color: "#000",
+                        fontSize: 16,
+                        fontWeight: 600,
+                      }}
+                    >
+                      Dish Name: {food.dishName.join(", ")}
+                    </Typography>
+                    <Typography
+                      gutterBottom
+                      sx={{
+                        color: "#e32626",
+                        fontSize: 12,
+                        fontWeight: 600,
+                        textDecorationLine: "line-through",
+                      }}
+                    >
+                      {`Price: ₹ ${food.price}`}
+                    </Typography>
+                    <Typography
+                      gutterBottom
+                      sx={{ color: "#005700", fontSize: 12, fontWeight: 600 }}
+                    >
+                      {`Offer: ${food.offer}%`}
+                    </Typography>
+                    <Typography
+                      gutterBottom
+                      sx={{ color: "#005700", fontSize: 16, fontWeight: 600 }}
+                    >
+                      {` ₹ ${food.priceAfterOffer}`}
+                    </Typography>
+                  </Box>
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditFood(food);
+                    }}
+                    sx={{ position: "absolute", top: 5, right: 0 }}
+                  >
+                    <BorderColorIcon sx={{ height: 15, color: "#000" }} />
+                  </Button>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      gap: "10px",
+                      flexDirection: "row",
+                      paddingRight: "10px",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {food.imgSrc.slice(0, 2).map((src, idx) => (
+                      <img
+                        key={idx}
+                        src={src}
+                        style={{
+                          borderRadius: "50%",
+                          objectFit: "cover",
+                          width: 55,
+                          height: 55,
+                          position: "absolute",
+                          right: idx * 20 + 30,
+                        }}
+                        alt={`Food ${idx + 1}`}
+                      />
+                    ))}
+                  </Box>
+                </Box>
+              );
+            })
+          ) : (
+            <Typography
+              gutterBottom
+              sx={{ color: "#000", fontSize: 20, fontWeight: 600 }}
+            >
+              No Combo Offers added yet.
             </Typography>
           )}
         </Box>
@@ -689,6 +837,9 @@ const Offers = () => {
         </Box>
         <Box sx={{ width: { xs: "100%", md: "35%" }, my: 2 }}>
           {specialOfferList()}
+        </Box>
+        <Box sx={{ width: { xs: "100%", md: "35%" }, my: 2 }}>
+          {comboOfferList()}
         </Box>
       </Box>
     </Box>
