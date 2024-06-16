@@ -27,8 +27,7 @@
   width: 100px !important;
   min-height: 70px;
   border-radius: 10px;
-  /* background: "linear-gradient(to right bottom, #626fa8,#22222E)"; */
-  background: linear-gradient(45deg, #5f6585, #1c2a2f, #5f6585);
+  background: linear-gradient(45deg, #341011, #693735, #341011);
   align-items: center;
   border: 1px solid #00002275;
   color: #fff;
@@ -88,14 +87,14 @@
 .chairBooked-bottom-already {
   width: 20px;
   height: 10px;
-  background-color: grey;
+  background: linear-gradient(45deg, #1ab46a, #0f6b01, #1ab46a);
   border-bottom-left-radius: 3px;
   border-bottom-right-radius: 3px;
 }
 .chairBooked-already {
   width: 20px;
   height: 10px;
-  background-color: grey;
+  background: linear-gradient(45deg, #1ab46a, #0f6b01, #1ab46a);
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
 }
@@ -108,6 +107,3 @@
   letter-spacing: 1px;
 }
 
-.table-GrayScale {
-  filter: grayscale(100%);
-}

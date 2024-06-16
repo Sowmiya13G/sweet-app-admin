@@ -53,14 +53,14 @@ const Categories = () => {
   const [foodList, setFoodList] = useState([]);
   const [editedCategory, setEditedCategory] = useState({
     name: "",
-    imgSrc: "",
+    img: "",
   });
   const [foodDetails, setFoodDetails] = useState({
     category: "",
     dishName: "",
     price: "",
     categorized: "",
-    imgSrc: "",
+    img: "",
   });
   const [showEditFields, setShowEditFields] = useState(true);
   const [addNewFoodList, setAddNewFoodList] = useState(true);
@@ -262,7 +262,7 @@ const Categories = () => {
       dishName: "",
       price: "",
       categorized: "",
-      imgSrc: "",
+      img: "",
     });
   };
 
@@ -276,13 +276,13 @@ const Categories = () => {
   const handleFileChange = async (e) => {
     let file = e.target.files[0];
     if (file) {
-      let imgSrc = editedCategory.imgSrc;
+      let img = editedCategory.img;
       setUploading(true);
       const storage = getStorage();
       const storageRef = ref(storage, `categories/${file.name}`);
       await uploadBytes(storageRef, file);
-      imgSrc = await getDownloadURL(storageRef);
-      setEditedCategory((prev) => ({ ...prev, imgSrc: imgSrc }));
+      img = await getDownloadURL(storageRef);
+      setEditedCategory((prev) => ({ ...prev, img: img }));
       setUploading(false);
     }
   };
@@ -293,7 +293,7 @@ const Categories = () => {
       try {
         await addDoc(collection(db, "categories"), {
           name: editedCategory.name,
-          imgSrc: editedCategory.imgSrc,
+          imgSrc: editedCategory.img,
         });
       } catch (e) {
         console.error("Error updating document: ", e);
@@ -309,7 +309,7 @@ const Categories = () => {
         const categoryDoc = doc(db, "categories", selectedCategory.id);
         await updateDoc(categoryDoc, {
           name: editedCategory.name,
-          imgSrc: editedCategory.imgSrc,
+          imgSrc: editedCategory.img,
         });
 
         // setEditMode(false);
@@ -342,13 +342,13 @@ const Categories = () => {
   const handleFoodFileChange = async (e) => {
     let file = e.target.files[0];
     if (file) {
-      let imgSrc = foodDetails.imgSrc;
+      let img = foodDetails.img;
       setFoodImgUploading(true);
       const storage = getStorage();
       const storageRef = ref(storage, `foodList/${file.name}`);
       await uploadBytes(storageRef, file);
-      imgSrc = await getDownloadURL(storageRef);
-      setFoodDetails((prev) => ({ ...prev, imgSrc: imgSrc }));
+      img = await getDownloadURL(storageRef);
+      setFoodDetails((prev) => ({ ...prev, img: img }));
       setFoodImgUploading(false);
     }
   };
@@ -367,7 +367,7 @@ const Categories = () => {
           dishName: foodDetails.dishName,
           categorized: foodDetails.categorized,
           price: foodDetails.price,
-          imgSrc: foodDetails.imgSrc,
+          img: foodDetails.img,
           isSoldOut: false,
         });
 
@@ -377,7 +377,7 @@ const Categories = () => {
           dishName: "",
           price: "",
           categorized: "",
-          imgSrc: "",
+          img: "",
         });
         // setShowEditFields(false);
       } catch (e) {
@@ -409,7 +409,7 @@ const Categories = () => {
           dishName: foodDetails.dishName,
           categorized: foodDetails.categorized || "",
           price: foodDetails.price,
-          imgSrc: foodDetails.imgSrc || "",
+          img: foodDetails.img || "",
         });
 
         // Optionally update state or reset form fields after successful update
@@ -441,7 +441,7 @@ const Categories = () => {
           dishName: "",
           price: "",
           categorized: "",
-          imgSrc: "",
+          img: "",
         });
       } catch (e) {
         console.error("Error deleting food item: ", e);
@@ -567,14 +567,14 @@ const Categories = () => {
                   <CircularProgress />
                 </Box>
               ) : (
-                foodDetails.imgSrc && (
+                foodDetails.img && (
                   <img
-                    src={foodDetails.imgSrc}
+                    src={foodDetails.img}
                     width={"100%"}
                     height={"100%"}
                     style={{
                       borderRadius: "50%",
-                      background: "#fff", 
+                      background: "#fff",
                       objectFit: "contain",
                       boxShadow: "0px 15px 20px 0px #00000031",
                     }}
@@ -877,7 +877,7 @@ const Categories = () => {
                 category: "",
                 dishName: "",
                 price: "",
-                imgSrc: "",
+                img: "",
               });
             }}
           >

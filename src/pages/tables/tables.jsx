@@ -180,7 +180,7 @@ const Tables = () => {
     };
     const jsonString = JSON.stringify(qrData);
     const base64Data = btoa(jsonString); // Encode JSON string in base64
-    const url = `https://0e99-2405-201-e020-d999-bc9a-f81-b1ed-b15c.ngrok-free.app/?data=${encodeURIComponent(
+    const url = `https://food-order-eight-iota.vercel.app/?data=${encodeURIComponent(
       base64Data
     )}`;
     return url;

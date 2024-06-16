@@ -490,7 +490,9 @@ const Orders = () => {
                               <div
                                 key={chairIndex}
                                 className={
-                                  tablesBooked[index]?.chairs[chairIndex].booked
+                                  order?.tablesSelected[index]?.chairs[
+                                    chairIndex
+                                  ].booked
                                     ? "chairBooked-already"
                                     : chair.booked
                                     ? "table-chair-booked"
@@ -507,8 +509,9 @@ const Orders = () => {
                                 <div key={index} className="mx-1 my-1">
                                   <img
                                     src={
-                                      tablesBooked[index]?.chairs[chairIndex]
-                                        .booked
+                                      order?.tablesSelected[index]?.chairs[
+                                        chairIndex
+                                      ].booked
                                         ? foodOnPlate1
                                         : chair.booked
                                         ? foodOnPlate1
@@ -516,8 +519,9 @@ const Orders = () => {
                                     }
                                     alt="img"
                                     className={`table-plate  ${
-                                      tablesBooked[index]?.chairs[chairIndex]
-                                        .booked
+                                      order?.tablesSelected[index]?.chairs[
+                                        chairIndex
+                                      ].booked
                                         ? "table-GrayScale"
                                         : "none"
                                     }`}
@@ -532,8 +536,9 @@ const Orders = () => {
                             <div
                               key={chairIndex}
                               className={
-                                tablesBooked[index]?.chairs[chairIndex + 2]
-                                  .booked
+                                order?.tablesSelected[index]?.chairs[
+                                  chairIndex + 2
+                                ].booked
                                   ? "chairBooked-bottom-already"
                                   : chair.booked
                                   ? "table-chair-bottom-booked"
