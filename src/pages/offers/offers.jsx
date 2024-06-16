@@ -538,7 +538,7 @@ const Offers = () => {
                 </Box>
               ))
             ) : (
-              foodDetails.img && (
+              foodDetails.imgSrc && (
                 <img
                   src={foodDetails.imgSrc}
                   width={"100%"}
