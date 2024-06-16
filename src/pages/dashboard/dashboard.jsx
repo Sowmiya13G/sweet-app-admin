@@ -308,7 +308,7 @@ const Dashboard = () => {
         display: "flex",
         flexDirection: "column",
         gap: 2,
-        mt:2,
+        mt: 2,
         p: { xs: 0, md: 2 },
       }}
     >
@@ -525,8 +525,10 @@ const Dashboard = () => {
                 cx="50%"
                 cy="50%"
                 outerRadius={80}
+                innerRadius={50}
                 fill="#8884d8"
                 label
+                // paddingAngle={10}
               >
                 {data.map((entry, index) => (
                   <Cell

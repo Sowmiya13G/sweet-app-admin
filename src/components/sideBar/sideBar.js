@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link,useLocation } from "react-router-dom";
 import {
   Drawer,
   List,
@@ -18,7 +18,14 @@ import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 
 const Sidebar = ({ open, setOpen }) => {
   const [isOpen, setIsOpen] = React.useState(false); // State for sidebar visibility
-  const [selectedLink, setSelectedLink] = React.useState("/dashboard"); // State to track selected link
+  const [selectedLink, setSelectedLink] = React.useState(""); // State to track selected link
+
+
+  const location = useLocation();
+
+  useEffect(() => {
+    setSelectedLink(location.pathname); // Update selected link based on current path
+  }, [location]);
 
   const drawerWidth = open ? "80%" : 240;
   const handleMouseEnter = () => {
@@ -57,11 +64,6 @@ const Sidebar = ({ open, setOpen }) => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* <Toolbar>
-        <Typography variant="h6" noWrap >
-          Admin Panel
-        </Typography>
-      </Toolbar> */}
       <List disablePadding dense={true}>
         {" "}
         <ListItem
@@ -202,9 +204,9 @@ const Sidebar = ({ open, setOpen }) => {
             height: "70px",
             borderRadius: "15px",
             backgroundColor:
-              selectedLink === "/users" ? "#d79f11" : "transparent", // Set background color to gold (hex code #d79f11) for selected link
+              selectedLink === "/logout" ? "#d79f11" : "transparent", // Set background color to gold (hex code #d79f11) for selected link
           }}
-          onClick={() => handleClick("/users")}
+          onClick={() => handleClick("/logout")}
         >
           <ListItemIcon>
             <PeopleIcon style={{ color: "white" }} />
