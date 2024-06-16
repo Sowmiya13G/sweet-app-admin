@@ -31,6 +31,7 @@ import { db } from "../../firebaseConfig";
 
 //packages
 import SpecialOfferItem from "../../components/foodItem";
+import { Toaster } from "react-hot-toast";
 
 const Offers = () => {
   // local states
@@ -195,15 +196,29 @@ const Offers = () => {
   // food details input change
   const handleFoodInputChange = (e) => {
     const { name, value } = e.target;
+    console.log("aasfhkj", name);
+    if (name === "type") {
+      console.log("aasfhkj");
+      setFoodDetails({
+        dishName: "",
+        price: "",
+        imgSrc: "",
+        offer: "",
+        priceAfterOffer: "",
+      });
+      setSelectedFoods([]);
+      setComboImages([]);
+    }
 
     if (name === "dishName") {
       const selectedFood = foods.find((food) => food.dishName === value);
       if (selectedFood) {
+        console.log(selectedFood?.imgSrc, "img");
         setFoodDetails({
           ...foodDetails,
           [name]: value,
           price: selectedFood.price,
-          img: selectedFood.img,
+          imgSrc: selectedFood.imgSrc,
         });
       } else {
         setFoodDetails({
@@ -212,19 +227,6 @@ const Offers = () => {
           price: "",
           imgSrc: "",
         });
-      }
-      if (name === "type") {
-        setFoodDetails({
-          dishName: "",
-          price: "",
-          imgSrc: "",
-          type: "",
-          offer: "",
-          priceAfterOffer: "",
-          topRec: false,
-        });
-        setSelectedFoods([]);
-        setComboImages([]);
       }
     } else {
       setFoodDetails({ ...foodDetails, [name]: value });
@@ -268,7 +270,7 @@ const Offers = () => {
   function findImages(selectedFoodsItem, foodsItem) {
     let foodMap = {};
     foodsItem.forEach((food) => {
-      foodMap[food.dishName] = food.img;
+      foodMap[food.dishName] = food.imgSrc;
     });
 
     let selectedImages = selectedFoodsItem.map((selectedFood) => {
@@ -321,7 +323,7 @@ const Offers = () => {
       setFoodDetails({
         dishName: food?.dishName,
         price: food?.price,
-        imgSrc: food?.img,
+        imgSrc: food?.imgSrc,
         type: food?.type,
         offer: food?.offer,
         priceAfterOffer: food?.priceAfterOffer,
@@ -375,6 +377,7 @@ const Offers = () => {
         });
         setSelectedFoods([]);
         setComboImages([]);
+        setEdit(false);
 
         console.log("Food item updated successfully");
       } catch (error) {
@@ -402,12 +405,18 @@ const Offers = () => {
 
   const renderAddFoodFields = () => {
     return (
-      <Paper sx={categoriesStyle} elevation={6}>
+      <Paper
+        sx={{
+          ...categoriesStyle,
+          position: "relative",
+        }}
+        elevation={6}
+      >
         <Typography
           gutterBottom
           sx={{ color: "#000", fontSize: 20, fontWeight: 600 }}
         >
-          Add Offers
+          {edit ? "Update offers" : "Add Offers"}
         </Typography>
         <Divider
           sx={{ backgroundColor: "#00000090", width: "100%", my: 1, mb: 2 }}
@@ -420,6 +429,7 @@ const Offers = () => {
           select
           fullWidth
           sx={{ mb: 2, ...textInputStyle }}
+          disabled={edit}
         >
           <MenuItem value="special">Special</MenuItem>
           <MenuItem value="combo">Combo</MenuItem>
@@ -475,6 +485,7 @@ const Offers = () => {
             fullWidth
             select
             sx={{ mb: 2, ...textInputStyle }}
+            disabled={edit}
           >
             {filteredFoods.map((food) => (
               <MenuItem key={food.id} value={food.dishName}>
@@ -509,7 +520,7 @@ const Offers = () => {
           sx={{ mb: 2, ...textInputStyle }}
         />
         {Boolean(foodDetails.dishName) && (
-          <Box sx={{ my: 2, width: 200, height: 200 }}>
+          <Box sx={{ width: 200, height: 200 }}>
             {foodImgUploading ? (
               <Box
                 sx={{
@@ -530,49 +541,60 @@ const Offers = () => {
                   <img
                     key={index}
                     src={item}
-                    width={"50%"}
-                    height={"50%"}
-                    style={{ borderRadius: 10 }}
-                    alt="img"
+                    style={{
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                      width: 55,
+                      height: 55,
+                      position: "absolute",
+                      left: index * 20 + 30,
+                    }}
+                    alt={`Food ${index + 1}`}
+                    width={"100%"}
+                    height={"100%"}
                   />
                 </Box>
               ))
             ) : (
-              foodDetails.imgSrc && (
+              foodDetails?.imgSrc && (
                 <img
-                  src={foodDetails.imgSrc}
-                  width={"100%"}
-                  height={"100%"}
-                  style={{ borderRadius: 10 }}
+                  src={foodDetails?.imgSrc}
+                  width={"50%"}
+                  height={"50%"}
+                  style={{
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                    boxShadow: "0px 15px 20px 0px #00000021",
+                  }}
                   alt="img"
                 />
               )
             )}
           </Box>
         )}
-        <Box
+        <Button
+          variant="contained"
+          onClick={edit ? handleUpdateFood : handleAddFoodItem}
           sx={{
-            display: "flex",
-            flexDirection: "row",
+            height: 40,
+            marginBottom: "10px",
+            width: "40%",
+            color: "#fff",
+            background: "#125238",
             alignItems: "center",
-            justifyContent: "space-between",
+            justifyContent: "space-around",
+            fontWeight: "bold",
+            fontSize: { xs: 12, md: 12 },
+            borderColor: "#125238",
+            textTransform: "capitalize",
+            "&:hover": {
+              borderColor: "#125238",
+              background: "#125238",
+            },
           }}
         >
-          <Box sx={{ height: 40, width: "40%" }} />
-          <Button
-            variant="contained"
-            color={edit ? "info" : "success"}
-            onClick={edit ? handleUpdateFood : handleAddFoodItem}
-            sx={{
-              height: 40,
-              width: "45%",
-              display: "flex",
-              alignSelf: "flex-end",
-            }}
-          >
-            {edit ? "Update" : "Add"}
-          </Button>
-        </Box>
+          {edit ? "Update" : "Add"}
+        </Button>
       </Paper>
     );
   };
@@ -632,6 +654,7 @@ const Offers = () => {
             </Typography>
           )}
         </Box>
+        <Toaster position="top-right" /> 
       </Paper>
     );
   };

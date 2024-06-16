@@ -5,6 +5,7 @@ import { doc, updateDoc } from "firebase/firestore";
 import { useState } from "react";
 import { useSwipeable } from "react-swipeable";
 import { db } from "../firebaseConfig";
+import { toast } from 'react-hot-toast';
 
 const SpecialOfferItem = ({
   food,
@@ -31,6 +32,7 @@ const SpecialOfferItem = ({
       await updateDoc(foodDoc, {
         topRec: !food.topRec,
       });
+      toast.success("Updated successfully");
       console.log("updated successfully")
     } catch (e) {
       console.error("Error toggling sold out status: ", e);

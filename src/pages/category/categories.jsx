@@ -262,7 +262,7 @@ const Categories = () => {
       dishName: "",
       price: "",
       categorized: "",
-      img: "",
+      imgSrc: "",
     });
   };
 
@@ -348,7 +348,7 @@ const Categories = () => {
       const storageRef = ref(storage, `foodList/${file.name}`);
       await uploadBytes(storageRef, file);
       imgSrc = await getDownloadURL(storageRef);
-      setFoodDetails((prev) => ({ ...prev, img: imgSrc }));
+      setFoodDetails((prev) => ({ ...prev, imgSrc: imgSrc }));
       setFoodImgUploading(false);
     }
   };
@@ -367,7 +367,7 @@ const Categories = () => {
           dishName: foodDetails.dishName,
           categorized: foodDetails.categorized,
           price: foodDetails.price,
-          img: foodDetails.img,
+          imgSrc: foodDetails.imgSrc,
           isSoldOut: false,
         });
 
@@ -377,7 +377,7 @@ const Categories = () => {
           dishName: "",
           price: "",
           categorized: "",
-          img: "",
+          imgSrc: "",
         });
         // setShowEditFields(false);
       } catch (e) {
@@ -409,7 +409,7 @@ const Categories = () => {
           dishName: foodDetails.dishName,
           categorized: foodDetails.categorized || "",
           price: foodDetails.price,
-          img: foodDetails.img || "",
+          imgSrc: foodDetails.imgSrc || "",
         });
 
         // Optionally update state or reset form fields after successful update
@@ -441,7 +441,7 @@ const Categories = () => {
           dishName: "",
           price: "",
           categorized: "",
-          img: "",
+          imgSrc: "",
         });
       } catch (e) {
         console.error("Error deleting food item: ", e);
@@ -567,9 +567,9 @@ const Categories = () => {
                   <CircularProgress />
                 </Box>
               ) : (
-                foodDetails.img && (
+                foodDetails.imgSrc && (
                   <img
-                    src={foodDetails.img}
+                    src={foodDetails.imgSrc}
                     width={"100%"}
                     height={"100%"}
                     style={{
@@ -877,7 +877,7 @@ const Categories = () => {
                 category: "",
                 dishName: "",
                 price: "",
-                img: "",
+                imgSrc: "",
               });
             }}
           >
