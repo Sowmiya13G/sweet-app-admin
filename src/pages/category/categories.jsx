@@ -36,6 +36,7 @@ import TabBar from "../../components/tabBar/tabBar";
 // icons
 import nonVegIcon from "../../assets/images/nonVeg.png";
 import vegIcon from "../../assets/images/veg.png";
+import plusIcon from "../../assets/images/plus.png";
 
 const Categories = () => {
   const tabs = [
@@ -146,28 +147,29 @@ const Categories = () => {
   };
 
   const gridItemStyles = {
-    height: { xs: 100, md: 150 },
+    height: { xs: 100, md: 130 },
     display: "flex",
     flexDirection: "column",
-    alignItems: "start",
+    color: "#000",
+    backgroundColor: "#fff",
+    padding: 1,
+    alignItems: "center",
     justifyContent: "end",
     borderRadius: 2,
-    width: { xs: 150, md: 200 },
+    width: { xs: 150, md: 150 },
     maxWidth: { xs: 150, md: 200 },
     cursor: "pointer",
     transition: "background-color 0.2s ease-in-out, color 0.2s ease-in-out",
-    backgroundSize: "cover",
-    backgroundRepeat: "no-repeat",
   };
 
   const categoriesStyle = {
     cursor: "pointer",
     transition: "background-color 0.2s ease-in-out, color 0.2s ease-in-out",
     width: "100%",
-    backgroundColor: "#ffffff",
+    backgroundColor: "#00000001",
     padding: "15px",
     borderRadius: "10px",
-    minHeight: 500,
+    minHeight: 300,
   };
 
   const iconContainerStyle = {
@@ -207,7 +209,7 @@ const Categories = () => {
     cursor: "pointer",
     transition: "background-color 0.2s ease-in-out, color 0.2s ease-in-out",
     with: "100%",
-    backgroundColor: "#ffffff",
+    backgroundColor: "#00000001",
     height: 500,
   };
 
@@ -463,7 +465,7 @@ const Categories = () => {
 
   const renderAddFoodFields = () => {
     return (
-      <>
+      <Paper sx={categoriesStyle} elevation={6}>
         {showEditFields && selectedCategory && (
           <Box
             sx={{
@@ -474,7 +476,7 @@ const Categories = () => {
               gutterBottom
               sx={{ color: "#000", fontSize: 20, fontWeight: 600 }}
             >
-              {foodDetails.dishName
+              {!addNewFoodList
                 ? `Edit ${foodDetails.dishName}  `
                 : ` Add food item under ${selectedCategory.name}`}
             </Typography>
@@ -522,7 +524,7 @@ const Categories = () => {
               <MenuItem value="veg">Veg</MenuItem>
               <MenuItem value="non-veg">Non-Veg</MenuItem>
             </TextField>
-            <Box sx={{ my: 2, width: 200, height: 200 }}>
+            {/* <Box sx={{ my: 2, width: 200, height: 200 }}>
               {foodImgUploading ? (
                 <Box
                   sx={{
@@ -544,6 +546,38 @@ const Categories = () => {
                     width={"100%"}
                     height={"100%"}
                     style={{ borderRadius: 10 }}
+                    alt="img"
+                  />
+                )
+              )}
+            </Box> */}
+            <Box sx={{ my: 2, width: "100px", height: "100px" }}>
+              {foodImgUploading ? (
+                <Box
+                  sx={{
+                    width: "100%",
+                    height: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    filter: 10,
+                    borderRadius: 5,
+                  }}
+                >
+                  <CircularProgress />
+                </Box>
+              ) : (
+                foodDetails.img && (
+                  <img
+                    src={foodDetails.img}
+                    width={"100%"}
+                    height={"100%"}
+                    style={{
+                      borderRadius: "50%",
+                      background: "#fff", 
+                      objectFit: "contain",
+                      boxShadow: "0px 15px 20px 0px #00000031",
+                    }}
                     alt="img"
                   />
                 )
@@ -618,18 +652,17 @@ const Categories = () => {
                       height: 40,
                       marginBottom: "10px",
                       width: "40%",
-                      // width: "100%",
-                      color: "green",
-                      background: "#fff",
+                      color: "#fff",
+                      background: "#125238",
                       alignItems: "center",
                       justifyContent: "space-around",
                       fontWeight: "bold",
                       fontSize: { xs: 12, md: 12 },
-                      borderColor: "green",
+                      borderColor: "#125238",
                       textTransform: "capitalize",
                       "&:hover": {
-                        borderColor: "green",
-                        background: "#fff",
+                        borderColor: "#125238",
+                        background: "#125238",
                       },
                     }}
                   >
@@ -644,18 +677,17 @@ const Categories = () => {
                     height: 40,
                     marginBottom: "10px",
                     width: "40%",
-                    // width: "100%",
-                    color: "green",
-                    background: "#fff",
+                    color: "#fff",
+                    background: "#125238",
                     alignItems: "center",
                     justifyContent: "space-around",
                     fontWeight: "bold",
                     fontSize: { xs: 12, md: 12 },
-                    borderColor: "green",
+                    borderColor: "#125238",
                     textTransform: "capitalize",
                     "&:hover": {
-                      borderColor: "green",
-                      background: "#fff",
+                      borderColor: "#125238",
+                      background: "#125238",
                     },
                   }}
                 >
@@ -665,13 +697,13 @@ const Categories = () => {
             </Box>
           </Box>
         )}
-      </>
+      </Paper>
     );
   };
 
   const editCategoryFields = () => {
     return (
-      <Box sx={categoriesStyle}>
+      <Paper sx={categoriesStyle} elevation={6}>
         <Box
           sx={{
             display: "flex",
@@ -690,7 +722,7 @@ const Categories = () => {
             error={!editedCategory.name}
           />
 
-          <Box sx={{ my: 2, width: "100%", height: "60%" }}>
+          <Box sx={{ my: 2, width: "100px", height: "100px" }}>
             {uploading ? (
               <Box
                 sx={{
@@ -710,8 +742,12 @@ const Categories = () => {
                 <img
                   src={editedCategory.imgSrc}
                   width={"100%"}
-                  height={"50%"}
-                  style={{ borderRadius: 10, objectFit: "contain" }}
+                  height={"100%"}
+                  style={{
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                    boxShadow: "0px 15px 20px 0px #00000021",
+                  }}
                   alt="img"
                 />
               )
@@ -783,18 +819,17 @@ const Categories = () => {
                 height: 40,
                 marginBottom: "10px",
                 width: "40%",
-                // width: "100%",
-                color: "green",
-                background: "#fff",
+                color: "#fff",
+                background: "#125238",
                 alignItems: "center",
                 justifyContent: "space-around",
                 fontWeight: "bold",
                 fontSize: { xs: 12, md: 12 },
-                borderColor: "green",
+                borderColor: "#125238",
                 textTransform: "capitalize",
                 "&:hover": {
-                  borderColor: "green",
-                  background: "#fff",
+                  borderColor: "#125238",
+                  background: "#125238",
                 },
               }}
             >
@@ -802,7 +837,7 @@ const Categories = () => {
             </Button>
           </Box>
         )}
-      </Box>
+      </Paper>
     );
   };
 
@@ -960,45 +995,80 @@ const Categories = () => {
         flexDirection: "column",
         gap: 2,
         p: { xs: 0, md: 2 },
+        background: "#eee",
+        borderRadius: 2,
+        p: 2,
       }}
     >
       {/* --------------------- CATEGORIES BOX --------------------- */}
-      <Typography variant="h5" gutterBottom sx={{ color: "#fff", mt: 4 }}>
-        Categories
+      <Typography
+        gutterBottom
+        sx={{ color: "#000", fontSize: 20, mt: 1, fontWeight: 600 }}
+      >
+        Category
       </Typography>
       <Box sx={{ ...scrollbarStyles }}>
-        <Grid container spacing={2} sx={{ flexWrap: "nowrap" }}>
+        <Grid container spacing={2} sx={{ flexWrap: "nowrap", p: 2, pt: 0 }}>
           {categories.map((item) => (
-            <Grid item key={item.id}>
+            <Grid item key={item.id} sx={{ pt: 0 }}>
               <Paper
                 elevation={6}
                 sx={{
                   ...gridItemStyles,
-                  backgroundColor: "#fffeee",
-                  color: "#000",
-                  backgroundImage: `url(${
-                    item.id === "new-id"
-                      ? "https://firebasestorage.googleapis.com/v0/b/foodorder-ed990.appspot.com/o/categories%2F5034294.png?alt=media&token=a17391b7-effb-4dd5-b1c3-dad7bcc41d84"
-                      : item.imgSrc
-                  })`,
                 }}
                 onClick={() => handleCardClick(item)}
               >
-                <Box sx={iconContainerStyle}>
-                  <Typography
-                    sx={{
-                      fontSize: { xs: 15, md: 20 },
-                      fontWeight: 600,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      px: 2,
-                    }}
-                    noWrap={true}
-                  >
-                    {item.name}
-                  </Typography>
+                <Box
+                  sx={{
+                    width: { xs: "50px", md: "70px" },
+                    height: { xs: "50px", md: "70px" },
+                    mb: 0.5,
+                  }}
+                >
+                  {item.id === "new-id" ? (
+                    <img
+                      src={plusIcon}
+                      width={"100%"}
+                      height={"100%"}
+                      style={{
+                        borderRadius: "50%",
+                        objectFit: "contain",
+                        backgroundColor: "#ffff",
+                        // boxShadow: "0px 0px 20px 0px #00000090",
+                        boxShadow: "0px 15px 20px 0px #00000031",
+                      }}
+                      alt="img"
+                    />
+                  ) : (
+                    <img
+                      src={item.imgSrc}
+                      width={"100%"}
+                      height={"100%"}
+                      style={{
+                        borderRadius: "50%",
+                        objectFit: "contain",
+                        backgroundColor: "#ffff",
+                        // boxShadow: "0px 0px 20px 0px #00000090",
+                        boxShadow: "0px 15px 20px 0px #00000031",
+                      }}
+                      alt="img"
+                    />
+                  )}
                 </Box>
+                <Typography
+                  sx={{
+                    fontSize: { xs: 12, md: 16 },
+                    fontWeight: 600,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    px: 2,
+                    // mb: 1,
+                  }}
+                  noWrap={true}
+                >
+                  {item.name}
+                </Typography>
               </Paper>
             </Grid>
           ))}
