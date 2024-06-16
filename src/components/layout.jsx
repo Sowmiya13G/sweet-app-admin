@@ -24,13 +24,12 @@ const Layout = ({ children }) => {
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
       <Sidebar open={isOpen} setOpen={handleToggleSidebar} />{" "}
-      {/* Pass isOpen state to Sidebar component */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           p: 1,
-          pt:2,
+          pt: 2,
           height: "auto",
           opacity: isOpen ? 0 : 1,
           overflow: "hidden",
@@ -40,12 +39,11 @@ const Layout = ({ children }) => {
         <Toolbar
           sx={{
             background: "#22222e",
-            // border: "1px solid #d79f11",
             borderRadius: "10px",
             color: "#fff",
             display: "flex",
             alignItems: "center",
-            justifyContent: { md: "space-between", xs: "space-between" }, // Align items horizontally
+            justifyContent: { md: "space-between", xs: "space-between" },
           }}
         >
           <div className="d-flex align-items-center">

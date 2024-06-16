@@ -1,34 +1,25 @@
-import React, { useState, useEffect } from "react";
-import { Box, Typography, Paper, Grid, Divider } from "@mui/material";
-import {
-  ShoppingCart,
-  TableRestaurant,
-  Group,
-  RestaurantMenu,
-} from "@mui/icons-material";
-import { collection, onSnapshot } from "firebase/firestore";
-import { db } from "../../firebaseConfig";
+import { Group, RestaurantMenu, ShoppingCart } from "@mui/icons-material";
+import EventSeatIcon from "@mui/icons-material/EventSeat";
+import { Box, Divider, Grid, Paper, Typography } from "@mui/material";
+import { collection, doc, onSnapshot } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  BarChart,
-  Bar,
+  Area,
+  AreaChart,
+  Cell,
+  Legend,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  AreaChart,
-  Area,
 } from "recharts";
+import { db } from "../../firebaseConfig";
 
-const piewData = [
-  { name: "Group A", value: 400 },
-  { name: "Group B", value: 300 },
-  { name: "Group C", value: 300 },
-  { name: "Group D", value: 200 },
-];
 const Dashboard = () => {
   const generateCurrentMonthData = (orders) => {
     // Initialize monthly data with dynamically calculated weeks
@@ -56,7 +47,7 @@ const Dashboard = () => {
 
     // Initialize weekly data structure
     for (let i = 0; i < numWeeks; i++) {
-      monthlyData.push({ name: `week${i + 1}`, totalSell: 0 });
+      monthlyData.push({ name: `W - ${i + 1}`, TotalSale: 0 });
     }
 
     // Process each order
@@ -71,24 +62,84 @@ const Dashboard = () => {
         );
 
         // Accumulate totalPrice to total for the corresponding week
-        monthlyData[weekNumber - 1].totalSell += order.totalPrice;
+        monthlyData[weekNumber - 1].TotalSale += parseInt(order.totalPrice); // Ensure totalPrice is converted to number
       }
     });
 
     return monthlyData;
   };
 
+  const generateMonthlyData = (orders) => {
+    // Initialize data structure for all months
+    const yearlyData = [];
+
+    // Loop through each month of the year (January to December)
+    for (let month = 0; month < 12; month++) {
+      // Initialize monthly total sell
+      let TotalSale = 0;
+
+      // Calculate start and end of current month
+      const startDate = new Date(new Date().getFullYear(), month, 1);
+      const endDate = new Date(new Date().getFullYear(), month + 1, 0);
+
+      // Process each order for the current month
+      orders.forEach((order) => {
+        const orderDate = new Date(order.orderTime.seconds * 1000); // Convert seconds to milliseconds
+
+        // Check if orderDate is within the current month
+        if (orderDate >= startDate && orderDate <= endDate) {
+          // Accumulate totalPrice to total for the current month
+          TotalSale += parseInt(order.totalPrice); // Ensure totalPrice is converted to number
+        }
+      });
+
+      // Push monthly total sell to yearlyData
+      yearlyData.push({
+        month: startDate.toLocaleString("default", { month: "short" }), // Get full month name (e.g., January, February, etc.)
+        TotalSale: TotalSale,
+      });
+    }
+
+    return yearlyData;
+  };
+
+  // Function to calculate total available and total chairs
+
+  const calculateTotalChairs = (data) => {
+    let totalAvailableChairs = 0;
+    let totalBookedChairs = 0;
+
+    // Iterate over each table object
+    data.forEach((table) => {
+      // Iterate over chairs array of each table
+      table.chairs.forEach((chair) => {
+        // Increment total chairs count
+        if (chair.booked) {
+          totalBookedChairs++;
+        } else {
+          totalAvailableChairs++;
+        }
+      });
+    });
+
+    return { totalAvailableChairs, totalBookedChairs };
+  };
+
   const [ordersCount, setOrdersCount] = useState(0);
   const [tablesAvailable, setTablesAvailable] = useState(0);
   const [totalUsers, setTotalUsers] = useState(0);
   const [dishVariety, setDishVariety] = useState(0);
-  const [selectedCard, setSelectedCard] = useState(0);
+  const [selectedCard, setSelectedCard] = useState(5);
   const [orderData, setOrderData] = useState([]);
-  const [orderIDCard, setOrderIDCard] = useState("");
+  const [tablesData, setTables] = useState([]);
   const [foodList, setFoodList] = useState([]);
   const navigate = useNavigate();
+  const yearlyChartData = generateMonthlyData(orderData);
   const weeklyChartData = generateCurrentMonthData(orderData);
-
+  // Calculate total available chairs
+  const totalAvailableChairs = calculateTotalChairs(tablesData);
+  console.log("Total available chairs:", totalAvailableChairs);
+  console.log(tablesData);
   const salesMap = {};
 
   orderData.forEach((order) => {
@@ -111,14 +162,46 @@ const Dashboard = () => {
   // Step 3: Sort the array by totalSales in descending order and get top 5
   topSellingDishes.sort((a, b) => b.totalSales - a.totalSales);
   const top5SellingDishes = topSellingDishes.slice(0, 5);
-
   useEffect(() => {
     const fetchDashboardData = () => {
-      setTablesAvailable(15);
+      setTablesAvailable(totalAvailableChairs?.totalAvailableChairs);
       setTotalUsers(totalUsersCount);
       setDishVariety(totalDishesVariety);
     };
     fetchDashboardData();
+  }, [totalAvailableChairs]);
+
+  const COLORS = ["#FE5B5B", "#00B074"];
+
+  const data = [
+    { name: "Booked Tables", value: totalAvailableChairs.totalBookedChairs },
+    {
+      name: "Available Tables",
+      value: totalAvailableChairs.totalAvailableChairs,
+    },
+  ];
+  useEffect(() => {
+    const fetchTablesBookedFromFirestore = async () => {
+      try {
+        const docRef = doc(db, "bookingData", "tablesBooked");
+        // Listen to real-time updates
+        const unsubscribe = onSnapshot(docRef, (docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data().tablesBooked;
+            setTables(data);
+          } else {
+            console.log("No such document!");
+          }
+        });
+
+        // Cleanup subscription on unmount
+        return () => unsubscribe();
+      } catch (error) {
+        console.error("Error fetching data from Firestore: ", error);
+      }
+    };
+
+    fetchTablesBookedFromFirestore();
   }, []);
 
   useEffect(() => {
@@ -167,10 +250,16 @@ const Dashboard = () => {
   const totalDishesVariety = foodList.length;
 
   const handleCardClick = (index) => {
-    if (index === 2) {
+    if (index === 0) {
+      navigate("/orders");
+    } else if (index === 1) {
+      navigate("/tables");
+    } else if (index === 2) {
       navigate("/users");
+    } else if (index === 3) {
+      navigate("/categories");
     }
-    setSelectedCard(index);
+    // setSelectedCard(index);
   };
 
   const gridItemStyles = {
@@ -219,6 +308,7 @@ const Dashboard = () => {
         display: "flex",
         flexDirection: "column",
         gap: 2,
+        mt:2,
         p: { xs: 0, md: 2 },
       }}
     >
@@ -263,8 +353,8 @@ const Dashboard = () => {
               }}
             >
               <Box sx={{ ...iconContainerStyle }}>
-                <Typography variant="h6">Tables Available</Typography>
-                <TableRestaurant sx={{ ...iconStyle, color: "#00ccff" }} />
+                <Typography variant="h6">Available Chair</Typography>
+                <EventSeatIcon sx={{ ...iconStyle, color: "#00ccff" }} />
               </Box>
               <Divider
                 sx={{ backgroundColor: "#00000090", width: "100%", my: 1 }}
@@ -326,63 +416,173 @@ const Dashboard = () => {
           </Grid>
         </Grid>
       </Box>
-      <Box sx={{ width: "100%", display: { xs: "block", md: "flex" }, mt: 4 }}>
-        {/* <ResponsiveContainer width="50%" height={300}>
-          <BarChart data={weeklyChartData}>
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="total" fill="#8884d8" />
-          </BarChart>
-          
-        </ResponsiveContainer> */}
-        {/* <ResponsiveContainer width="50%" height={300}>
-          <AreaChart data={weeklyChartData}>
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Area dataKey="total" fill="#8884d8" />
-          </AreaChart>
-        </ResponsiveContainer> */}
-        <ResponsiveContainer width="50%" height={300}>
-          <AreaChart data={weeklyChartData}>
+      <Box
+        sx={{
+          width: "100%",
+          display: { xs: "block", md: "flex" },
+          mt: 4,
+          backgroundColor: "#eff1e410",
+          borderRadius: 3,
+        }}
+      >
+        <Paper
+          elevation={0}
+          sx={{
+            width: { xs: "100%", md: "50%" },
+            padding: 2,
+            background: "none",
+          }}
+        >
+          <Typography
+            sx={{
+              color: "#eee",
+              fontSize: 20,
+              fontWeight: 600,
+              textAlign: "center",
+            }}
+          >
+            weekly sales
+          </Typography>
+
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={weeklyChartData}>
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Line type="monotone" dataKey="TotalSale" stroke="#9960a6" />
+            </LineChart>
+          </ResponsiveContainer>
+        </Paper>
+
+        <Paper
+          elevation={0}
+          sx={{
+            width: { xs: "100%", md: "50%" },
+
+            padding: 2,
+            background: "none",
+          }}
+        >
+          <Typography
+            sx={{
+              color: "#eee",
+              fontSize: 20,
+              fontWeight: 600,
+              textAlign: "center",
+            }}
+          >
+            Top Selling Dish
+          </Typography>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                dataKey="totalSales"
+                data={top5SellingDishes}
+                cx="50%"
+                cy="50%"
+                outerRadius={80}
+                fill="#9960a6"
+                label
+              />
+              <Tooltip
+                formatter={(value, name, props) => [
+                  props.payload.dishName,
+                  value,
+                ]}
+              />
+              {/* <Legend
+                formatter={(value, entry) => `${entry.payload.dishName}`}
+                iconType="square"
+              /> */}
+            </PieChart>
+          </ResponsiveContainer>
+        </Paper>
+        <Paper
+          elevation={0}
+          sx={{
+            width: { xs: "100%", md: "50%" },
+
+            padding: 2,
+            background: "none",
+            // backgroundImage: "linear-gradient(to bottom right, #00000011, #000000)",
+          }}
+        >
+          <Typography
+            sx={{
+              color: "#eee",
+              fontSize: 20,
+              fontWeight: 600,
+              textAlign: "center",
+            }}
+          >
+            Avaliable chair
+          </Typography>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={data}
+                dataKey="value"
+                cx="50%"
+                cy="50%"
+                outerRadius={80}
+                fill="#8884d8"
+                label
+              >
+                {data.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </Paper>
+      </Box>
+      <Paper
+        elevation={0}
+        sx={{
+          width: { xs: "100%", md: "50%" },
+          padding: 2,
+          backgroundColor: "#eff1e410",
+          borderRadius: 3,
+        }}
+      >
+        <Typography
+          sx={{
+            color: "#eee",
+            fontSize: 20,
+            fontWeight: 600,
+            textAlign: "center",
+          }}
+        >
+          Yearly sale
+        </Typography>
+        <ResponsiveContainer width="100%" height={300}>
+          <AreaChart data={yearlyChartData}>
             <defs>
               <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+                <stop offset="5%" stopColor="#9960a6" stopOpacity={0.8} />
+                <stop offset="95%" stopColor="#9960a6" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <XAxis dataKey="name" />
+            <XAxis dataKey="month" />
             <YAxis />
             <Tooltip />
             <Legend />
+
             <Area
               type="monotone"
-              dataKey="totalSell"
+              dataKey="TotalSale"
               stroke="#8884d8"
               fillOpacity={1}
               fill="url(#colorTotal)"
             />
           </AreaChart>
         </ResponsiveContainer>
-        <ResponsiveContainer width="50%" height={300}>
-          <PieChart>
-            <Pie
-              dataKey="value"
-              data={piewData}
-              cx="50%"
-              cy="50%"
-              fill="#8884d8"
-              outerRadius={80}
-              label
-            />
-            <Tooltip />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
-      </Box>
+      </Paper>
     </Box>
   );
 };
