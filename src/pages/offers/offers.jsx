@@ -198,6 +198,7 @@ const Offers = () => {
     const { name, value } = e.target;
     if (name === "type") {
       setFoodDetails({
+        type:value,
         dishName: "",
         price: "",
         imgSrc: "",
@@ -206,6 +207,7 @@ const Offers = () => {
       });
       setSelectedFoods([]);
       setComboImages([]);
+      return;
     }
 
     if (name === "dishName") {
@@ -232,10 +234,11 @@ const Offers = () => {
 
   // adding food item under selected category
   const handleAddFoodItem = async () => {
-    if (foodDetails.dishName && foodDetails.price) {
+    if (foodDetails?.dishName && foodDetails?.price&& foodDetails?.imgSrc) {
       setUploading(true);
       try {
         const priceAfterOffer = calculateAfterOfferPrice();
+        console.log(foodDetails?.imgSrc," foodDetails?.imgSrc")
         await addDoc(collection(db, "offers"), {
           ...foodDetails,
           priceAfterOffer,

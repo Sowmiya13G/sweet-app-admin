@@ -26,6 +26,7 @@ const SpecialOfferItem = ({
   const [swipedCardId, setSwipedCardId] = useState(null);
 
   const isSpecial = type === "special";
+  console.log(food)
 
   const handlers = useSwipeable({
     onSwipedLeft: () => setSwipedCardId(food?.id),
