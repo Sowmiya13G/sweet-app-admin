@@ -172,18 +172,6 @@ const Categories = () => {
     minHeight: 300,
   };
 
-  const iconContainerStyle = {
-    width: "100%",
-    height: { xs: 20, md: 40 },
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 2,
-    backgroundColor: "#d7d7d78a",
-    color: "#000",
-    fontSize: 30,
-  };
-
   const textInputStyle = {
     "& .MuiOutlinedInput-root": {
       "&.Mui-focused fieldset": {
@@ -194,10 +182,6 @@ const Categories = () => {
     },
   };
 
-  const iconStyle = {
-    fontSize: 40,
-    marginBottom: 1,
-  };
 
   const foodGridStyles = {
     minHeight: { xs: 60, md: 50 },
