@@ -30,7 +30,7 @@ import {
 import { db } from "../../firebaseConfig";
 
 //packages
-import SpecialOfferItem from "../../components/foodItem";
+import SpecialOfferItem from "../../components/foodItems/foodItem";
 import { Toaster } from "react-hot-toast";
 
 const Offers = () => {
@@ -42,7 +42,7 @@ const Offers = () => {
   const [foodDetails, setFoodDetails] = useState({
     dishName: "",
     price: "",
-    imgSrc: "",
+    img: "",
     type: "",
     offer: "",
     priceAfterOffer: "",
@@ -136,7 +136,7 @@ const Offers = () => {
         dishName: selectedFoods,
         price: totalComboPrice.toFixed(2),
         priceAfterOffer: priceAfterOfferCombo,
-        imgSrc: comboImages,
+        img: comboImages,
       }));
     }
   }, [selectedFoods]);
@@ -201,7 +201,7 @@ const Offers = () => {
         type:value,
         dishName: "",
         price: "",
-        imgSrc: "",
+        img: "",
         offer: "",
         priceAfterOffer: "",
       });
@@ -217,14 +217,14 @@ const Offers = () => {
           ...foodDetails,
           [name]: value,
           price: selectedFood.price,
-          imgSrc: selectedFood.imgSrc,
+          img: selectedFood.img,
         });
       } else {
         setFoodDetails({
           ...foodDetails,
           [name]: value,
           price: "",
-          imgSrc: "",
+          img: "",
         });
       }
     } else {
@@ -234,11 +234,11 @@ const Offers = () => {
 
   // adding food item under selected category
   const handleAddFoodItem = async () => {
-    if (foodDetails?.dishName && foodDetails?.price&& foodDetails?.imgSrc) {
+    if (foodDetails?.dishName && foodDetails?.price&& foodDetails?.img) {
       setUploading(true);
       try {
         const priceAfterOffer = calculateAfterOfferPrice();
-        console.log(foodDetails?.imgSrc," foodDetails?.imgSrc")
+        console.log(foodDetails?.img," foodDetails?.img")
         await addDoc(collection(db, "offers"), {
           ...foodDetails,
           priceAfterOffer,
@@ -246,7 +246,7 @@ const Offers = () => {
         setFoodDetails({
           dishName: "",
           price: "",
-          imgSrc: "",
+          img: "",
           type: "",
           offer: "",
           priceAfterOffer: "",
@@ -270,7 +270,7 @@ const Offers = () => {
   function findImages(selectedFoodsItem, foodsItem) {
     let foodMap = {};
     foodsItem.forEach((food) => {
-      foodMap[food.dishName] = food.imgSrc;
+      foodMap[food.dishName] = food.img;
     });
 
     let selectedImages = selectedFoodsItem.map((selectedFood) => {
@@ -322,7 +322,7 @@ const Offers = () => {
       setFoodDetails({
         dishName: food?.dishName,
         price: food?.price,
-        imgSrc: food?.imgSrc,
+        img: food?.img,
         type: food?.type,
         offer: food?.offer,
         priceAfterOffer: food?.priceAfterOffer,
@@ -331,11 +331,11 @@ const Offers = () => {
     }
     if (food.type === "combo") {
       setSelectedFoods(food?.dishName);
-      setComboImages(food?.imgSrc);
+      setComboImages(food?.img);
       setFoodDetails({
         dishName: food?.dishName,
         price: food?.price,
-        imgSrc: food?.imgSrc,
+        img: food?.img,
         type: food?.type,
         offer: food?.offer,
         priceAfterOffer: food?.priceAfterOffer,
@@ -360,15 +360,15 @@ const Offers = () => {
           price: foodDetails.price,
           offer: foodDetails.offer,
           priceAfterOffer: priceAfterOffer,
-          img: foodDetails.imgSrc,
-          imgSrc: foodDetails.imgSrc,
+          img: foodDetails.img,
+          img: foodDetails.img,
           type: foodDetails.type,
         });
         setSelectedCard(null);
         setFoodDetails({
           dishName: "",
           price: "",
-          imgSrc: "",
+          img: "",
           type: "",
           offer: "",
           priceAfterOffer: "",
@@ -554,9 +554,9 @@ const Offers = () => {
                 </Box>
               ))
             ) : (
-              foodDetails?.imgSrc && (
+              foodDetails?.img && (
                 <img
-                  src={foodDetails?.imgSrc}
+                  src={foodDetails?.img}
                   width={"50%"}
                   height={"50%"}
                   style={{

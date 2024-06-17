@@ -21,6 +21,7 @@ import notifisound from "./assets/notification.mp3";
 import { Howl } from "howler";
 import Tables from "./pages/tables/tables";
 import Offers from "./pages/offers/offers";
+import LocationPage from "./pages/location/location";
 
 function App() {
   const sound = new Howl({
@@ -105,7 +106,7 @@ function App() {
             </Layout>
           }
         />
-         <Route
+        <Route
           path="/offers"
           element={
             <Layout>
@@ -129,11 +130,20 @@ function App() {
             </Layout>
           }
         />
+
         <Route
           path="/users"
           element={
             <Layout>
               <Users />
+            </Layout>
+          }
+        />
+        <Route
+          path="/location"
+          element={
+            <Layout>
+              <LocationPage />
             </Layout>
           }
         />
@@ -146,13 +156,11 @@ function App() {
 
 export default App;
 
-
-
-  // const generateRandomColor = () => {
-  //   const letters = '0123456789ABCDEF';
-  //   let color = '#';
-  //   for (let i = 0; i < 6; i++) {
-  //     color += letters[Math.floor(Math.random() * 16)];
-  //   }
-  //   return color;
-  // };
+// const generateRandomColor = () => {
+//   const letters = '0123456789ABCDEF';
+//   let color = '#';
+//   for (let i = 0; i < 6; i++) {
+//     color += letters[Math.floor(Math.random() * 16)];
+//   }
+//   return color;
+// };

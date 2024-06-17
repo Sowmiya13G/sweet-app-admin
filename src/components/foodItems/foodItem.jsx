@@ -13,7 +13,10 @@ import { toast } from "react-hot-toast";
 import { useSwipeable } from "react-swipeable";
 
 // fb services
-import { db } from "../firebaseConfig";
+import { db } from "../../firebaseConfig";
+
+// styles
+import "./style.css";
 
 const SpecialOfferItem = ({
   food,
@@ -24,18 +27,20 @@ const SpecialOfferItem = ({
   type,
 }) => {
   const [swipedCardId, setSwipedCardId] = useState(null);
-
   const isSpecial = type === "special";
-  console.log(food)
 
   const handlers = useSwipeable({
-    onSwipedLeft: () => setSwipedCardId(food?.id),
-    onSwipedRight: () => setSwipedCardId(null),
+    onSwipedLeft: () => {
+      setSwipedCardId(food?.id);
+    },
+    onSwipedRight: () => {
+      setSwipedCardId(null);
+    },
     preventDefaultTouchmoveEvent: true,
     trackMouse: true,
   });
 
-  // top recommend 
+  // top recommend
   const handleCheckToggle = async (food) => {
     try {
       const foodDoc = doc(db, "offers", food?.id);
@@ -51,6 +56,7 @@ const SpecialOfferItem = ({
 
   return (
     <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+      <div></div>
       <Box
         {...handlers}
         sx={{
@@ -65,7 +71,8 @@ const SpecialOfferItem = ({
           minHeight: 120,
           position: "relative",
           overflow: "hidden",
-          transition: "background-color 0.2s ease-in-out",
+          transition:
+            "background-color 0.2s ease-in-out, transform 0.5s ease-in-out",
           transform:
             food?.id === swipedCardId ? "translateX(-2%)" : "translateX(0)",
         }}
@@ -97,7 +104,7 @@ const SpecialOfferItem = ({
         <Box sx={{ flex: 1, padding: "0 10px", px: 5 }}>
           <Typography sx={{ color: "#000", fontSize: 16, fontWeight: 600 }}>
             {`Dish Name: ${
-              isSpecial ? food.dishName : food.dishName.join(", ")
+              isSpecial ? food.dishName : food.dishName.join(" + ")
             }`}
           </Typography>
           <Typography
@@ -154,7 +161,7 @@ const SpecialOfferItem = ({
             />
           ) : (
             <>
-              {food.imgSrc.slice(0, 2).map((src, idx) => (
+              {food?.img?.slice(0, 2).map((src, idx) => (
                 <img
                   key={idx}
                   src={src}

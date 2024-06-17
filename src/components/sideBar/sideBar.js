@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Link,useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   Drawer,
   List,
@@ -15,11 +15,10 @@ import ContentPasteSearchIcon from "@mui/icons-material/ContentPasteSearch";
 import DinnerDiningIcon from "@mui/icons-material/DinnerDining";
 import TableBarIcon from "@mui/icons-material/TableBar";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
-
+import PlaceIcon from "@mui/icons-material/Place";
 const Sidebar = ({ open, setOpen }) => {
   const [isOpen, setIsOpen] = React.useState(false); // State for sidebar visibility
   const [selectedLink, setSelectedLink] = React.useState(""); // State to track selected link
-
 
   const location = useLocation();
 
@@ -193,6 +192,27 @@ const Sidebar = ({ open, setOpen }) => {
           <ListItemText
             style={{ display: isOpen ? "flex" : "none" }}
             primary="Users"
+          />
+        </ListItem>
+        <ListItem
+          button
+          component={Link}
+          to="/location"
+          style={{
+            margin: "15px",
+            height: "70px",
+            borderRadius: "15px",
+            backgroundColor:
+              selectedLink === "/location" ? "#d79f11" : "transparent", // Set background color to gold (hex code #d79f11) for selected link
+          }}
+          onClick={() => handleClick("/location")}
+        >
+          <ListItemIcon>
+            <PlaceIcon style={{ color: "white" }} />
+          </ListItemIcon>
+          <ListItemText
+            style={{ display: isOpen ? "flex" : "none" }}
+            primary="location"
           />
         </ListItem>
         <ListItem

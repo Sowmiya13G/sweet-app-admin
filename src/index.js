@@ -7,6 +7,11 @@ import { Provider } from "react-redux";
 import store from "./store/index";
 import 'bootstrap/dist/css/bootstrap.min.css';
 // import * as serviceWorkerRegistration from "./serviceWorkerRegistration"; 
+import {
+  MapContainer,
+  TileLayer,
+  useMap,
+} from 'https://cdn.esm.sh/react-leaflet'
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
