@@ -1,4 +1,4 @@
-import { Box, Grid, Typography, TextField, IconButton, } from "@mui/material";
+import { Box, Grid, Typography, TextField, IconButton } from "@mui/material";
 import { collection, onSnapshot } from "firebase/firestore";
 import L from "leaflet"; // Import Leaflet library
 import "leaflet/dist/leaflet.css"; // Ensure Leaflet's CSS is imported for proper styling
@@ -6,8 +6,7 @@ import React, { useEffect, useState } from "react";
 import { Circle, MapContainer, Marker, TileLayer } from "react-leaflet";
 import locationIcon from "../../assets/images/location.png";
 import { db } from "../../firebaseConfig";
-import EditIcon from '@mui/icons-material/Edit';
-
+import EditIcon from "@mui/icons-material/Edit";
 
 const LocationPage = () => {
   const [currentPosition, setCurrentPosition] = useState(null);
@@ -20,7 +19,7 @@ const LocationPage = () => {
     address: "",
     city: "",
     state: "",
-    country: ""
+    country: "",
   });
 
   // Fetch user's current location coordinates
@@ -122,7 +121,7 @@ const LocationPage = () => {
         height: 600,
       }}
     >
-          <Typography
+      <Typography
         gutterBottom
         sx={{ color: "#000", fontSize: 20, mt: 1, fontWeight: 600 }}
       >
@@ -212,7 +211,7 @@ const LocationPage = () => {
             )}
           </Box>
         </Grid>
-        </Grid>
+      </Grid>
       <Typography
         gutterBottom
         sx={{ color: "#000", fontSize: 20, mt: 1, fontWeight: 600 }}
@@ -221,19 +220,19 @@ const LocationPage = () => {
       </Typography>
       <Grid container spacing={3} sx={boxStyle}>
         <Grid item xs={12} sm={6}>
-            <Box
-              sx={{
-                border: "2px solid #ccc",
-                padding: "10px",
-                borderRadius: 2,
-              }}
-            >
-              <Typography variant="h6" gutterBottom>
-                Location Details
-              </Typography>
-              <Typography>Address: 123 Main St, City, Country</Typography>
-              <Typography>Phone: +123 456 7890</Typography>
-            </Box>
+          <Box
+            sx={{
+              border: "2px solid #ccc",
+              padding: "10px",
+              borderRadius: 2,
+            }}
+          >
+            <Typography variant="h6" gutterBottom>
+              Location Details
+            </Typography>
+            <Typography>Address: 123 Main St, City, Country</Typography>
+            <Typography>Phone: +123 456 7890</Typography>
+          </Box>
         </Grid>
         <Grid item xs={12} sm={6}>
           <Box
