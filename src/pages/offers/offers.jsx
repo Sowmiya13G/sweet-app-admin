@@ -539,7 +539,6 @@ const Offers = () => {
                   sx={{
                     display: "flex",
                     flexDirection: "column",
-              
                   }}
                 >
                   <img
@@ -754,13 +753,15 @@ const Offers = () => {
           flexDirection: { xs: "column", md: "row" },
         }}
       >
-        <Box sx={{ width: { xs: "100%", md: "25%" } }}>
+        <Box sx={{ width: { xs: "100%", md: "25%" }, mt: 3 }}>
           {renderAddFoodFields()}
         </Box>
-        <Box sx={{ width: { xs: "100%", md: "35%" } }}>
+        <Box sx={{ width: { xs: "100%", md: "35%" }, mt: 3 }}>
           {specialOfferList()}
         </Box>
-        <Box sx={{ width: { xs: "100%", md: "35%" } }}>{comboOfferList()}</Box>
+        <Box sx={{ width: { xs: "100%", md: "35%" }, mt: 3 }}>
+          {comboOfferList()}
+        </Box>
       </Box>
     </Box>
   );

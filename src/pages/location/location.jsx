@@ -22,6 +22,7 @@ import {
 } from "react-leaflet";
 import locationIcon from "../../assets/images/location.png";
 import { db } from "../../firebaseConfig";
+import MyLocationIcon from "@mui/icons-material/MyLocation";
 const LocationPage = () => {
   const [positions, setPositions] = useState([]);
   const [currentPosition, setCurrentPosition] = useState([]);
@@ -289,7 +290,9 @@ const LocationPage = () => {
                   sx={{ my: 2 }}
                   error={!address.country}
                 />
-                <Button onClick={handleSubmit}>Save Changes</Button>
+                <Button sx={{ color: "green" }} onClick={handleSubmit}>
+                  Save Changes
+                </Button>
               </>
             )}
           </Paper>
@@ -305,9 +308,18 @@ const LocationPage = () => {
               backgroundColor: "#f5f5f5",
             }}
           >
-            <Typography variant="h6" gutterBottom>
-              Map
-            </Typography>
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              <Typography variant="h6" gutterBottom>
+                Map
+              </Typography>
+              <Button
+                sx={{ color: "red" }}
+                onClick={() => handleCurrentLocation()}
+              >
+                {" "}
+                <MyLocationIcon sx={{ mx: 1 }} /> {"current location"}
+              </Button>
+            </Box>
             {positions.length > 0 && (
               <MapContainer
                 center={positions}
@@ -322,10 +334,6 @@ const LocationPage = () => {
                 <Marker position={positions} icon={customIcon} />
               </MapContainer>
             )}
-            <Button onClick={() => handleCurrentLocation()}>
-              {" "}
-              current location
-            </Button>
           </Paper>
         </Grid>
       </Grid>
