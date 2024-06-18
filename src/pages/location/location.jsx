@@ -184,7 +184,9 @@ const LocationPage = () => {
               position: "relative",
             }}
           >
-            <Typography variant="h6" gutterBottom>
+            <Typography
+              sx={{ fontWeight: 600, fontSize: { md: 24, xs: 12 }, mt: 3 }}
+            >
               Location Details
               {!editMode && (
                 <IconButton
@@ -197,12 +199,36 @@ const LocationPage = () => {
             </Typography>
             {!editMode ? (
               <>
-                <Typography>Shop Name: {address.shopName}</Typography>
-                <Typography>Phone Number: {address.phoneNumber}</Typography>
-                <Typography>Address: {address.address}</Typography>
-                <Typography>City: {address.city}</Typography>
-                <Typography>State: {address.state}</Typography>
-                <Typography>Country: {address.country}</Typography>
+                <Typography
+                  sx={{ fontWeight: 600, fontSize: { md: 16, xs: 12 }, mt: 3 }}
+                >
+                  Shop Name: {address.shopName}
+                </Typography>
+                <Typography
+                  sx={{ fontWeight: 600, fontSize: { md: 16, xs: 12 }, mt: 3 }}
+                >
+                  Phone Number: {address.phoneNumber}
+                </Typography>
+                <Typography
+                  sx={{ fontWeight: 600, fontSize: { md: 16, xs: 12 }, mt: 3 }}
+                >
+                  Address: {address.address}
+                </Typography>
+                <Typography
+                  sx={{ fontWeight: 600, fontSize: { md: 16, xs: 12 }, mt: 3 }}
+                >
+                  City: {address.city}
+                </Typography>
+                <Typography
+                  sx={{ fontWeight: 600, fontSize: { md: 16, xs: 12 }, mt: 3 }}
+                >
+                  State: {address.state}
+                </Typography>
+                <Typography
+                  sx={{ fontWeight: 600, fontSize: { md: 16, xs: 12 }, mt: 3 }}
+                >
+                  Country: {address.country}
+                </Typography>
               </>
             ) : (
               <>
@@ -212,7 +238,8 @@ const LocationPage = () => {
                   value={address.shopName}
                   onChange={handleChange}
                   fullWidth
-                  sx={{ mb: 1 }}
+                  sx={{ my: 2 }}
+                  error={!address.shopName}
                 />
                 <TextField
                   label="Phone Number"
@@ -220,7 +247,8 @@ const LocationPage = () => {
                   value={address.phoneNumber}
                   onChange={handleChange}
                   fullWidth
-                  sx={{ mb: 1 }}
+                  sx={{ my: 2 }}
+                  error={!address.phoneNumber}
                 />
                 <TextField
                   label="Address"
@@ -230,7 +258,8 @@ const LocationPage = () => {
                     handleChange(e);
                   }}
                   fullWidth
-                  sx={{ mb: 1 }}
+                  sx={{ my: 2 }}
+                  error={!address.address}
                 />
                 <TextField
                   label="City"
@@ -238,7 +267,8 @@ const LocationPage = () => {
                   value={address.city}
                   onChange={handleChange}
                   fullWidth
-                  sx={{ mb: 1 }}
+                  sx={{ my: 2 }}
+                  error={!address.city}
                 />
                 <TextField
                   label="State"
@@ -246,7 +276,8 @@ const LocationPage = () => {
                   value={address.state}
                   onChange={handleChange}
                   fullWidth
-                  sx={{ mb: 1 }}
+                  sx={{ my: 2 }}
+                  error={!address.state}
                 />
                 <TextField
                   label="Country"
@@ -254,9 +285,10 @@ const LocationPage = () => {
                   value={address.country}
                   onChange={handleChange}
                   fullWidth
-                  sx={{ mb: 1 }}
+                  sx={{ my: 2 }}
+                  error={!address.country}
                 />
-                <IconButton onClick={handleSubmit}>Save Changes</IconButton>
+                <Button onClick={handleSubmit}>Save Changes</Button>
               </>
             )}
           </Paper>
