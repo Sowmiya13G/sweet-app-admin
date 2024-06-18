@@ -625,7 +625,14 @@ const Tables = () => {
                             ...chairCardStyle,
                           }}
                         >
-                          Chair {index + 1} - #{chair.orderId}
+                          <Typography
+                            sx={{
+                              fontWeight: 600,
+                              fontSize: { md: 16, xs: 12 },
+                            }}
+                          >
+                            Chair {index + 1} - #{chair.orderId}
+                          </Typography>
                           <Button
                             onClick={() => handleShowQr(chair)}
                             variant="outlined"
@@ -652,7 +659,14 @@ const Tables = () => {
                             ...chairCardStyle,
                           }}
                         >
-                          Chair {index + 1} - Available
+                          <Typography
+                            sx={{
+                              fontWeight: 600,
+                              fontSize: { md: 16, xs: 12 },
+                            }}
+                          >
+                            Chair {index + 1} - Available
+                          </Typography>
                           <Button
                             onClick={() => handleShowQr(chair)}
                             variant="outlined"
@@ -660,7 +674,7 @@ const Tables = () => {
                               fontWeight: "bold",
                               display: "flex",
                               justifyContent: "space-between",
-                              fontSize: { xs: 10, md: 12 },
+                              fontSize: { xs: 12, md: 12 },
                               color: "#626fa0",
                               textTransform: "capitalize",
                               borderColor: "#626fa0",

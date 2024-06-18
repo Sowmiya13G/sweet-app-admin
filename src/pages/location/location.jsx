@@ -109,6 +109,7 @@ const LocationPage = () => {
         state: address.state,
         country: address.country,
       });
+      setEditMode(false);
       console.log("Document updated successfully!");
     } catch (error) {
       console.error("Error updating document: ", error);
@@ -185,7 +186,7 @@ const LocationPage = () => {
             }}
           >
             <Typography
-              sx={{ fontWeight: 600, fontSize: { md: 24, xs: 12 }, mt: 3 }}
+              sx={{ fontWeight: 600, fontSize: { md: 24, xs: 14 }, mt: 3 }}
             >
               Location Details
               {!editMode && (

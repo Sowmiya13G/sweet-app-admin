@@ -198,7 +198,7 @@ const Offers = () => {
     const { name, value } = e.target;
     if (name === "type") {
       setFoodDetails({
-        type:value,
+        type: value,
         dishName: "",
         price: "",
         img: "",
@@ -234,11 +234,11 @@ const Offers = () => {
 
   // adding food item under selected category
   const handleAddFoodItem = async () => {
-    if (foodDetails?.dishName && foodDetails?.price&& foodDetails?.img) {
+    if (foodDetails?.dishName && foodDetails?.price && foodDetails?.img) {
       setUploading(true);
       try {
         const priceAfterOffer = calculateAfterOfferPrice();
-        console.log(foodDetails?.img," foodDetails?.img")
+        console.log(foodDetails?.img, " foodDetails?.img");
         await addDoc(collection(db, "offers"), {
           ...foodDetails,
           priceAfterOffer,
@@ -518,12 +518,12 @@ const Offers = () => {
           sx={{ mb: 2, ...textInputStyle }}
         />
         {Boolean(foodDetails.dishName) && (
-          <Box sx={{ width: 200, height: 200 }}>
+          <Box sx={{ width: 100, height: 100 }}>
             {foodImgUploading ? (
               <Box
                 sx={{
-                  width: 200,
-                  height: 200,
+                  width: 100,
+                  height: 100,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -535,21 +535,27 @@ const Offers = () => {
               </Box>
             ) : foodDetails?.type === "combo" ? (
               comboImages.map((item, index) => (
-                <Box sx={{ display: "flex", flexDirection: "column" }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+              
+                  }}
+                >
                   <img
                     key={index}
                     src={item}
                     style={{
                       borderRadius: "50%",
                       objectFit: "cover",
-                      width: 55,
-                      height: 55,
                       position: "absolute",
-                      left: index * 20 + 30,
+                      left: index * 50 + 30,
+                      width: 95,
+                      height: 95,
                     }}
                     alt={`Food ${index + 1}`}
-                    width={"100%"}
-                    height={"100%"}
+                    // width={"100%"}
+                    // height={"100%"}
                   />
                 </Box>
               ))
@@ -557,8 +563,8 @@ const Offers = () => {
               foodDetails?.img && (
                 <img
                   src={foodDetails?.img}
-                  width={"50%"}
-                  height={"50%"}
+                  width={"100%"}
+                  height={"100%"}
                   style={{
                     borderRadius: "50%",
                     objectFit: "cover",
@@ -585,6 +591,7 @@ const Offers = () => {
             fontSize: { xs: 12, md: 12 },
             borderColor: "#125238",
             textTransform: "capitalize",
+            mt: 2,
             "&:hover": {
               borderColor: "#125238",
               background: "#125238",
@@ -722,7 +729,7 @@ const Offers = () => {
         display: "flex",
         flexDirection: "column",
         gap: 2,
-        p: { xs: 0, md: 2 },
+        p: { xs: 2, md: 2 },
         background: "#eee",
         borderRadius: "10px",
         marginTop: "10px",
@@ -733,7 +740,7 @@ const Offers = () => {
         gutterBottom
         sx={{ color: "#000", fontSize: 20, mt: 1, fontWeight: 600 }}
       >
-        Offers
+        Offers List
       </Typography>
 
       {/* --------------------- CATEGORIES BOX --------------------- */}
