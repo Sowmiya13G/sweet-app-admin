@@ -24,7 +24,13 @@ import {
 } from "@mui/material";
 
 // firebase
-import { collection, doc, getDoc, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  onSnapshot,
+  updateDoc,
+} from "firebase/firestore";
 
 // firebase service
 import { db } from "../../firebaseConfig";
@@ -217,50 +223,38 @@ const Orders = () => {
     return order.orderID.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
-  // -------------------------------- RENDER UI --------------------------------
-
-  const buttonContainer = () => {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          width: "100%",
-          justifyContent: "space-around",
-          alignItems: "center",
-        }}
-      >
-        <Button
-          // onClick={edit ? handleUpdateFood : handleAddFoodItem}
-          sx={{
-            ...buttonStyles,
-            borderColor: "red",
-            background: "red",
-            "&:hover": {
-              borderColor: "red",
-              background: "red",
-            },
-          }}
-        >
-          Cancel
-        </Button>
-        <Button
-          // onClick={edit ? handleUpdateFood : handleAddFoodItem}
-          sx={{
-            ...buttonStyles,
-            borderColor: "#125238",
-            background: "#125238",
-            "&:hover": {
-              borderColor: "#125238",
-              background: "#125238",
-            },
-          }}
-        >
-          Pay
-        </Button>
-      </Box>
-    );
+  const handleCancelFoodItem = async (order) => {
+    try {
+      let orderDetails = { ...order };
+      // let orderStatus = 3;
+      const orderDocRef = doc(db, "orders", order?.orderID);
+      await updateDoc(orderDocRef, {
+        ...orderDetails,
+        orderStatus: 3,
+      });
+      console.log("Order cancelled successfully");
+    } catch (error) {
+      console.error("Error cancelling order:", error);
+      console.log(JSON.stringify(error));
+    }
   };
+
+  const handlePayFoodItem = async (order) => {
+    try {
+      let orderDetails = { ...order };
+      let orderStatus = 2;
+      const orderDocRef = doc(db, "orders", order?.orderID);
+      await updateDoc(orderDocRef, {
+        ...orderDetails,
+        orderStatus,
+      });
+      console.log("Paid successfully");
+    } catch (error) {
+      console.error("Error while payment:", error);
+      console.log(JSON.stringify(error));
+    }
+  };
+  // -------------------------------- RENDER UI --------------------------------
 
   return (
     <Box
@@ -419,7 +413,6 @@ const Orders = () => {
                   ...subGridItemStyles,
                 }}
               >
-                {console.log(order, "order")}
                 <Box
                   sx={{
                     ...iconContainerStyle,
@@ -505,8 +498,23 @@ const Orders = () => {
                     </Typography>
                     <Typography sx={textalignCenter}>
                       Order Status:
-                      <Typography sx={{ fontWeight: 600, ml: 1 }}>
-                        {order.orderStatus}
+                      <Typography
+                        sx={{
+                          fontWeight: 600,
+                          ml: 1,
+                          color:
+                            order.orderStatus == 3
+                              ? "red"
+                              : order.orderStatus == 2
+                              ? "green"
+                              : "#22222E",
+                        }}
+                      >
+                        {order.orderStatus == 3
+                          ? "Cancelled"
+                          : order.orderStatus == 2
+                          ? "Delivered"
+                          : "Current"}
                       </Typography>
                     </Typography>
                     {/* <Typography sx={{ ...textalignCenter, fontWeight: 600 }}>
@@ -519,7 +527,46 @@ const Orders = () => {
                   <Box
                     sx={{ display: { md: "flex", xs: "none" }, width: "30%" }}
                   >
-                    {buttonContainer()}
+                    {order.orderStatus == 1 && (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "row",
+                          width: "100%",
+                          justifyContent: "space-around",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Button
+                          onClick={() => handleCancelFoodItem(order)}
+                          sx={{
+                            ...buttonStyles,
+                            borderColor: "red",
+                            background: "red",
+                            "&:hover": {
+                              borderColor: "red",
+                              background: "red",
+                            },
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={() => handlePayFoodItem(order)}
+                          sx={{
+                            ...buttonStyles,
+                            borderColor: "#125238",
+                            background: "#125238",
+                            "&:hover": {
+                              borderColor: "#125238",
+                              background: "#125238",
+                            },
+                          }}
+                        >
+                          Pay
+                        </Button>
+                      </Box>
+                    )}
                   </Box>
                 </Box>
                 <Typography sx={{ ...textalignCenter, fontWeight: 600 }}>
@@ -531,7 +578,46 @@ const Orders = () => {
                 <Box
                   sx={{ display: { md: "none", xs: "flex" }, width: "100%" }}
                 >
-                  {buttonContainer()}
+                  {order.orderStatus == 1 && (
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        width: "100%",
+                        justifyContent: "space-around",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Button
+                        onClick={() => handleCancelFoodItem(order)}
+                        sx={{
+                          ...buttonStyles,
+                          borderColor: "red",
+                          background: "red",
+                          "&:hover": {
+                            borderColor: "red",
+                            background: "red",
+                          },
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={() => handlePayFoodItem(order)}
+                        sx={{
+                          ...buttonStyles,
+                          borderColor: "#125238",
+                          background: "#125238",
+                          "&:hover": {
+                            borderColor: "#125238",
+                            background: "#125238",
+                          },
+                        }}
+                      >
+                        Pay
+                      </Button>
+                    </Box>
+                  )}
                 </Box>
 
                 <Divider
@@ -581,7 +667,6 @@ const Orders = () => {
                         key={index}
                         className="table-container mx-1 my-3 mb-4 d-flex flex-column"
                       >
-                        {console.log(table)}
                         <div className="table-chair-container w-100 px-4">
                           {table?.chairs
                             .slice(0, 2)
