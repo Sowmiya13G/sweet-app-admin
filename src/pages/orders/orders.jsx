@@ -11,6 +11,7 @@ import TakeoutDiningIcon from "@mui/icons-material/TakeoutDining";
 import {
   Avatar,
   Box,
+  Button,
   CircularProgress,
   Divider,
   List,
@@ -193,6 +194,19 @@ const Orders = () => {
     marginBottom: 2,
   };
 
+  const buttonStyles = {
+    height: 40,
+    marginBottom: "10px",
+    width: "40%",
+    color: "#fff",
+    alignItems: "center",
+    justifyContent: "space-around",
+    fontWeight: "bold",
+    fontSize: { xs: 12, md: 12 },
+    textTransform: "capitalize",
+    mt: 2,
+  };
+
   // -------------------------------- FUNCTIONALITIES --------------------------------
 
   const handleOrderCardClick = (index) => {
@@ -204,6 +218,49 @@ const Orders = () => {
   });
 
   // -------------------------------- RENDER UI --------------------------------
+
+  const buttonContainer = () => {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          width: "50%",
+        }}
+      >
+        <Button
+          variant="contained"
+          // onClick={edit ? handleUpdateFood : handleAddFoodItem}
+          sx={{
+            ...buttonStyles,
+            borderColor: "#125238",
+            background: "#125238",
+            "&:hover": {
+              borderColor: "#125238",
+              background: "#125238",
+            },
+          }}
+        >
+          Cancel
+        </Button>
+        <Button
+          variant="contained"
+          // onClick={edit ? handleUpdateFood : handleAddFoodItem}
+          sx={{
+            ...buttonStyles,
+            borderColor: "#125238",
+            background: "#125238",
+            "&:hover": {
+              borderColor: "#125238",
+              background: "#125238",
+            },
+          }}
+        >
+          Pay
+        </Button>
+      </Box>
+    );
+  };
 
   return (
     <Box
@@ -362,7 +419,7 @@ const Orders = () => {
                   ...subGridItemStyles,
                 }}
               >
-              {console.log(order, "order")}
+                {console.log(order, "order")}
                 <Box
                   sx={{
                     ...iconContainerStyle,
@@ -384,75 +441,91 @@ const Orders = () => {
                 <Box
                   sx={{
                     display: "flex",
+                    flexDirection: "row",
                     width: "100%",
-                    flexWrap: "wrap",
-                    fontSize: 10,
-                    flexDirection: "column",
                   }}
                 >
-                  <Typography sx={textalignCenter}>
-                    <PersonIcon
-                      sx={{ m: 0, color: "#626fa0", fontSize: 25, mr: 2 }}
-                    />
-                    Name:
-                    <Typography sx={{ fontWeight: 600, ml: 1 }}>
-                      {order.name}
-                    </Typography>
-                  </Typography>
-                  <Typography sx={textalignCenter}>
-                    <LocalPhoneIcon
-                      sx={{ m: 0, color: "#626fa0", fontSize: 25, mr: 2 }}
-                    />
-                    Phone Number:
-                    <Typography sx={{ fontWeight: 600, ml: 1 }}>
-                      {order.phoneNumber}
-                    </Typography>
-                  </Typography>
-                  <Typography sx={textalignCenter}>
-                    {order.deliveryMethod == "Dine-In" ? (
-                      <DiningIcon
+                  <Box
+                    sx={{
+                      display: "flex",
+                      width: "100%",
+                      flexWrap: "wrap",
+                      fontSize: 10,
+                      flexDirection: "column",
+                    }}
+                  >
+                    <Typography sx={textalignCenter}>
+                      <PersonIcon
                         sx={{ m: 0, color: "#626fa0", fontSize: 25, mr: 2 }}
                       />
-                    ) : (
-                      <TakeoutDiningIcon
+                      Name:
+                      <Typography sx={{ fontWeight: 600, ml: 1 }}>
+                        {order.name}
+                      </Typography>
+                    </Typography>
+                    <Typography sx={textalignCenter}>
+                      <LocalPhoneIcon
                         sx={{ m: 0, color: "#626fa0", fontSize: 25, mr: 2 }}
                       />
-                    )}
-                    Delivery Method:
-                    <Typography sx={{ fontWeight: 600, ml: 1 }}>
-                      {`${order.deliveryMethod}`}
+                      Phone Number:
+                      <Typography sx={{ fontWeight: 600, ml: 1 }}>
+                        {order.phoneNumber}
+                      </Typography>
                     </Typography>
-                  </Typography>
+                    <Typography sx={textalignCenter}>
+                      {order.deliveryMethod == "Dine-In" ? (
+                        <DiningIcon
+                          sx={{ m: 0, color: "#626fa0", fontSize: 25, mr: 2 }}
+                        />
+                      ) : (
+                        <TakeoutDiningIcon
+                          sx={{ m: 0, color: "#626fa0", fontSize: 25, mr: 2 }}
+                        />
+                      )}
+                      Delivery Method:
+                      <Typography sx={{ fontWeight: 600, ml: 1 }}>
+                        {`${order.deliveryMethod}`}
+                      </Typography>
+                    </Typography>
 
-                  <Typography sx={textalignCenter}>
-                    {order.paymentMethod == "online" ? (
-                      <AccountBalanceRoundedIcon
-                        sx={{ m: 0, color: "#626fa0", fontSize: 25, mr: 2 }}
-                      />
-                    ) : (
-                      <LocalAtmIcon
-                        sx={{ m: 0, color: "#626fa0", fontSize: 25, mr: 2 }}
-                      />
-                    )}
-                    Payment Method:
-                    <Typography sx={{ fontWeight: 600, ml: 1 }}>
-                      {order.paymentMethod}
+                    <Typography sx={textalignCenter}>
+                      {order.paymentMethod == "online" ? (
+                        <AccountBalanceRoundedIcon
+                          sx={{ m: 0, color: "#626fa0", fontSize: 25, mr: 2 }}
+                        />
+                      ) : (
+                        <LocalAtmIcon
+                          sx={{ m: 0, color: "#626fa0", fontSize: 25, mr: 2 }}
+                        />
+                      )}
+                      Payment Method:
+                      <Typography sx={{ fontWeight: 600, ml: 1 }}>
+                        {order.paymentMethod}
+                      </Typography>
                     </Typography>
-                  </Typography>
-                  <Typography sx={textalignCenter}>
-                    Order Status:
-                    <Typography sx={{ fontWeight: 600, ml: 1 }}>
-                      {order.orderStatus}
+                    <Typography sx={textalignCenter}>
+                      Order Status:
+                      <Typography sx={{ fontWeight: 600, ml: 1 }}>
+                        {order.orderStatus}
+                      </Typography>
                     </Typography>
-                  </Typography>
+                    {/* <Typography sx={{ ...textalignCenter, fontWeight: 600 }}>
+                      Total Price:
+                      <Typography sx={{ fontWeight: 600, ml: 1 }}>
+                        ₹{order.totalPrice}
+                      </Typography>
+                    </Typography> */}
+                  </Box>
+                  <Box sx={{ md: "flex", xs: "none" }}>{buttonContainer()}</Box>
                 </Box>
-
                 <Typography sx={{ ...textalignCenter, fontWeight: 600 }}>
                   Total Price:
                   <Typography sx={{ fontWeight: 600, ml: 1 }}>
                     ₹{order.totalPrice}
                   </Typography>
                 </Typography>
+                <Box sx={{ md: "none", xs: "flex" }}>{buttonContainer()}</Box>
+
                 <Divider
                   sx={{ backgroundColor: "#00000090", width: "100%", my: 1 }}
                 />
