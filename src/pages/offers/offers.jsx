@@ -234,15 +234,27 @@ const Offers = () => {
 
   // adding food item under selected category
   const handleAddFoodItem = async () => {
-    if (foodDetails?.dishName && foodDetails?.price && foodDetails?.img) {
+    if (foodDetails?.dishName && foodDetails?.price) {
       setUploading(true);
+
       try {
+        let updatedFoodDetails = { ...foodDetails }; // Create a copy of foodDetails
+
+        // Check if the food type is "combo" and comboImages array has items
+        if (foodDetails.type == "combo" && comboImages.length > 0) {
+          updatedFoodDetails.img = comboImages; // Update img property with comboImages
+        }
+
+        // Calculate price after offer using a function
         const priceAfterOffer = calculateAfterOfferPrice();
-        console.log(foodDetails?.img, " foodDetails?.img");
+
+        // Add foodDetails to Firestore collection "offers" with additional priceAfterOffer property
         await addDoc(collection(db, "offers"), {
-          ...foodDetails,
+          ...updatedFoodDetails,
           priceAfterOffer,
         });
+
+        // Reset foodDetails state to initial values after adding to Firestore
         setFoodDetails({
           dishName: "",
           price: "",
@@ -253,6 +265,7 @@ const Offers = () => {
           topRec: false,
         });
 
+        // Clear selected foods and combo images state arrays
         setSelectedFoods([]);
         setComboImages([]);
       } catch (e) {
@@ -353,16 +366,18 @@ const Offers = () => {
       selectedCard?.id
     ) {
       try {
+        let updatedFoodDetails = { ...foodDetails }; // Create a copy of foodDetails
+
+        // Check if the food type is "combo" and comboImages array has items
+        if (foodDetails.type == "combo" && comboImages.length > 0) {
+          updatedFoodDetails.img = comboImages; // Update img property with comboImages
+        }
+
         const priceAfterOffer = calculateAfterOfferPrice();
         const foodDocRef = doc(db, "offers", selectedCard?.id);
         await updateDoc(foodDocRef, {
-          dishName: foodDetails.dishName,
-          price: foodDetails.price,
-          offer: foodDetails.offer,
-          priceAfterOffer: priceAfterOffer,
-          img: foodDetails.img,
-          img: foodDetails.img,
-          type: foodDetails.type,
+          ...updatedFoodDetails,
+          priceAfterOffer,
         });
         setSelectedCard(null);
         setFoodDetails({
