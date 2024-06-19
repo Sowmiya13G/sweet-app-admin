@@ -224,27 +224,27 @@ const Orders = () => {
       <Box
         sx={{
           display: "flex",
-          flexDirection: "column",
-          width: "50%",
+          flexDirection: "row",
+          width: "100%",
+          justifyContent: "space-around",
+          alignItems: "center",
         }}
       >
         <Button
-          variant="contained"
           // onClick={edit ? handleUpdateFood : handleAddFoodItem}
           sx={{
             ...buttonStyles,
-            borderColor: "#125238",
-            background: "#125238",
+            borderColor: "red",
+            background: "red",
             "&:hover": {
-              borderColor: "#125238",
-              background: "#125238",
+              borderColor: "red",
+              background: "red",
             },
           }}
         >
           Cancel
         </Button>
         <Button
-          variant="contained"
           // onClick={edit ? handleUpdateFood : handleAddFoodItem}
           sx={{
             ...buttonStyles,
@@ -448,7 +448,7 @@ const Orders = () => {
                   <Box
                     sx={{
                       display: "flex",
-                      width: "100%",
+                      width: "70%",
                       flexWrap: "wrap",
                       fontSize: 10,
                       flexDirection: "column",
@@ -516,7 +516,11 @@ const Orders = () => {
                       </Typography>
                     </Typography> */}
                   </Box>
-                  <Box sx={{ md: "flex", xs: "none" }}>{buttonContainer()}</Box>
+                  <Box
+                    sx={{ display: { md: "flex", xs: "none" }, width: "30%" }}
+                  >
+                    {buttonContainer()}
+                  </Box>
                 </Box>
                 <Typography sx={{ ...textalignCenter, fontWeight: 600 }}>
                   Total Price:
@@ -524,7 +528,11 @@ const Orders = () => {
                     ₹{order.totalPrice}
                   </Typography>
                 </Typography>
-                <Box sx={{ md: "none", xs: "flex" }}>{buttonContainer()}</Box>
+                <Box
+                  sx={{ display: { md: "none", xs: "flex" }, width: "100%" }}
+                >
+                  {buttonContainer()}
+                </Box>
 
                 <Divider
                   sx={{ backgroundColor: "#00000090", width: "100%", my: 1 }}
