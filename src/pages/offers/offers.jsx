@@ -280,6 +280,10 @@ const Offers = () => {
     food.dishName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const specialFilteredFoods = foods.filter(
+    (food) => !foodList.some((item) => item.dishName === food.dishName)
+  );
+
   function findImages(selectedFoodsItem, foodsItem) {
     let foodMap = {};
     foodsItem.forEach((food) => {
@@ -500,7 +504,7 @@ const Offers = () => {
             sx={{ mb: 2, ...textInputStyle }}
             disabled={edit}
           >
-            {filteredFoods.map((food) => (
+            {specialFilteredFoods.map((food) => (
               <MenuItem key={food.id} value={food.dishName}>
                 {food.dishName}
               </MenuItem>

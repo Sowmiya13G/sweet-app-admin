@@ -1,3 +1,4 @@
+// App.js
 import { collection, onSnapshot } from "firebase/firestore"; // Firestore methods
 import React, { useEffect, useState } from "react";
 import {
@@ -5,25 +6,26 @@ import {
   Route,
   BrowserRouter as Router,
   Routes,
-  useNavigate,
 } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Layout from "./components/layout";
-import { db } from "./firebaseConfig"; // Import Firestore
+import { auth, db } from "./firebaseConfig"; // Import Firestore and Auth
 import Categories from "./pages/category/categories";
 import Dashboard from "./pages/dashboard/dashboard";
-import Login from "./pages/login";
-import NotFound from "./pages/notFound";
-import Orders from "./pages/orders/orders";
-import Users from "./pages/users/user";
-import notifisound from "./assets/notification.mp3";
+// import NotFound from "./pages/NotFound";
 import { Howl } from "howler";
-import Tables from "./pages/tables/tables";
-import Offers from "./pages/offers/offers";
+import notifisound from "./assets/notification.mp3";
 import LocationPage from "./pages/location/location";
+import Offers from "./pages/offers/offers";
+import Orders from "./pages/orders/orders";
+import Tables from "./pages/tables/tables";
+import Users from "./pages/users/user";
+import Auth from "./pages/auth/login";
 
 function App() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const sound = new Howl({
     src: [notifisound],
     volume: 1,
@@ -34,6 +36,13 @@ function App() {
   };
 
   useEffect(() => {
+    // Listen for authentication state changes
+    // Listen for authentication state changes
+    const unsubscribeAuth = auth.onAuthStateChanged((user) => {
+      setUser(user);
+      setLoading(false); // Set loading to false when auth state is determined
+    });
+
     // Request notification permissions
     if (Notification.permission !== "granted") {
       Notification.requestPermission();
@@ -82,72 +91,111 @@ function App() {
     // Clean up the subscriptions when the component unmounts
     return () => {
       unsubscribeOrders();
+      unsubscribeAuth();
     };
   }, []);
+
+  // Protected Route Component
+  const ProtectedRoute = ({ element }) => {
+    if (loading) {
+      return null; // Optionally, render a loading spinner here
+    }
+    if (!user) {
+      return <Navigate to="/login" />;
+    }
+    return element;
+  };
 
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<Auth />} />
         <Route path="/" element={<Navigate to="/dashboard" />} />
         <Route
           path="/dashboard"
           element={
-            <Layout>
-              <Dashboard />
-            </Layout>
+            <ProtectedRoute
+              element={
+                <Layout>
+                  <Dashboard />
+                </Layout>
+              }
+            />
           }
         />
         <Route
           path="/categories"
           element={
-            <Layout>
-              <Categories />
-            </Layout>
+            <ProtectedRoute
+              element={
+                <Layout>
+                  <Categories />
+                </Layout>
+              }
+            />
           }
         />
         <Route
           path="/offers"
           element={
-            <Layout>
-              <Offers />
-            </Layout>
+            <ProtectedRoute
+              element={
+                <Layout>
+                  <Offers />
+                </Layout>
+              }
+            />
           }
         />
         <Route
           path="/orders"
           element={
-            <Layout>
-              <Orders />
-            </Layout>
+            <ProtectedRoute
+              element={
+                <Layout>
+                  <Orders />
+                </Layout>
+              }
+            />
           }
         />
         <Route
           path="/tables"
           element={
-            <Layout>
-              <Tables />
-            </Layout>
+            <ProtectedRoute
+              element={
+                <Layout>
+                  <Tables />
+                </Layout>
+              }
+            />
           }
         />
-
         <Route
           path="/users"
           element={
-            <Layout>
-              <Users />
-            </Layout>
+            <ProtectedRoute
+              element={
+                <Layout>
+                  <Users />
+                </Layout>
+              }
+            />
           }
         />
         <Route
           path="/location"
           element={
-            <Layout>
-              <LocationPage />
-            </Layout>
+            <ProtectedRoute
+              element={
+                <Layout>
+                  <LocationPage />
+                </Layout>
+              }
+            />
           }
         />
-        <Route path="*" element={<NotFound />} />
+        {/* <Route path="*" element={<NotFound />} /> */}
       </Routes>
       <ToastContainer />
     </Router>

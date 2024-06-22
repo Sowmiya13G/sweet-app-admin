@@ -19,6 +19,7 @@ import {
   YAxis,
 } from "recharts";
 import { db } from "../../firebaseConfig";
+import Loader from "../../components/loader/loader";
 
 const Dashboard = () => {
   const generateCurrentMonthData = (orders) => {
@@ -133,6 +134,8 @@ const Dashboard = () => {
   const [orderData, setOrderData] = useState([]);
   const [tablesData, setTables] = useState([]);
   const [foodList, setFoodList] = useState([]);
+  const [cusLoader, setCusLoader] = useState(false);
+
   const navigate = useNavigate();
   const yearlyChartData = generateMonthlyData(orderData);
   const weeklyChartData = generateCurrentMonthData(orderData);
@@ -183,12 +186,14 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchTablesBookedFromFirestore = async () => {
       try {
+        setCusLoader(true);
         const docRef = doc(db, "bookingData", "tablesBooked");
         // Listen to real-time updates
         const unsubscribe = onSnapshot(docRef, (docSnap) => {
           if (docSnap.exists()) {
             const data = docSnap.data().tablesBooked;
             setTables(data);
+            setCusLoader(false);
           } else {
             console.log("No such document!");
           }
@@ -207,12 +212,15 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchOrderData = () => {
       try {
+        setCusLoader(true);
+
         const ordersCollection = collection(db, "orders");
         const unsubscribe = onSnapshot(ordersCollection, (orderSnapshot) => {
           const ordersList = orderSnapshot.docs.map((doc) => doc.data());
           console.log(ordersList);
           setOrdersCount(ordersList.length);
           setOrderData(ordersList);
+          setCusLoader(false);
         });
 
         return () => unsubscribe();
@@ -227,10 +235,13 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchFoodList = () => {
       try {
+        setCusLoader(true);
+
         const foodCollection = collection(db, "foodList");
         const unsubscribe = onSnapshot(foodCollection, (foodSnapshot) => {
           const foodList = foodSnapshot.docs.map((doc) => doc.data());
           setFoodList(foodList);
+          setCusLoader(false);
         });
 
         return () => unsubscribe();
@@ -303,289 +314,308 @@ const Dashboard = () => {
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        gap: 2,
-        mt: 2,
-        p: { xs: 0, md: 2 },
-      }}
-    >
-      <Box sx={{ ...scrollbarStyles }}>
-        <Grid container spacing={2} sx={{ flexWrap: "nowrap" }}>
-          <Grid item>
-            <Paper
-              elevation={6}
-              sx={{
-                padding: 2,
-                ...gridItemStyles,
-                backgroundColor: selectedCard === 0 ? "#3c3c4e" : "#fffeee",
-                color: selectedCard === 0 ? "#ffffff" : "#000",
-              }}
-              onClick={() => {
-                handleCardClick(0);
-              }}
-            >
-              <Box sx={{ ...iconContainerStyle }}>
-                <Typography variant="h6">Total Orders</Typography>
-                <ShoppingCart sx={{ ...iconStyle, color: "#7291ff" }} />
-              </Box>
-              <Divider
-                sx={{ backgroundColor: "#00000090", width: "100%", my: 1 }}
-              />
-              <Typography variant="h4" fontWeight={600}>
-                {ordersCount}
-              </Typography>
-            </Paper>
-          </Grid>
-          <Grid item>
-            <Paper
-              elevation={6}
-              sx={{
-                padding: 2,
-                ...gridItemStyles,
-                backgroundColor: selectedCard === 1 ? "#3c3c4e" : "#fffeee",
-                color: selectedCard === 1 ? "#ffffff" : "#000",
-              }}
-              onClick={() => {
-                handleCardClick(1);
-              }}
-            >
-              <Box sx={{ ...iconContainerStyle }}>
-                <Typography variant="h6">Available Chair</Typography>
-                <EventSeatIcon sx={{ ...iconStyle, color: "#00ccff" }} />
-              </Box>
-              <Divider
-                sx={{ backgroundColor: "#00000090", width: "100%", my: 1 }}
-              />
-              <Typography variant="h4" fontWeight={600}>
-                {tablesAvailable}
-              </Typography>
-            </Paper>
-          </Grid>
-          <Grid item>
-            <Paper
-              elevation={6}
-              sx={{
-                padding: 2,
-                ...gridItemStyles,
-                backgroundColor: selectedCard === 2 ? "#3c3c4e" : "#fffeee",
-                color: selectedCard === 2 ? "#ffffff" : "#000",
-              }}
-              onClick={() => {
-                handleCardClick(2);
-              }}
-            >
-              <Box sx={{ ...iconContainerStyle }}>
-                <Typography variant="h6">Total Users</Typography>
-                <Group sx={{ ...iconStyle, color: "#00f5be" }} />
-              </Box>
-              <Divider
-                sx={{ backgroundColor: "#00000090", width: "100%", my: 1 }}
-              />
-              <Typography variant="h4" fontWeight={600}>
-                {totalUsers}
-              </Typography>
-            </Paper>
-          </Grid>
-          <Grid item>
-            <Paper
-              elevation={6}
-              sx={{
-                padding: 2,
-                ...gridItemStyles,
-                backgroundColor: selectedCard === 3 ? "#3c3c4e" : "#fffeee",
-                color: selectedCard === 3 ? "#ffffff" : "#000",
-              }}
-              onClick={() => {
-                handleCardClick(3);
-              }}
-            >
-              <Box sx={{ ...iconContainerStyle }}>
-                <Typography variant="h6">Dish Variety</Typography>
-                <RestaurantMenu sx={{ ...iconStyle, color: "#626fa0" }} />
-              </Box>
-              <Divider
-                sx={{ backgroundColor: "#00000090", width: "100%", my: 1 }}
-              />
-              <Typography variant="h4" fontWeight={600}>
-                {dishVariety}
-              </Typography>
-            </Paper>
-          </Grid>
-        </Grid>
-      </Box>
-      <Box
-        sx={{
-          width: "100%",
-          display: { xs: "block", md: "flex" },
-          mt: 4,
-          backgroundColor: "#eff1e410",
-          borderRadius: 3,
-        }}
-      >
-        <Paper
-          elevation={0}
+    <>
+      {!cusLoader ? (
+        <Box
           sx={{
-            width: { xs: "100%", md: "50%" },
-            padding: 2,
-            background: "none",
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+            mt: 2,
+            p: { xs: 0, md: 2 },
           }}
         >
-          <Typography
+          <Box sx={{ ...scrollbarStyles }}>
+            <Grid container spacing={2} sx={{ flexWrap: "nowrap" }}>
+              <Grid item>
+                <Paper
+                  elevation={6}
+                  sx={{
+                    padding: 2,
+                    ...gridItemStyles,
+                    backgroundColor: selectedCard === 0 ? "#3c3c4e" : "#fffeee",
+                    color: selectedCard === 0 ? "#ffffff" : "#000",
+                  }}
+                  onClick={() => {
+                    handleCardClick(0);
+                  }}
+                >
+                  <Box sx={{ ...iconContainerStyle }}>
+                    <Typography variant="h6">Total Orders</Typography>
+                    <ShoppingCart sx={{ ...iconStyle, color: "#7291ff" }} />
+                  </Box>
+                  <Divider
+                    sx={{ backgroundColor: "#00000090", width: "100%", my: 1 }}
+                  />
+                  <Typography variant="h4" fontWeight={600}>
+                    {ordersCount}
+                  </Typography>
+                </Paper>
+              </Grid>
+              <Grid item>
+                <Paper
+                  elevation={6}
+                  sx={{
+                    padding: 2,
+                    ...gridItemStyles,
+                    backgroundColor: selectedCard === 1 ? "#3c3c4e" : "#fffeee",
+                    color: selectedCard === 1 ? "#ffffff" : "#000",
+                  }}
+                  onClick={() => {
+                    handleCardClick(1);
+                  }}
+                >
+                  <Box sx={{ ...iconContainerStyle }}>
+                    <Typography variant="h6">Available Chair</Typography>
+                    <EventSeatIcon sx={{ ...iconStyle, color: "#00ccff" }} />
+                  </Box>
+                  <Divider
+                    sx={{ backgroundColor: "#00000090", width: "100%", my: 1 }}
+                  />
+                  <Typography variant="h4" fontWeight={600}>
+                    {tablesAvailable}
+                  </Typography>
+                </Paper>
+              </Grid>
+              <Grid item>
+                <Paper
+                  elevation={6}
+                  sx={{
+                    padding: 2,
+                    ...gridItemStyles,
+                    backgroundColor: selectedCard === 2 ? "#3c3c4e" : "#fffeee",
+                    color: selectedCard === 2 ? "#ffffff" : "#000",
+                  }}
+                  onClick={() => {
+                    handleCardClick(2);
+                  }}
+                >
+                  <Box sx={{ ...iconContainerStyle }}>
+                    <Typography variant="h6">Total Users</Typography>
+                    <Group sx={{ ...iconStyle, color: "#00f5be" }} />
+                  </Box>
+                  <Divider
+                    sx={{ backgroundColor: "#00000090", width: "100%", my: 1 }}
+                  />
+                  <Typography variant="h4" fontWeight={600}>
+                    {totalUsers}
+                  </Typography>
+                </Paper>
+              </Grid>
+              <Grid item>
+                <Paper
+                  elevation={6}
+                  sx={{
+                    padding: 2,
+                    ...gridItemStyles,
+                    backgroundColor: selectedCard === 3 ? "#3c3c4e" : "#fffeee",
+                    color: selectedCard === 3 ? "#ffffff" : "#000",
+                  }}
+                  onClick={() => {
+                    handleCardClick(3);
+                  }}
+                >
+                  <Box sx={{ ...iconContainerStyle }}>
+                    <Typography variant="h6">Dish Variety</Typography>
+                    <RestaurantMenu sx={{ ...iconStyle, color: "#626fa0" }} />
+                  </Box>
+                  <Divider
+                    sx={{ backgroundColor: "#00000090", width: "100%", my: 1 }}
+                  />
+                  <Typography variant="h4" fontWeight={600}>
+                    {dishVariety}
+                  </Typography>
+                </Paper>
+              </Grid>
+            </Grid>
+          </Box>
+          <Box
             sx={{
-              color: "#eee",
-              fontSize: 20,
-              fontWeight: 600,
-              textAlign: "center",
+              width: "100%",
+              display: { xs: "block", md: "flex" },
+              mt: 4,
+              backgroundColor: "#eff1e410",
+              borderRadius: 3,
             }}
           >
-            weekly sales
-          </Typography>
+            <Paper
+              elevation={0}
+              sx={{
+                width: { xs: "100%", md: "50%" },
+                padding: 2,
+                background: "none",
+              }}
+            >
+              <Typography
+                sx={{
+                  color: "#eee",
+                  fontSize: 20,
+                  fontWeight: 600,
+                  textAlign: "center",
+                }}
+              >
+                weekly sales
+              </Typography>
 
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={weeklyChartData}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="TotalSale" stroke="#9960a6" />
-            </LineChart>
-          </ResponsiveContainer>
-        </Paper>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={weeklyChartData}>
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="TotalSale" stroke="#9960a6" />
+                </LineChart>
+              </ResponsiveContainer>
+            </Paper>
 
-        <Paper
-          elevation={0}
-          sx={{
-            width: { xs: "100%", md: "50%" },
+            <Paper
+              elevation={0}
+              sx={{
+                width: { xs: "100%", md: "50%" },
 
-            padding: 2,
-            background: "none",
-          }}
-        >
-          <Typography
-            sx={{
-              color: "#eee",
-              fontSize: 20,
-              fontWeight: 600,
-              textAlign: "center",
-            }}
-          >
-            Top Selling Dish
-          </Typography>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                dataKey="totalSales"
-                data={top5SellingDishes}
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                fill="#9960a6"
-                label
-              />
-              <Tooltip
-                formatter={(value, name, props) => [
-                  props.payload.dishName,
-                  value,
-                ]}
-              />
-              {/* <Legend
+                padding: 2,
+                background: "none",
+              }}
+            >
+              <Typography
+                sx={{
+                  color: "#eee",
+                  fontSize: 20,
+                  fontWeight: 600,
+                  textAlign: "center",
+                }}
+              >
+                Top Selling Dish
+              </Typography>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    dataKey="totalSales"
+                    data={top5SellingDishes}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={80}
+                    fill="#9960a6"
+                    label
+                  />
+                  <Tooltip
+                    formatter={(value, name, props) => [
+                      props.payload.dishName,
+                      value,
+                    ]}
+                  />
+                  {/* <Legend
                 formatter={(value, entry) => `${entry.payload.dishName}`}
                 iconType="square"
               /> */}
-            </PieChart>
-          </ResponsiveContainer>
-        </Paper>
-        <Paper
-          elevation={0}
-          sx={{
-            width: { xs: "100%", md: "50%" },
+                </PieChart>
+              </ResponsiveContainer>
+            </Paper>
+            <Paper
+              elevation={0}
+              sx={{
+                width: { xs: "100%", md: "50%" },
 
-            padding: 2,
-            background: "none",
-            // backgroundImage: "linear-gradient(to bottom right, #00000011, #000000)",
-          }}
-        >
-          <Typography
+                padding: 2,
+                background: "none",
+                // backgroundImage: "linear-gradient(to bottom right, #00000011, #000000)",
+              }}
+            >
+              <Typography
+                sx={{
+                  color: "#eee",
+                  fontSize: 20,
+                  fontWeight: 600,
+                  textAlign: "center",
+                }}
+              >
+                Avaliable chair
+              </Typography>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={data}
+                    dataKey="value"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={80}
+                    innerRadius={50}
+                    fill="#8884d8"
+                    label
+                    // paddingAngle={10}
+                  >
+                    {data.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </Paper>
+          </Box>
+          <Paper
+            elevation={0}
             sx={{
-              color: "#eee",
-              fontSize: 20,
-              fontWeight: 600,
-              textAlign: "center",
+              width: { xs: "100%", md: "50%" },
+              padding: 2,
+              backgroundColor: "#eff1e410",
+              borderRadius: 3,
             }}
           >
-            Avaliable chair
-          </Typography>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={data}
-                dataKey="value"
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                innerRadius={50}
-                fill="#8884d8"
-                label
-                // paddingAngle={10}
-              >
-                {data.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </Paper>
-      </Box>
-      <Paper
-        elevation={0}
-        sx={{
-          width: { xs: "100%", md: "50%" },
-          padding: 2,
-          backgroundColor: "#eff1e410",
-          borderRadius: 3,
-        }}
-      >
-        <Typography
+            <Typography
+              sx={{
+                color: "#eee",
+                fontSize: 20,
+                fontWeight: 600,
+                textAlign: "center",
+              }}
+            >
+              Yearly sale
+            </Typography>
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={yearlyChartData}>
+                <defs>
+                  <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#9960a6" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#9960a6" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+
+                <Area
+                  type="monotone"
+                  dataKey="TotalSale"
+                  stroke="#8884d8"
+                  fillOpacity={1}
+                  fill="url(#colorTotal)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </Paper>
+        </Box>
+      ) : (
+        <Box
           sx={{
-            color: "#eee",
-            fontSize: 20,
-            fontWeight: 600,
-            textAlign: "center",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 2,
+            mt: 2,
+            height:"80vh",
+            p: { xs: 0, md: 2 },
           }}
         >
-          Yearly sale
-        </Typography>
-        <ResponsiveContainer width="100%" height={300}>
-          <AreaChart data={yearlyChartData}>
-            <defs>
-              <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#9960a6" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#9960a6" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <XAxis dataKey="month" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-
-            <Area
-              type="monotone"
-              dataKey="TotalSale"
-              stroke="#8884d8"
-              fillOpacity={1}
-              fill="url(#colorTotal)"
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </Paper>
-    </Box>
+          <Loader />
+        </Box>
+      )}
+    </>
   );
 };
 

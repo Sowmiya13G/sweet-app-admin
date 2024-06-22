@@ -16,10 +16,15 @@ import DinnerDiningIcon from "@mui/icons-material/DinnerDining";
 import TableBarIcon from "@mui/icons-material/TableBar";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import PlaceIcon from "@mui/icons-material/Place";
+import { signOut } from "firebase/auth";
+import {auth} from "../../firebaseConfig";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
 const Sidebar = ({ open, setOpen }) => {
   const [isOpen, setIsOpen] = React.useState(false); // State for sidebar visibility
   const [selectedLink, setSelectedLink] = React.useState(""); // State to track selected link
-
+  const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
@@ -42,6 +47,16 @@ const Sidebar = ({ open, setOpen }) => {
   useEffect(() => {
     setIsOpen(open);
   }, [open]);
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      toast.success("Logout successful");
+      navigate("/login"); // Navigate to /login after logout
+    } catch (error) {
+      toast.error(`Error: ${error.message}`);
+    }
+  };
+
   return (
     <Drawer
       variant="permanent"
@@ -226,7 +241,7 @@ const Sidebar = ({ open, setOpen }) => {
             backgroundColor:
               selectedLink === "/logout" ? "#d79f11" : "transparent", // Set background color to gold (hex code #d79f11) for selected link
           }}
-          onClick={() => handleClick("/logout")}
+          onClick={() => handleLogout("/logout")}
         >
           <ListItemIcon>
             <PeopleIcon style={{ color: "white" }} />

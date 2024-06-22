@@ -37,6 +37,7 @@ import TabBar from "../../components/tabBar/tabBar";
 import nonVegIcon from "../../assets/images/nonVeg.png";
 import vegIcon from "../../assets/images/veg.png";
 import plusIcon from "../../assets/images/plus.png";
+import Loader from "../../components/loader/loader";
 
 const Categories = () => {
   const tabs = [
@@ -51,6 +52,8 @@ const Categories = () => {
   const [uploading, setUploading] = useState(false);
   const [foodImgUploading, setFoodImgUploading] = useState(false);
   const [foodList, setFoodList] = useState([]);
+  const [cusLoader, setCusLoader] = useState(false);
+
   const [editedCategory, setEditedCategory] = useState({
     name: "",
     img: "",
@@ -83,9 +86,12 @@ const Categories = () => {
         );
   // -------------------------------- USE EFFECTS --------------------------------
   useEffect(() => {
+    setCusLoader(true);
+
     const unsubscribe = onSnapshot(
       collection(db, "categories"),
       (snapshot) => {
+        setCusLoader(true);
         const items = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
@@ -97,6 +103,9 @@ const Categories = () => {
         const updatedItems = [newItem, ...items];
 
         setCategories(updatedItems);
+        setTimeout(() => {
+          setCusLoader(false);
+        }, 100);
 
         // Select the first category initially
         if (updatedItems.length > 0) {
@@ -126,6 +135,8 @@ const Categories = () => {
         // Cleanup subscription on unmount
         return () => unsubscribe();
       } catch (error) {
+        setCusLoader(false);
+
         console.error("Error fetching order data: ", error);
       }
     };
@@ -181,7 +192,6 @@ const Categories = () => {
       },
     },
   };
-
 
   const foodGridStyles = {
     minHeight: { xs: 60, md: 50 },
@@ -273,21 +283,26 @@ const Categories = () => {
 
   // adding new category
   const handleAddChanges = async () => {
+    setCusLoader(true);
+
     if (selectedCategory && editedCategory.name.trim() !== "") {
       try {
         await addDoc(collection(db, "categories"), {
           name: editedCategory.name,
           imgSrc: editedCategory.img,
         });
+        setCusLoader(false);
       } catch (e) {
         console.error("Error updating document: ", e);
-        setUploading(false);
+        setCusLoader(false);
       }
     }
   };
 
   // saving changes in existing category
   const handleSaveChanges = async () => {
+    setCusLoader(true);
+
     if (selectedCategory && editedCategory.name.trim() !== "") {
       try {
         const categoryDoc = doc(db, "categories", selectedCategory.id);
@@ -295,23 +310,28 @@ const Categories = () => {
           name: editedCategory.name,
           imgSrc: editedCategory.img,
         });
+        setCusLoader(false);
 
         // setEditMode(false);
       } catch (e) {
         console.error("Error updating document: ", e);
-        setUploading(false);
+        setCusLoader(false);
       }
     }
   };
 
   // deleting category
   const handleDelete = async () => {
+    setCusLoader(true);
+
     if (selectedCategory && selectedCategory.id !== "new-id") {
       try {
         const categoryDoc = doc(db, "categories", selectedCategory.id);
         await deleteDoc(categoryDoc);
+        setCusLoader(false);
       } catch (e) {
         console.error("Error deleting document: ", e);
+        setCusLoader(false);
       }
     }
   };
@@ -345,6 +365,7 @@ const Categories = () => {
       foodDetails.price?.trim() !== ""
     ) {
       try {
+        setCusLoader(true);
         await addDoc(collection(db, "foodList"), {
           categoryId: selectedCategory?.id,
           category: selectedCategory?.name,
@@ -363,10 +384,12 @@ const Categories = () => {
           categorized: "",
           img: "",
         });
+        setCusLoader(false);
+
         // setShowEditFields(false);
       } catch (e) {
         console.error("Error adding food item: ", e);
-        setUploading(false);
+        setCusLoader(false);
       }
     } else {
       console.error("missing");
@@ -377,12 +400,14 @@ const Categories = () => {
   const handleSaveFoodItem = async (foodDetails) => {
     // Check if required fields are filled
     console.log(foodDetails);
+
     if (
       selectedCategory &&
       foodDetails.dishName?.trim() !== "" &&
       foodDetails.price?.trim() !== ""
     ) {
       try {
+        setCusLoader(true);
         // Reference to the document in Firestore
         const foodItemRef = doc(db, "foodList", foodDetails.id);
 
@@ -395,10 +420,13 @@ const Categories = () => {
           price: foodDetails.price,
           img: foodDetails.img || "",
         });
+        setCusLoader(false);
 
         // Optionally update state or reset form fields after successful update
         console.log("Food item updated successfully!");
       } catch (error) {
+        setCusLoader(false);
+
         console.error("Error updating food item: ", error);
         // Handle error state or show error message
       }
@@ -409,15 +437,20 @@ const Categories = () => {
   };
 
   const handleFoodCardClick = (food) => {
+    setCusLoader(true);
+
     setSelectedCard(food.dishName);
     setFoodDetails(food);
     setAddNewFoodList(false);
+    setCusLoader(false);
   };
 
   // delete food item
   const handleDeleteFood = async (food) => {
     if (selectedCard) {
       try {
+        setCusLoader(true);
+
         await deleteDoc(doc(db, "foodList", food.id));
         setSelectedCard(null);
         setFoodDetails({
@@ -427,8 +460,10 @@ const Categories = () => {
           categorized: "",
           img: "",
         });
+        setCusLoader(false);
       } catch (e) {
         console.error("Error deleting food item: ", e);
+        setCusLoader(false);
       }
     }
   };
@@ -973,120 +1008,143 @@ const Categories = () => {
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        gap: 2,
-        p: { xs: 0, md: 2 },
-        background: "#eee",
-        borderRadius: 2,
-        p: 2,
-      }}
-    >
-      {/* --------------------- CATEGORIES BOX --------------------- */}
-      <Typography
-        gutterBottom
-        sx={{ color: "#000", fontSize: 20, mt: 1, fontWeight: 600 }}
-      >
-        Category
-      </Typography>
-      <Box sx={{ ...scrollbarStyles }}>
-        <Grid container spacing={2} sx={{ flexWrap: "nowrap", p: 2, pt: 0 }}>
-          {categories.map((item) => (
-            <Grid item key={item.id} sx={{ pt: 0 }}>
-              <Paper
-                elevation={6}
-                sx={{
-                  ...gridItemStyles,
-                }}
-                onClick={() => handleCardClick(item)}
-              >
-                <Box
-                  sx={{
-                    width: { xs: "50px", md: "70px" },
-                    height: { xs: "50px", md: "70px" },
-                    mb: 0.5,
-                  }}
-                >
-                  {item.id === "new-id" ? (
-                    <img
-                      src={plusIcon}
-                      width={"100%"}
-                      height={"100%"}
-                      style={{
-                        borderRadius: "50%",
-                        objectFit: "contain",
-                        backgroundColor: "#ffff",
-                        // boxShadow: "0px 0px 20px 0px #00000090",
-                        boxShadow: "0px 15px 20px 0px #00000031",
+    <>
+      {!cusLoader ? (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+            p: { xs: 0, md: 2 },
+            background: "#eee",
+            borderRadius: 2,
+            p: 2,
+          }}
+        >
+          {/* --------------------- CATEGORIES BOX --------------------- */}
+          <Typography
+            gutterBottom
+            sx={{ color: "#000", fontSize: 20, mt: 1, fontWeight: 600 }}
+          >
+            Category
+          </Typography>
+          <Box sx={{ ...scrollbarStyles }}>
+            <Grid
+              container
+              spacing={2}
+              sx={{ flexWrap: "nowrap", p: 2, pt: 0 }}
+            >
+              {categories.map((item) => (
+                <Grid item key={item.id} sx={{ pt: 0 }}>
+                  <Paper
+                    elevation={6}
+                    sx={{
+                      ...gridItemStyles,
+                    }}
+                    onClick={() => handleCardClick(item)}
+                  >
+                    <Box
+                      sx={{
+                        width: { xs: "50px", md: "70px" },
+                        height: { xs: "50px", md: "70px" },
+                        mb: 0.5,
                       }}
-                      alt="img"
-                    />
-                  ) : (
-                    <img
-                      src={item.imgSrc}
-                      width={"100%"}
-                      height={"100%"}
-                      style={{
-                        borderRadius: "50%",
-                        objectFit: "contain",
-                        backgroundColor: "#ffff",
-                        // boxShadow: "0px 0px 20px 0px #00000090",
-                        boxShadow: "0px 15px 20px 0px #00000031",
+                    >
+                      {item.id === "new-id" ? (
+                        <img
+                          src={plusIcon}
+                          width={"100%"}
+                          height={"100%"}
+                          style={{
+                            borderRadius: "50%",
+                            objectFit: "contain",
+                            backgroundColor: "#ffff",
+                            // boxShadow: "0px 0px 20px 0px #00000090",
+                            boxShadow: "0px 15px 20px 0px #00000031",
+                          }}
+                          alt="img"
+                        />
+                      ) : (
+                        <img
+                          src={item.imgSrc}
+                          width={"100%"}
+                          height={"100%"}
+                          style={{
+                            borderRadius: "50%",
+                            objectFit: "contain",
+                            backgroundColor: "#ffff",
+                            // boxShadow: "0px 0px 20px 0px #00000090",
+                            boxShadow: "0px 15px 20px 0px #00000031",
+                          }}
+                          alt="img"
+                        />
+                      )}
+                    </Box>
+                    <Typography
+                      sx={{
+                        fontSize: { xs: 12, md: 16 },
+                        fontWeight: 600,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        px: 2,
+                        // mb: 1,
                       }}
-                      alt="img"
-                    />
-                  )}
-                </Box>
-                <Typography
-                  sx={{
-                    fontSize: { xs: 12, md: 16 },
-                    fontWeight: 600,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    px: 2,
-                    // mb: 1,
-                  }}
-                  noWrap={true}
-                >
-                  {item.name}
-                </Typography>
-              </Paper>
+                      noWrap={true}
+                    >
+                      {item.name}
+                    </Typography>
+                  </Paper>
+                </Grid>
+              ))}
             </Grid>
-          ))}
-        </Grid>
-      </Box>
+          </Box>
 
-      {/* --------------------- CATEGORIES BOX --------------------- */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "start",
-          width: "100%",
-          justifyContent: "space-between",
-          flexDirection: { xs: "column", md: "row" },
-        }}
-      >
-        {editMode && selectedCategory && (
-          <Box sx={{ width: { xs: "100%", md: "25%" }, my: 1 }}>
-            {editCategoryFields()}
+          {/* --------------------- CATEGORIES BOX --------------------- */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "start",
+              width: "100%",
+              justifyContent: "space-between",
+              flexDirection: { xs: "column", md: "row" },
+            }}
+          >
+            {editMode && selectedCategory && (
+              <Box sx={{ width: { xs: "100%", md: "25%" }, my: 1 }}>
+                {editCategoryFields()}
+              </Box>
+            )}
+            {editedCategory?.id !== "new-id" && (
+              <Box sx={{ width: { xs: "100%", md: "34%" }, my: 1 }}>
+                {foodListBox()}
+              </Box>
+            )}
+            {isShowEditFields && (
+              <Box sx={{ width: { xs: "100%", md: "36%" }, my: 1 }}>
+                {renderAddFoodFields()}
+              </Box>
+            )}
           </Box>
-        )}
-        {editedCategory?.id !== "new-id" && (
-          <Box sx={{ width: { xs: "100%", md: "34%" }, my: 1 }}>
-            {foodListBox()}
-          </Box>
-        )}
-        {isShowEditFields && (
-          <Box sx={{ width: { xs: "100%", md: "36%" }, my: 1 }}>
-            {renderAddFoodFields()}
-          </Box>
-        )}
-      </Box>
-    </Box>
+        </Box>
+      ) : (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 2,
+            mt: 2,
+            height: "80vh",
+            p: { xs: 0, md: 2 },
+          }}
+        >
+          <Loader />
+        </Box>
+      )}
+    </>
   );
 };
 
