@@ -79,7 +79,10 @@ const Auth = () => {
       },
     },
     "& .MuiInputLabel-root": {
-      color: "#fff",
+      color: "#fff", // Default label color
+      "&.Mui-focused": {
+        color: "#fff", // Label color when focused
+      },
     },
     "& .MuiInputBase-input": {
       color: "#fff",
@@ -94,7 +97,8 @@ const Auth = () => {
         alignItems: "center",
         justifyContent: "center",
         height: "100vh",
-        bgcolor: "#333",
+        // bgcolor: "#333",
+        padding: { xs: 2, md: 0 },
       }}
     >
       <Typography component="h1" variant="h3" sx={{ color: "#fff" }}>
