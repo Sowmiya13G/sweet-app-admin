@@ -22,27 +22,17 @@ import { useNavigate } from "react-router-dom";
 
 const Auth = () => {
   const navigate = useNavigate();
-  const [isRegister, setIsRegister] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const toggleAuthMode = () => {
-    setIsRegister((prev) => !prev);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      if (isRegister) {
-        await createUserWithEmailAndPassword(auth, email, password);
-        toast.success("Registration successful");
-      } else {
-        await signInWithEmailAndPassword(auth, email, password);
-        toast.success("Login successful");
-      }
+      await signInWithEmailAndPassword(auth, email, password);
+      toast.success("Login successful");
       navigate("/dashboard");
     } catch (error) {
       toast.error(`Error: ${error.message}`);
@@ -102,28 +92,13 @@ const Auth = () => {
       }}
     >
       <Typography component="h1" variant="h3" sx={{ color: "#fff" }}>
-        {isRegister ? "Register" : "Log in"}
+        {"Log in"}
       </Typography>
       <Box
         component="form"
         onSubmit={handleSubmit}
         sx={{ mt: 1, width: "100%", maxWidth: "400px" }}
       >
-        {isRegister && (
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            id="username"
-            label="Username"
-            name="username"
-            autoComplete="username"
-            autoFocus
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            sx={textFieldStyles}
-          />
-        )}
         <TextField
           margin="normal"
           required
@@ -179,22 +154,20 @@ const Auth = () => {
             "&:hover": { bgcolor: "#3c3c6e" },
           }}
         >
-          {isRegister ? "Register" : "Log in"}
+          Log in
         </Button>
         <Grid container>
           <Grid item xs>
-            {!isRegister && (
-              <Link
-                href="#"
-                variant="body2"
-                onClick={() => handleForgotPassword()}
-                sx={{
-                  color: "#fff",
-                }}
-              >
-                Forgot password?
-              </Link>
-            )}
+            <Link
+              href="#"
+              variant="body2"
+              onClick={() => handleForgotPassword()}
+              sx={{
+                color: "#fff",
+              }}
+            >
+              Forgot password?
+            </Link>
           </Grid>
         </Grid>
       </Box>

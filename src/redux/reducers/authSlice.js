@@ -6,6 +6,7 @@ const authSlice = createSlice({
     deviceID: 0,
     locationMatch: false,
     isuperAdmin: false,
+    hotelID: null,
   },
   reducers: {
     updateDeviceID: (state, action) => {
@@ -17,9 +18,16 @@ const authSlice = createSlice({
     updateSuperAdmin: (state, action) => {
       state.isuperAdmin = action.payload;
     },
+    updateHotelID: (state, action) => {
+      state.hotelID = action.payload;
+    },
   },
 });
 
-export const { updateDeviceID, updateLocationMatch, updateSuperAdmin } =
-  authSlice.actions;
+export const {
+  updateDeviceID,
+  updateHotelID,
+  updateLocationMatch,
+  updateSuperAdmin,
+} = authSlice.actions;
 export default authSlice.reducer;

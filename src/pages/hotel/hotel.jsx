@@ -6,16 +6,18 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Loader from "../../components/loader/loader";
 import { auth, db } from "../../firebaseConfig"; // Ensure auth is imported
+import { useDispatch, useSelector } from "react-redux";
+import { updateHotelID } from "../../redux/reducers/authSlice";
 
 const HotelManagement = () => {
+  const disptach = useDispatch();
   const [cusLoader, setCusLoader] = useState(false);
   const [hotelName, setHotelName] = useState("");
-  const [hotelDetails, setHotelDetails] = useState("");
-  const [hotelImage, setHotelImage] = useState(null);
+  const [selectedHotel, setSelectedHotel] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [hotels, setHotels] = useState([]);
-
+  const hotelDetails = useSelector((state) => state.auth.hotelID);
   const navigate = useNavigate();
 
   const gridItemStyles = {
@@ -55,6 +57,12 @@ const HotelManagement = () => {
     borderRadius: "10px",
   };
 
+  // -------------------------------- FUNCTIONALITIES --------------------------------
+
+  useEffect(() => {
+    setSelectedHotel(hotelDetails);
+  }, [hotelDetails]);
+
   useEffect(() => {
     const fetchHotels = async () => {
       setCusLoader(true);
@@ -64,11 +72,16 @@ const HotelManagement = () => {
         ...doc.data(),
       }));
       setHotels(hotelsList);
+
       setCusLoader(false);
     };
 
     fetchHotels();
   }, []);
+
+  const handleHotelClick = (item) => {
+    disptach(updateHotelID(item));
+  };
 
   const handleSendVerificationEmail = async () => {
     if (!email || !hotelName) {
@@ -120,6 +133,45 @@ const HotelManagement = () => {
     </Paper>
   );
 
+  const hotelDetailsListBox = () => (
+    <Paper elevation={6} sx={categoriesStyle}>
+      <Typography variant="h6">Hotel Details</Typography>
+      <TextField
+        label="Hotel Name"
+        value={selectedHotel.name}
+        // onChange={(e) => setHotelName(e.target.value)}
+        fullWidth
+        disabled
+        margin="normal"
+      />
+      <TextField
+        label="Details"
+        value={selectedHotel.details}
+        // onChange={(e) => setEmail(e.target.value)}
+        fullWidth
+        disabled
+        margin="normal"
+      />
+
+      <TextField
+        label="Email"
+        value={selectedHotel.emailId}
+        // onChange={(e) => setEmail(e.target.value)}
+        fullWidth
+        margin="normal"
+        disabled
+      />
+      <TextField
+        label="Hotel-ID"
+        value={selectedHotel.uid}
+        // onChange={(e) => setEmail(e.target.value)}
+        fullWidth
+        margin="normal"
+        disabled
+      />
+    </Paper>
+  );
+  console.log(selectedHotel);
   return (
     <>
       {!cusLoader ? (
@@ -128,7 +180,8 @@ const HotelManagement = () => {
             display: "flex",
             flexDirection: "column",
             gap: 2,
-            p: { xs: 0, md: 2 },
+            p: { xs: 2, md: 2 },
+            m: 2,
             background: "#eee",
             borderRadius: 2,
             // height: "80vh",
@@ -151,13 +204,18 @@ const HotelManagement = () => {
                 <Grid item key={item.id} sx={{ pt: 0 }}>
                   <Paper
                     elevation={6}
-                    sx={{ ...gridItemStyles }}
-                    // onClick={() => handleCardClick(item)}
+                    sx={{
+                      ...gridItemStyles,
+                      backgroundColor:
+                        selectedHotel.uid === item.uid ? "#3c3c4e" : "#fff",
+                      color: selectedHotel.uid === item.uid ? "#fff" : "#000",
+                    }}
+                    onClick={() => handleHotelClick(item)}
                   >
                     <Box
                       sx={{
-                        width: { xs: "50px", md: "70px" },
-                        height: { xs: "50px", md: "70px" },
+                        width: { xs: "70px", md: "90px" },
+                        height: { xs: "70px", md: "90px" },
                         mb: 0.5,
                       }}
                     >
@@ -166,7 +224,7 @@ const HotelManagement = () => {
                         width="100%"
                         height="100%"
                         style={{
-                          borderRadius: "50%",
+                          borderRadius: 10,
                           objectFit: "contain",
                           backgroundColor: "#ffff",
                           boxShadow: "0px 15px 20px 0px #00000031",
@@ -195,16 +253,31 @@ const HotelManagement = () => {
 
           <Box
             sx={{
-              display: "flex",
+              display: { xs: "block", md: "flex" },
               flexDirection: "row",
               alignItems: "start",
               width: "100%",
               justifyContent: "space-between",
             }}
           >
-            <Box sx={{ width: { xs: "1                                                                                                                    00%", md: "40%" }, my: 1 }}>
+            <Box
+              sx={{
+                width: { xs: "100%", md: "50%" },
+                m: 2,
+              }}
+            >
               {hotelListBox()}
             </Box>
+            {selectedHotel && (
+              <Box
+                sx={{
+                  width: { xs: "100%", md: "50%" },
+                  m: 2,
+                }}
+              >
+                {hotelDetailsListBox()}
+              </Box>
+            )}
           </Box>
         </Box>
       ) : (
