@@ -13,8 +13,10 @@ import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
+import { useSelector } from "react-redux";
 const Layout = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false); // State to track sidebar visibility
+  const superAdmin = useSelector((state) => state.auth.isuperAdmin);
 
   const handleToggleSidebar = () => {
     setIsOpen(false);
@@ -54,9 +56,17 @@ const Layout = ({ children }) => {
               <MenuIcon style={{ color: "white" }} sx={{ fontSize: 30 }} />
             </IconButton>
 
-            <Typography variant="h6" sx={{ marginX: 2 }} noWrap>
-              Foodie
-            </Typography>
+            {superAdmin ? (
+              <Typography variant="h6" sx={{ marginX: 2 }} noWrap>
+                Super Admin
+              </Typography>
+            ) : (
+              <Typography variant="h6" sx={{ marginX: 2 }} noWrap>
+                Foodie
+              </Typography>
+            )}
+
+            
           </div>
 
           <Badge badgeContent={400} overlap="circular" color="success">

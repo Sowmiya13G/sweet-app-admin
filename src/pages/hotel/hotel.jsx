@@ -1,0 +1,230 @@
+import { Box, Button, Grid, Paper, TextField, Typography } from "@mui/material";
+import { sendSignInLinkToEmail } from "firebase/auth"; // Import auth methods
+import { collection, getDocs } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import Loader from "../../components/loader/loader";
+import { auth, db } from "../../firebaseConfig"; // Ensure auth is imported
+
+const HotelManagement = () => {
+  const [cusLoader, setCusLoader] = useState(false);
+  const [hotelName, setHotelName] = useState("");
+  const [hotelDetails, setHotelDetails] = useState("");
+  const [hotelImage, setHotelImage] = useState(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [hotels, setHotels] = useState([]);
+
+  const navigate = useNavigate();
+
+  const gridItemStyles = {
+    height: { xs: 100, md: 130 },
+    display: "flex",
+    flexDirection: "column",
+    color: "#000",
+    backgroundColor: "#fff",
+    padding: 1,
+    alignItems: "center",
+    justifyContent: "end",
+    borderRadius: 2,
+    width: { xs: 150, md: 150 },
+    maxWidth: { xs: 150, md: 200 },
+    cursor: "pointer",
+    transition: "background-color 0.2s ease-in-out, color 0.2s ease-in-out",
+  };
+
+  const scrollbarStyles = {
+    overflowX: "auto",
+    "&::-webkit-scrollbar": {
+      height: 0,
+    },
+    "&::-webkit-scrollbar-thumb": {
+      backgroundColor: "transparent",
+    },
+    "-ms-overflow-style": "none",
+    "scrollbar-width": "none",
+  };
+
+  const categoriesStyle = {
+    cursor: "pointer",
+    transition: "background-color 0.2s ease-in-out, color 0.2s ease-in-out",
+    width: "100%",
+    backgroundColor: "#00000001",
+    padding: "15px",
+    borderRadius: "10px",
+  };
+
+  useEffect(() => {
+    const fetchHotels = async () => {
+      setCusLoader(true);
+      const querySnapshot = await getDocs(collection(db, "hotels"));
+      const hotelsList = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setHotels(hotelsList);
+      setCusLoader(false);
+    };
+
+    fetchHotels();
+  }, []);
+
+  const handleSendVerificationEmail = async () => {
+    if (!email || !hotelName) {
+      toast.error("Please enter both your email and hotel name");
+      return;
+    }
+
+    try {
+      const actionCodeSettings = {
+        url: `http://localhost:3000/completeRegistration?email=${encodeURIComponent(
+          email
+        )}&hotelName=${encodeURIComponent(hotelName)}`,
+        handleCodeInApp: true,
+      };
+      await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+      toast.info("Verification email sent. Please check your inbox.");
+    } catch (error) {
+      console.error("Error sending email:", error);
+      toast.error(`Error sending email: ${error.message}`);
+    }
+  };
+
+  const hotelListBox = () => (
+    <Paper elevation={6} sx={categoriesStyle}>
+      <Typography variant="h6">Add New Hotel</Typography>
+      <TextField
+        label="Hotel Name"
+        value={hotelName}
+        onChange={(e) => setHotelName(e.target.value)}
+        fullWidth
+        margin="normal"
+      />
+
+      <TextField
+        label="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        fullWidth
+        margin="normal"
+      />
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleSendVerificationEmail}
+        sx={{ mt: 2 }}
+      >
+        Send Hotel Verification
+      </Button>
+    </Paper>
+  );
+
+  return (
+    <>
+      {!cusLoader ? (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+            p: { xs: 0, md: 2 },
+            background: "#eee",
+            borderRadius: 2,
+            // height: "80vh",
+          }}
+        >
+          <Typography
+            gutterBottom
+            sx={{ color: "#000", fontSize: 20, mt: 1, fontWeight: 600 }}
+          >
+            Hotel Management
+          </Typography>
+
+          <Box sx={{ ...scrollbarStyles }}>
+            <Grid
+              container
+              spacing={2}
+              sx={{ flexWrap: "nowrap", p: 2, pt: 0 }}
+            >
+              {hotels.map((item) => (
+                <Grid item key={item.id} sx={{ pt: 0 }}>
+                  <Paper
+                    elevation={6}
+                    sx={{ ...gridItemStyles }}
+                    // onClick={() => handleCardClick(item)}
+                  >
+                    <Box
+                      sx={{
+                        width: { xs: "50px", md: "70px" },
+                        height: { xs: "50px", md: "70px" },
+                        mb: 0.5,
+                      }}
+                    >
+                      <img
+                        src={item.imgSrc}
+                        width="100%"
+                        height="100%"
+                        style={{
+                          borderRadius: "50%",
+                          objectFit: "contain",
+                          backgroundColor: "#ffff",
+                          boxShadow: "0px 15px 20px 0px #00000031",
+                        }}
+                        alt="Hotel"
+                      />
+                    </Box>
+                    <Typography
+                      sx={{
+                        fontSize: { xs: 12, md: 16 },
+                        fontWeight: 600,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        px: 2,
+                      }}
+                      noWrap
+                    >
+                      {item.name}
+                    </Typography>
+                  </Paper>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "start",
+              width: "100%",
+              justifyContent: "space-between",
+            }}
+          >
+            <Box sx={{ width: { xs: "1                                                                                                                    00%", md: "40%" }, my: 1 }}>
+              {hotelListBox()}
+            </Box>
+          </Box>
+        </Box>
+      ) : (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 2,
+            mt: 2,
+            height: "80vh",
+            p: { xs: 0, md: 2 },
+          }}
+        >
+          <Loader />
+        </Box>
+      )}
+    </>
+  );
+};
+
+export default HotelManagement;

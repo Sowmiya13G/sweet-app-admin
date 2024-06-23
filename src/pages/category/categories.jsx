@@ -1018,7 +1018,6 @@ const Categories = () => {
             p: { xs: 0, md: 2 },
             background: "#eee",
             borderRadius: 2,
-            p: 2,
           }}
         >
           {/* --------------------- CATEGORIES BOX --------------------- */}

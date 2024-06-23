@@ -196,18 +196,6 @@ const Auth = () => {
               </Link>
             )}
           </Grid>
-          <Grid item>
-            <Link
-              href="#"
-              variant="body2"
-              onClick={() => toggleAuthMode()}
-              sx={{ color: "#fff" }}
-            >
-              {isRegister
-                ? "Already have an account? Log in"
-                : "Don't have an account? Register"}
-            </Link>
-          </Grid>
         </Grid>
       </Box>
       <ToastContainer />

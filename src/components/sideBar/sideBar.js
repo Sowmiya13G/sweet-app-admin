@@ -17,16 +17,19 @@ import TableBarIcon from "@mui/icons-material/TableBar";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import PlaceIcon from "@mui/icons-material/Place";
 import { signOut } from "firebase/auth";
-import {auth} from "../../firebaseConfig";
+import { auth } from "../../firebaseConfig";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
+import CorporateFareIcon from "@mui/icons-material/CorporateFare";
+import { useSelector } from "react-redux";
 const Sidebar = ({ open, setOpen }) => {
   const [isOpen, setIsOpen] = React.useState(false); // State for sidebar visibility
   const [selectedLink, setSelectedLink] = React.useState(""); // State to track selected link
   const navigate = useNavigate();
   const location = useLocation();
-
+  const superAdmin = useSelector((state) => state.auth.isuperAdmin);
+  console.log(superAdmin);
   useEffect(() => {
     setSelectedLink(location.pathname); // Update selected link based on current path
   }, [location]);
@@ -103,6 +106,31 @@ const Sidebar = ({ open, setOpen }) => {
             primary="Dashboard"
           />
         </ListItem>
+        {superAdmin && (
+          <ListItem
+            button
+            component={Link}
+            to="/hotels"
+            style={{
+              margin: "15px",
+              height: "70px",
+              borderRadius: "15px",
+              backgroundColor:
+                selectedLink === "/hotels" ? "#d79f11" : "transparent", // Set background color to gold (hex code #d79f11) for selected link
+            }}
+            selected={selectedLink === "/hotels"}
+            onClick={() => handleClick("/hotels")}
+          >
+            {" "}
+            <ListItemIcon>
+              <CorporateFareIcon style={{ color: "white" }} />
+            </ListItemIcon>
+            <ListItemText
+              style={{ display: isOpen ? "flex" : "none" }}
+              primary="Hotels Management"
+            />
+          </ListItem>
+        )}
         <ListItem
           button
           component={Link}

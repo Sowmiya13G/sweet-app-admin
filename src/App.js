@@ -22,10 +22,16 @@ import Orders from "./pages/orders/orders";
 import Tables from "./pages/tables/tables";
 import Users from "./pages/users/user";
 import Auth from "./pages/auth/login";
+import { useDispatch } from "react-redux";
+import { updateSuperAdmin } from "./redux/reducers/authSlice";
+import HotelManagement from "./pages/hotel/hotel";
+import CompleteRegistration from "./pages/completeRegistraton/completeRegistration";
 
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const dispatch = useDispatch();
   const sound = new Howl({
     src: [notifisound],
     volume: 1,
@@ -38,11 +44,17 @@ function App() {
   useEffect(() => {
     // Listen for authentication state changes
     // Listen for authentication state changes
-    const unsubscribeAuth = auth.onAuthStateChanged((user) => {
+    const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
       setUser(user);
-      setLoading(false); // Set loading to false when auth state is determined
+      setLoading(false);
+      if (user?.uid == "phZSUmRR7LZYvlVeIl3TT4IVTSs2") {
+        setIsSuperAdmin(true);
+        dispatch(updateSuperAdmin(true));
+      } else {
+        setIsSuperAdmin(false);
+        dispatch(updateSuperAdmin(false));
+      }
     });
-
     // Request notification permissions
     if (Notification.permission !== "granted") {
       Notification.requestPermission();
@@ -94,7 +106,7 @@ function App() {
       unsubscribeAuth();
     };
   }, []);
-
+  console.log(user?.uid);
   // Protected Route Component
   const ProtectedRoute = ({ element }) => {
     if (loading) {
@@ -111,6 +123,25 @@ function App() {
       <Routes>
         <Route path="/login" element={<Auth />} />
         <Route path="/" element={<Navigate to="/dashboard" />} />
+        {isSuperAdmin && (
+          <Route
+            path="/hotels"
+            element={
+              <ProtectedRoute
+                element={
+                  <Layout>
+                    <HotelManagement />
+                  </Layout>
+                }
+              />
+            }
+          />
+        )}
+
+        <Route
+          path="/completeRegistration"
+          element={<CompleteRegistration />}
+        />
         <Route
           path="/dashboard"
           element={
