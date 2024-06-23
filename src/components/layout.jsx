@@ -14,10 +14,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 import { useSelector } from "react-redux";
+import FoodBankIcon from "@mui/icons-material/FoodBank";
 const Layout = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false); // State to track sidebar visibility
   const superAdmin = useSelector((state) => state.auth.isuperAdmin);
-
+  const hotelData = useSelector((state) => state.auth.hotelData);
   const handleToggleSidebar = () => {
     setIsOpen(false);
   };
@@ -61,12 +62,23 @@ const Layout = ({ children }) => {
                 Super Admin
               </Typography>
             ) : (
-              <Typography variant="h6" sx={{ marginX: 2 }} noWrap>
-                Foodie
+              <Typography
+                variant="h6"
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  // justifyContent: "center",
+                }}
+                noWrap
+              >
+                <FoodBankIcon
+                  style={{ color: "white" }}
+                  sx={{ fontSize: 30, marginRight: 2 }}
+                />
+
+                {hotelData[0].name}
               </Typography>
             )}
-
-            
           </div>
 
           <Badge badgeContent={400} overlap="circular" color="success">

@@ -47,7 +47,6 @@ function App() {
     const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
       setUser(user);
       setLoading(false);
-      dispatch(updateHotelData(user));
       if (user?.uid == "phZSUmRR7LZYvlVeIl3TT4IVTSs2") {
         setIsSuperAdmin(true);
         dispatch(updateSuperAdmin(true));
@@ -109,17 +108,18 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const hotelRef = collection(db, "hotels");
-    const unsubscribeHotel = onSnapshot(hotelRef, (snap) => {
-      const data = snap.docs.map((x) => ({
-        ...x.data(),
-      }
-     ));
-    });
-
-    return () => {
-      unsubscribeHotel();
-    };
+    if (user) {
+      const hotelRef = collection(db, "hotels");
+      const unsubscribeHotel = onSnapshot(hotelRef, (snap) => {
+        const data = snap.docs.map((x) => ({
+          ...x.data(),
+        }));
+        dispatch(updateHotelData(data.filter((x) => x.uid == user.uid)));
+      });
+      return () => {
+        unsubscribeHotel();
+      };
+    }
   }, []);
 
   console.log(user?.uid);

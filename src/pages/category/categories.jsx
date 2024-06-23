@@ -38,6 +38,7 @@ import nonVegIcon from "../../assets/images/nonVeg.png";
 import vegIcon from "../../assets/images/veg.png";
 import plusIcon from "../../assets/images/plus.png";
 import Loader from "../../components/loader/loader";
+import { useSelector } from "react-redux";
 
 const Categories = () => {
   const tabs = [
@@ -74,7 +75,8 @@ const Categories = () => {
   const filteredFoodList = foodList.filter(
     (food) => food.category === selectedCategory?.name
   );
-
+  const hotelData = useSelector((state) => state.auth.hotelData);
+  const hotelUID = hotelData[0]?.uid;
   const isShowEditFields = editedCategory?.id !== "new-id" && selectedCategory;
 
   const filteredFoodListByTab =
@@ -96,11 +98,14 @@ const Categories = () => {
           id: doc.id,
           ...doc.data(),
         }));
+        const hotelCategories = items.filter(
+          (data) => data?.hotelId === hotelUID
+        );
         const newItem = {
           id: "new-id",
           name: "Add New",
         };
-        const updatedItems = [newItem, ...items];
+        const updatedItems = [newItem, ...hotelCategories];
 
         setCategories(updatedItems);
         setTimeout(() => {
@@ -120,6 +125,7 @@ const Categories = () => {
     // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []);
+
   useEffect(() => {
     const fetchOrderData = () => {
       try {
@@ -129,7 +135,11 @@ const Categories = () => {
             id: doc.id, // Store document ID
             ...doc.data(), // Include document data
           }));
-          setFoodList(ordersList);
+          const hotelFoodsList = ordersList.filter(
+            (data) => data?.hotelId === hotelUID
+          );
+
+          setFoodList(hotelFoodsList);
         });
 
         // Cleanup subscription on unmount
@@ -276,7 +286,7 @@ const Categories = () => {
       const storageRef = ref(storage, `categories/${file.name}`);
       await uploadBytes(storageRef, file);
       img = await getDownloadURL(storageRef);
-      setEditedCategory((prev) => ({ ...prev, img: img }));
+      setEditedCategory((prev) => ({ ...prev, imgSrc: img }));
       setUploading(false);
     }
   };
@@ -289,7 +299,8 @@ const Categories = () => {
       try {
         await addDoc(collection(db, "categories"), {
           name: editedCategory.name,
-          imgSrc: editedCategory.img,
+          imgSrc: editedCategory.imgSrc,
+          hotelId: hotelUID,
         });
         setCusLoader(false);
       } catch (e) {
@@ -308,7 +319,8 @@ const Categories = () => {
         const categoryDoc = doc(db, "categories", selectedCategory.id);
         await updateDoc(categoryDoc, {
           name: editedCategory.name,
-          imgSrc: editedCategory.img,
+          imgSrc: editedCategory.imgSrc,
+          hotelId: hotelUID,
         });
         setCusLoader(false);
 
@@ -374,6 +386,7 @@ const Categories = () => {
           price: foodDetails.price,
           img: foodDetails.img,
           isSoldOut: false,
+          hotelId: hotelUID,
         });
 
         // Reset form
@@ -419,6 +432,7 @@ const Categories = () => {
           categorized: foodDetails.categorized || "",
           price: foodDetails.price,
           img: foodDetails.img || "",
+          hotelId: hotelUID,
         });
         setCusLoader(false);
 
