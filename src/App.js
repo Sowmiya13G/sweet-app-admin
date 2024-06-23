@@ -23,7 +23,7 @@ import Tables from "./pages/tables/tables";
 import Users from "./pages/users/user";
 import Auth from "./pages/auth/login";
 import { useDispatch } from "react-redux";
-import { updateSuperAdmin } from "./redux/reducers/authSlice";
+import { updateSuperAdmin, updateHotelData } from "./redux/reducers/authSlice";
 import HotelManagement from "./pages/hotel/hotel";
 import CompleteRegistration from "./pages/completeRegistraton/completeRegistration";
 
@@ -47,6 +47,7 @@ function App() {
     const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
       setUser(user);
       setLoading(false);
+      dispatch(updateHotelData(user));
       if (user?.uid == "phZSUmRR7LZYvlVeIl3TT4IVTSs2") {
         setIsSuperAdmin(true);
         dispatch(updateSuperAdmin(true));
@@ -106,6 +107,21 @@ function App() {
       unsubscribeAuth();
     };
   }, []);
+
+  useEffect(() => {
+    const hotelRef = collection(db, "hotels");
+    const unsubscribeHotel = onSnapshot(hotelRef, (snap) => {
+      const data = snap.docs.map((x) => ({
+        ...x.data(),
+      }
+     ));
+    });
+
+    return () => {
+      unsubscribeHotel();
+    };
+  }, []);
+
   console.log(user?.uid);
   // Protected Route Component
   const ProtectedRoute = ({ element }) => {

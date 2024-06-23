@@ -30,6 +30,8 @@ const Sidebar = ({ open, setOpen }) => {
   const location = useLocation();
   const superAdmin = useSelector((state) => state.auth.isuperAdmin);
   console.log(superAdmin);
+  const hotelData = useSelector((state)=> state.auth.hotelData);
+  console.log(hotelData, "hotel")
   useEffect(() => {
     setSelectedLink(location.pathname); // Update selected link based on current path
   }, [location]);
