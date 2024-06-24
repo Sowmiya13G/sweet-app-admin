@@ -53,11 +53,11 @@ function App() {
     const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
       setUser(user);
       setLoading(false);
-      dispatch(updateHotelID(user.uid));
       if (user?.uid == "phZSUmRR7LZYvlVeIl3TT4IVTSs2") {
         setIsSuperAdmin(true);
         dispatch(updateSuperAdmin(true));
       } else {
+        dispatch(updateHotelID(user.uid));
         setIsSuperAdmin(false);
         dispatch(updateSuperAdmin(false));
       }
@@ -121,10 +121,9 @@ function App() {
         const data = snap.docs.map((x) => ({
           ...x.data(),
         }));
+        console.log(data.filter((x) => x?.uid === hotelID));
         if (isSuperAdmin) {
-          dispatch(
-            updateHotelData(data.filter((x) => x?.uid === hotelID[0].id))
-          );
+          dispatch(updateHotelData(data.filter((x) => x?.uid === hotelID)));
         } else {
           dispatch(updateHotelData(data.filter((x) => x?.uid === user?.uid)));
         }
