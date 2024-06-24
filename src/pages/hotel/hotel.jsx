@@ -80,7 +80,7 @@ const HotelManagement = () => {
   }, []);
 
   const handleHotelClick = (item) => {
-    disptach(updateHotelID(item));
+    disptach(updateHotelID(item?.uid));
   };
 
   const handleSendVerificationEmail = async () => {
@@ -207,8 +207,8 @@ const HotelManagement = () => {
                     sx={{
                       ...gridItemStyles,
                       backgroundColor:
-                        selectedHotel.uid === item.uid ? "#3c3c4e" : "#fff",
-                      color: selectedHotel.uid === item.uid ? "#fff" : "#000",
+                        selectedHotel === item.uid ? "#3c3c4e" : "#fff",
+                      color: selectedHotel === item.uid ? "#fff" : "#000",
                     }}
                     onClick={() => handleHotelClick(item)}
                   >

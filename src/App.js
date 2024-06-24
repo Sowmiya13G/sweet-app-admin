@@ -23,7 +23,11 @@ import Tables from "./pages/tables/tables";
 import Users from "./pages/users/user";
 import Auth from "./pages/auth/login";
 import { useDispatch, useSelector } from "react-redux";
-import { updateSuperAdmin, updateHotelData } from "./redux/reducers/authSlice";
+import {
+  updateSuperAdmin,
+  updateHotelData,
+  updateHotelID,
+} from "./redux/reducers/authSlice";
 import HotelManagement from "./pages/hotel/hotel";
 import CompleteRegistration from "./pages/completeRegistraton/completeRegistration";
 
@@ -32,7 +36,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const hotelID = useSelector((state) => state.auth.hotelID);
-
+  console.log(hotelID);
   const dispatch = useDispatch();
   const sound = new Howl({
     src: [notifisound],
@@ -49,6 +53,7 @@ function App() {
     const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
       setUser(user);
       setLoading(false);
+      dispatch(updateHotelID(user.uid));
       if (user?.uid == "phZSUmRR7LZYvlVeIl3TT4IVTSs2") {
         setIsSuperAdmin(true);
         dispatch(updateSuperAdmin(true));
@@ -117,7 +122,9 @@ function App() {
           ...x.data(),
         }));
         if (isSuperAdmin) {
-          dispatch(updateHotelData(data.filter((x) => x?.uid === hotelID.id)));
+          dispatch(
+            updateHotelData(data.filter((x) => x?.uid === hotelID[0].id))
+          );
         } else {
           dispatch(updateHotelData(data.filter((x) => x?.uid === user?.uid)));
         }
