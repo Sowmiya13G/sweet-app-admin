@@ -76,7 +76,7 @@ const Layout = ({ children }) => {
                   sx={{ fontSize: 30, marginRight: 2 }}
                 />
 
-                {hotelData[0].name}
+                {hotelData ? hotelData[0].name : "Foodie"}
               </Typography>
             )}
           </div>

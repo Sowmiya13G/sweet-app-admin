@@ -22,7 +22,7 @@ import Orders from "./pages/orders/orders";
 import Tables from "./pages/tables/tables";
 import Users from "./pages/users/user";
 import Auth from "./pages/auth/login";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { updateSuperAdmin, updateHotelData } from "./redux/reducers/authSlice";
 import HotelManagement from "./pages/hotel/hotel";
 import CompleteRegistration from "./pages/completeRegistraton/completeRegistration";
@@ -31,6 +31,8 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const hotelID = useSelector((state) => state.auth.hotelID);
+
   const dispatch = useDispatch();
   const sound = new Howl({
     src: [notifisound],
@@ -114,13 +116,17 @@ function App() {
         const data = snap.docs.map((x) => ({
           ...x.data(),
         }));
-        dispatch(updateHotelData(data.filter((x) => x.uid == user.uid)));
+        if (isSuperAdmin) {
+          dispatch(updateHotelData(data.filter((x) => x?.uid === hotelID.id)));
+        } else {
+          dispatch(updateHotelData(data.filter((x) => x?.uid === user?.uid)));
+        }
       });
       return () => {
         unsubscribeHotel();
       };
     }
-  }, []);
+  }, [user, hotelID]);
 
   console.log(user?.uid);
   // Protected Route Component

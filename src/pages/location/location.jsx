@@ -23,6 +23,7 @@ import {
 import locationIcon from "../../assets/images/location.png";
 import { db } from "../../firebaseConfig";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
+import { useSelector } from "react-redux";
 const LocationPage = () => {
   const [positions, setPositions] = useState([]);
   const [currentPosition, setCurrentPosition] = useState([]);
@@ -35,6 +36,9 @@ const LocationPage = () => {
     state: "",
     country: "",
   });
+
+  const hotelData = useSelector((state) => state.auth.hotelData);
+  const hotelUID = hotelData[0]?.uid;
 
   const apiKey = "37b4cf9407c146caa22bf64efcc6ed65";
   // Fetch user's current location coordinates
@@ -49,34 +53,13 @@ const LocationPage = () => {
       }
     );
   }, []); // Empty dependency array ensures this runs only once, on component mount
+
   useEffect(() => {
-    const fetchOrderData = async () => {
-      try {
-        const locationCollection = collection(db, "locations");
-        const unsubscribe = onSnapshot(locationCollection, (querySnapshot) => {
-          const locations = [];
-          querySnapshot.forEach((doc) => {
-            locations.push({
-              id: doc.id,
-              ...doc.data(),
-            });
-          });
 
-          // Assuming you want to display the first location's details initially
-          if (locations.length > 0) {
-            setPositions(locations[0].coordinates);
-            setAddress(locations[0]);
-          }
-        });
+    setAddress(hotelData[0]);
+    setPositions(hotelData[0]?.coordinates || [])
+  }, [hotelData]);
 
-        return () => unsubscribe(); // Cleanup function to unsubscribe from snapshot listener
-      } catch (error) {
-        console.error("Error fetching order data: ", error);
-      }
-    };
-
-    fetchOrderData();
-  }, []);
   // Define custom icon
   const customIcon = L.icon({
     iconUrl: locationIcon,
@@ -101,7 +84,7 @@ const LocationPage = () => {
   // Function to handle form submission and update data in Firestore
   const handleSubmit = async () => {
     try {
-      const locationDocRef = doc(db, "locations", address.id); // Assuming 'id' is the document ID in Firestore
+      const locationDocRef = doc(db, "hotels", hotelUID); // Assuming 'id' is the document ID in Firestore
       await updateDoc(locationDocRef, {
         shopName: address.shopName,
         phoneNumber: address.phoneNumber,
@@ -122,7 +105,7 @@ const LocationPage = () => {
     const { lat, lng } = e.latlng; // Extract latitude and longitude from Leaflet's latlng object
 
     try {
-      const locationDocRef = doc(db, "locations", address.id); // Assuming 'id' is the document ID in Firestore
+      const locationDocRef = doc(db, "hotels", hotelUID); // Assuming 'id' is the document ID in Firestore
       await updateDoc(locationDocRef, {
         coordinates: [lat, lng], // Update coordinates in Firestore document
       });
@@ -134,7 +117,7 @@ const LocationPage = () => {
   // Function to handle map click event
   const handleCurrentLocation = async (e) => {
     try {
-      const locationDocRef = doc(db, "locations", address.id); // Assuming 'id' is the document ID in Firestore
+      const locationDocRef = doc(db, "hotels", hotelUID); // Assuming 'id' is the document ID in Firestore
       await updateDoc(locationDocRef, {
         coordinates: currentPosition, // Update coordinates in Firestore document
       });
@@ -153,6 +136,7 @@ const LocationPage = () => {
 
     return null; // This component doesn't render anything visible on the map
   };
+  console.log(address);
 
   return (
     <Box

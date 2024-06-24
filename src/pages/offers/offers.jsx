@@ -32,6 +32,7 @@ import { db } from "../../firebaseConfig";
 //packages
 import SpecialOfferItem from "../../components/foodItems/foodItem";
 import { Toaster } from "react-hot-toast";
+import { useSelector } from "react-redux";
 
 const Offers = () => {
   // local states
@@ -53,6 +54,8 @@ const Offers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCard, setSelectedCard] = useState(null);
   const [edit, setEdit] = useState(false);
+  const hotelData = useSelector((state) => state.auth.hotelData);
+  const hotelUID = hotelData[0]?.uid;
 
   // -------------------------------- USE EFFECTS --------------------------------
   useEffect(() => {
@@ -61,7 +64,10 @@ const Offers = () => {
         const ordersCollection = collection(db, "foodList");
         const unsubscribe = onSnapshot(ordersCollection, (orderSnapshot) => {
           const ordersList = orderSnapshot.docs.map((doc) => doc.data());
-          setFoods(ordersList);
+          const filterofferList = ordersList.filter(
+            (data) => data?.hotelId === hotelUID
+          );
+          setFoods(filterofferList);
         });
 
         // Cleanup subscription on unmount
@@ -80,29 +86,15 @@ const Offers = () => {
         const ordersCollection = collection(db, "offers");
         const unsubscribe = onSnapshot(ordersCollection, (orderSnapshot) => {
           const ordersList = orderSnapshot.docs.map((doc) => doc.data());
-          setFoodList(ordersList);
-        });
+          console.log(ordersList);
+          console.log(hotelUID);
 
-        // Cleanup subscription on unmount
-        return () => unsubscribe();
-      } catch (error) {
-        console.error("Error fetching order data: ", error);
-      }
-    };
+          const filterofferList = ordersList.filter(
+            (data) => data?.hotelId === hotelUID
+          );
+          console.log(filterofferList);
 
-    fetchOrderData();
-  }, []);
-
-  useEffect(() => {
-    const fetchOrderData = () => {
-      try {
-        const ordersCollection = collection(db, "offers");
-        const unsubscribe = onSnapshot(ordersCollection, (orderSnapshot) => {
-          const ordersList = orderSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          setFoodList(ordersList);
+          setFoodList(filterofferList);
         });
 
         // Cleanup subscription on unmount
@@ -252,6 +244,7 @@ const Offers = () => {
         await addDoc(collection(db, "offers"), {
           ...updatedFoodDetails,
           priceAfterOffer,
+          hotelId: hotelUID,
         });
 
         // Reset foodDetails state to initial values after adding to Firestore
@@ -343,6 +336,7 @@ const Offers = () => {
         type: food?.type,
         offer: food?.offer,
         priceAfterOffer: food?.priceAfterOffer,
+
         // topRec: food?.topRec,
       });
     }
@@ -382,6 +376,7 @@ const Offers = () => {
         await updateDoc(foodDocRef, {
           ...updatedFoodDetails,
           priceAfterOffer,
+          hotelId: hotelUID,
         });
         setSelectedCard(null);
         setFoodDetails({
@@ -504,11 +499,17 @@ const Offers = () => {
             sx={{ mb: 2, ...textInputStyle }}
             disabled={edit}
           >
-            {specialFilteredFoods.map((food) => (
-              <MenuItem key={food.id} value={food.dishName}>
-                {food.dishName}
-              </MenuItem>
-            ))}
+            {edit
+              ? foods.map((food) => (
+                  <MenuItem key={food.id} value={food.dishName}>
+                    {food.dishName}
+                  </MenuItem>
+                ))
+              : specialFilteredFoods.map((food) => (
+                  <MenuItem key={food.id} value={food.dishName}>
+                    {food.dishName}
+                  </MenuItem>
+                ))}
           </TextField>
         )}
         <TextField

@@ -18,7 +18,14 @@ import {
 import Tooltip from "@mui/material/Tooltip";
 
 // firebase
-import { doc, onSnapshot, updateDoc } from "firebase/firestore";
+import {
+  addDoc,
+  doc,
+  getDoc,
+  onSnapshot,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 import { db } from "../../firebaseConfig";
 
 // packages
@@ -30,6 +37,7 @@ import foodOnPlate1 from "../../assets/images/plateOnfood1.png";
 
 // styles
 import "./style.css";
+import { useSelector } from "react-redux";
 
 const Tables = () => {
   // use ref
@@ -43,35 +51,28 @@ const Tables = () => {
   const [qrData, setQrData] = useState("");
   const [openQR, setOpenQR] = useState(false);
   const [chairId, setChairId] = useState("");
+  const hotelData = useSelector((state) => state.auth.hotelData);
+  const hotelUID = hotelData[0]?.uid;
 
   // -------------------------------- USE EFFECTS --------------------------------
 
   useEffect(() => {
-    const fetchTablesBookedFromFirestore = async () => {
-      try {
-        const docRef = doc(db, "bookingData", "tablesBooked");
-        console.log(docRef);
-        // Listen to real-time updates
-        const unsubscribe = onSnapshot(docRef, (docSnap) => {
-          if (docSnap.exists()) {
-            const data = docSnap.data().tablesBooked;
-            setTables(data);
-            if (data.length > 0) {
-              setSelectedTable(data[0]);
-            }
-          } else {
-            console.log("No such document!");
-          }
-        });
-
-        // Cleanup subscription on unmount
-        return () => unsubscribe();
-      } catch (error) {
-        console.error("Error fetching data from Firestore: ", error);
+    const docRef = doc(db, "bookingData", hotelUID);
+    console.log(docRef);
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data().tablesBooked;
+        setTables(data);
+        if (data.length > 0) {
+          setSelectedTable(data[0]);
+        }
+      } else {
+        console.log("No such document!");
       }
-    };
+    });
 
-    fetchTablesBookedFromFirestore();
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
   }, []);
 
   // -------------------------------- COMPONENTS STYLES  --------------------------------
@@ -131,7 +132,7 @@ const Tables = () => {
       );
       setTables(updatedTables);
 
-      const tablesRef = doc(db, "bookingData", "tablesBooked");
+      const tablesRef = doc(db, "bookingData", hotelUID);
       await updateDoc(tablesRef, {
         tablesBooked: updatedTables,
       });
@@ -147,18 +148,28 @@ const Tables = () => {
 
   const handleAddTable = async () => {
     setSelectedTable(null);
+
     try {
       const newTable = {
         table: selectedTable.table,
         chairs: selectedTable.chairs.map((chair) => ({ ...chair })),
       };
 
-      const tablesRef = doc(db, "bookingData", "tablesBooked");
-      await updateDoc(tablesRef, {
-        tablesBooked: [...tables, newTable],
-      });
+      const tablesRef = doc(db, "bookingData", hotelUID);
+      const docSnap = await getDoc(tablesRef);
 
-      setTables([...tables, newTable]);
+      if (docSnap.exists()) {
+        // Document exists, update it
+        await updateDoc(tablesRef, {
+          tablesBooked: [...tables, newTable],
+        });
+      } else {
+        // Document does not exist, create it
+        await setDoc(tablesRef, {
+          tablesBooked: [newTable],
+        });
+      }
+
       setSelectedTable(newTable);
       setAddNewOpen(false);
     } catch (error) {

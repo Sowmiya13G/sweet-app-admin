@@ -46,9 +46,9 @@ import emptyPlate from "../../assets/images/emptyPlate.png";
 
 // styles
 import "./style.css";
+import { useSelector } from "react-redux";
 
 const Orders = () => {
-  const [ordersCount, setOrdersCount] = useState(0);
   const [orderData, setOrderData] = useState([]);
   const [selectedTab, setSelectedTab] = useState("Current");
   const [orderIDCard, setOrderIDCard] = useState("");
@@ -56,6 +56,9 @@ const Orders = () => {
   const [tablesBooked, setTablesBooked] = useState([]);
   const [currentTabIndex, setCurrentTabIndex] = useState(1);
   const [loader, setLoader] = useState(true);
+  const hotelData = useSelector((state) => state.auth.hotelData);
+  const hotelUID = hotelData[0]?.uid;
+
   const tabs = [
     // { tbName: "All", id: 1 },
     { tbName: "Current", id: 2 },
@@ -83,9 +86,12 @@ const Orders = () => {
               (a, b) => b.data().orderTime.seconds - a.data().orderTime.seconds
             ) // Ensure correct property access
             .map((doc) => doc.data());
-          if (ordersList.length) {
-            setOrderData(ordersList);
-            setOrderIDCard(ordersList[0].orderID);
+          const hotelOrders = ordersList.filter(
+            (data) => data?.hotelId === hotelUID
+          );
+          if (hotelOrders.length) {
+            setOrderData(hotelOrders);
+            setOrderIDCard(hotelOrders[0].orderID);
           }
         });
         setTimeout(() => {
@@ -322,14 +328,6 @@ const Orders = () => {
                     flexDirection: "column",
                   }}
                 >
-                  <img
-                    src={sadEmoji}
-                    style={{
-                      width: 200,
-                      height: 200,
-                    }}
-                    alt="img"
-                  />
                   <Typography sx={{ fontWeight: 600, fontSize: 20, mt: 3 }}>
                     No Order Found
                   </Typography>

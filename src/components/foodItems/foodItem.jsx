@@ -77,8 +77,10 @@ const SpecialOfferItem = ({
             food?.id === swipedCardId ? "translateX(-2%)" : "translateX(0)",
         }}
       >
+        {console.log(food.topRec)}
         <Checkbox
           checked={food?.topsRec}
+          defaultChecked={food?.topRec}
           onChange={() => handleCheckToggle(food)}
           icon={
             <span
@@ -97,7 +99,7 @@ const SpecialOfferItem = ({
               color: "#626fa0",
             },
             position: "absolute",
-            top: isSpecial ? "10px" : "1px",
+            top: isSpecial ? "10px" : "10px",
           }}
         />
 

@@ -132,7 +132,6 @@ const Users = () => {
     px: 2,
     width: "100%",
     height: 60,
-    display: "flex",
     justifyContent: "space-around",
     borderRadius: 2,
   };
@@ -212,7 +211,7 @@ const Users = () => {
       <Box
         sx={{
           width: { xs: "100%", md: "35%" },
-          height: { xs: 450, md: 450 },
+          height: { xs: 450, md: 550 },
           mr: 1,
           my: 2,
           py: 2,
@@ -234,7 +233,7 @@ const Users = () => {
           sx={{
             ...scrollHorbarStyles,
             width: "100%",
-            height: 360,
+            height: 460,
           }}
         >
           {filteredOrders.map((order, index) => (
@@ -280,7 +279,7 @@ const Users = () => {
         sx={{
           width: { xs: "100%", md: "65%" },
           my: 2,
-          height: 450,
+          height: 550,
           mr: 1,
           backgroundColor: "#ffffff",
           ...scrollHorbarStyles,
@@ -436,7 +435,7 @@ const Users = () => {
             sx={{ borderRadius: "10px" }}
           />
         </Box> */}
-        <Box
+        {/* <Box
           sx={{
             display: { xs: "block", md: "block" },
             width: "65%",
@@ -453,7 +452,7 @@ const Users = () => {
           <Typography sx={{ fontWeight: "bold", fontSize: 20, color: "#fff" }}>
             {numberToWords(ordersCount)}
           </Typography>
-        </Box>
+        </Box> */}
       </Box>
       <Box
         sx={{

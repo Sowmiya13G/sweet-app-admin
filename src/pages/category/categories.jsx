@@ -77,6 +77,7 @@ const Categories = () => {
   );
   const hotelData = useSelector((state) => state.auth.hotelData);
   const hotelUID = hotelData[0]?.uid;
+
   const isShowEditFields = editedCategory?.id !== "new-id" && selectedCategory;
 
   const filteredFoodListByTab =
@@ -139,7 +140,7 @@ const Categories = () => {
             (data) => data?.hotelId === hotelUID
           );
 
-          setFoodList(hotelFoodsList);
+          setFoodList(hotelFoodsList || []);
         });
 
         // Cleanup subscription on unmount

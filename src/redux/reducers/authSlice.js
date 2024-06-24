@@ -7,7 +7,7 @@ const authSlice = createSlice({
     locationMatch: false,
     isuperAdmin: false,
     hotelID: null,
-    hotelData: null,
+    hotelData: [],
   },
   reducers: {
     updateDeviceID: (state, action) => {
