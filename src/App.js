@@ -53,13 +53,15 @@ function App() {
     const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
       setUser(user);
       setLoading(false);
-      if (user?.uid == "phZSUmRR7LZYvlVeIl3TT4IVTSs2") {
-        setIsSuperAdmin(true);
-        dispatch(updateSuperAdmin(true));
-      } else {
-        dispatch(updateHotelID(user.uid));
-        setIsSuperAdmin(false);
-        dispatch(updateSuperAdmin(false));
+      if (user) {
+        if (user?.uid == "phZSUmRR7LZYvlVeIl3TT4IVTSs2") {
+          setIsSuperAdmin(true);
+          dispatch(updateSuperAdmin(true));
+        } else {
+          dispatch(updateHotelID(user.uid));
+          setIsSuperAdmin(false);
+          dispatch(updateSuperAdmin(false));
+        }
       }
     });
     // Request notification permissions
@@ -122,7 +124,9 @@ function App() {
           ...x.data(),
         }));
         console.log(data.filter((x) => x?.uid === hotelID));
-        if (isSuperAdmin) {
+        if (isSuperAdmin && !hotelID) {
+          dispatch(updateHotelID(data[0]?.uid));
+        } else if (isSuperAdmin) {
           dispatch(updateHotelData(data.filter((x) => x?.uid === hotelID)));
         } else {
           dispatch(updateHotelData(data.filter((x) => x?.uid === user?.uid)));

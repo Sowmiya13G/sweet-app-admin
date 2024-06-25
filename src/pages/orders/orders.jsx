@@ -268,26 +268,32 @@ const Orders = () => {
         display: "flex",
         flexDirection: "column",
         gap: 2,
-        p: { xs: 0, md: 2 },
+        m: 2,
       }}
     >
       <Box
         sx={{
           display: { xs: "block", md: "flex" },
           width: "100%",
+          justifyContent:"space-between"
         }}
       >
         <Box
           sx={{
-            width: { xs: "100%", md: "35%" },
+            width: { xs: "100%", md: "34%" },
             height: { xs: 400, md: 600 },
-            mr: 1,
-            my: 2,
             py: 2,
+            // mx:1,
             backgroundColor: "#fff",
             borderRadius: 2,
           }}
         >
+          <Typography
+            gutterBottom
+            sx={{ color: "#000", fontSize: 20, m: 1, fontWeight: 600 }}
+          >
+            Order List
+          </Typography>
           <Box sx={{ px: 2, mb: 1 }}>
             <OutlinedInput
               value={searchQuery}
@@ -309,7 +315,7 @@ const Orders = () => {
             <Box
               sx={{
                 width: "100%",
-                height: { xs: 220, md: 420 },
+                height: { xs: 220, md: 400 },
                 backgroundColor: "#fff",
                 ...scrollHorbarStyles,
                 borderRadius: 2,
@@ -378,7 +384,7 @@ const Orders = () => {
             <Box
               sx={{
                 width: "100%",
-                height: { xs: 220, md: 420 },
+                height: { xs: 220, md: 400 },
                 backgroundColor: "#fff",
                 ...scrollHorbarStyles,
                 borderRadius: 2,
@@ -394,9 +400,10 @@ const Orders = () => {
         <Box
           sx={{
             width: { xs: "100%", md: "65%" },
-            my: 2,
             height: { xs: 400, md: 600 },
-            mr: 1,
+            // m: 1,
+            marginTop: { xs: "37px", md: "0px" },
+
             backgroundColor: "#ffffff",
             ...scrollHorbarStyles,
             borderRadius: 2,

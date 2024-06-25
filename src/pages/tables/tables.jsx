@@ -188,12 +188,14 @@ const Tables = () => {
         id: chair.id,
         booked: true,
       },
+      hotelId:hotelUID
     };
     const jsonString = JSON.stringify(qrData);
     const base64Data = btoa(jsonString); // Encode JSON string in base64
     const url = `https://food-order-eight-iota.vercel.app/?data=${encodeURIComponent(
       base64Data
     )}`;
+    // const url = `http://localhost:3001/?data=${encodeURIComponent(base64Data)}`;
     return url;
   };
 

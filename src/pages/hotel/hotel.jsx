@@ -19,7 +19,7 @@ const HotelManagement = () => {
   const [hotels, setHotels] = useState([]);
   const hotelDetails = useSelector((state) => state.auth.hotelID);
   const navigate = useNavigate();
-
+  console.log(hotelDetails);
   const gridItemStyles = {
     height: { xs: 100, md: 130 },
     display: "flex",
@@ -60,10 +60,6 @@ const HotelManagement = () => {
   // -------------------------------- FUNCTIONALITIES --------------------------------
 
   useEffect(() => {
-    setSelectedHotel(hotelDetails);
-  }, [hotelDetails]);
-
-  useEffect(() => {
     const fetchHotels = async () => {
       setCusLoader(true);
       const querySnapshot = await getDocs(collection(db, "hotels"));
@@ -72,12 +68,14 @@ const HotelManagement = () => {
         ...doc.data(),
       }));
       setHotels(hotelsList);
+      const filterHotelList = hotelsList.filter((x) => x.uid === hotelDetails);
+      setSelectedHotel(filterHotelList[0]);
 
       setCusLoader(false);
     };
 
     fetchHotels();
-  }, []);
+  }, [hotelDetails]);
 
   const handleHotelClick = (item) => {
     disptach(updateHotelID(item?.uid));
@@ -135,7 +133,7 @@ const HotelManagement = () => {
 
   const hotelDetailsListBox = () => (
     <Paper elevation={6} sx={categoriesStyle}>
-      <Typography variant="h6">Hotel Details</Typography>
+      <Typography variant="h6">Selected Hotel Details</Typography>
       <TextField
         label="Hotel Name"
         value={selectedHotel.name}
@@ -207,8 +205,8 @@ const HotelManagement = () => {
                     sx={{
                       ...gridItemStyles,
                       backgroundColor:
-                        selectedHotel === item.uid ? "#3c3c4e" : "#fff",
-                      color: selectedHotel === item.uid ? "#fff" : "#000",
+                        selectedHotel?.uid === item.uid ? "#3c3c4e" : "#fff",
+                      color: selectedHotel?.uid === item.uid ? "#fff" : "#000",
                     }}
                     onClick={() => handleHotelClick(item)}
                   >
@@ -262,8 +260,8 @@ const HotelManagement = () => {
           >
             <Box
               sx={{
-                width: { xs: "100%", md: "50%" },
-                m: 2,
+                width: { xs: "100%", md: "49%" },
+                mt: 1,
               }}
             >
               {hotelListBox()}
@@ -271,8 +269,8 @@ const HotelManagement = () => {
             {selectedHotel && (
               <Box
                 sx={{
-                  width: { xs: "100%", md: "50%" },
-                  m: 2,
+                  width: { xs: "100%", md: "49%" },
+                  mt: 1,
                 }}
               >
                 {hotelDetailsListBox()}

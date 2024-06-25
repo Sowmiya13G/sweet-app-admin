@@ -751,7 +751,7 @@ const Offers = () => {
         p: { xs: 2, md: 2 },
         background: "#eee",
         borderRadius: "10px",
-        marginTop: "10px",
+        m: 2,
       }}
     >
       {/* --------------------- CATEGORIES BOX --------------------- */}

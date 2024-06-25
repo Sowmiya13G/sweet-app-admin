@@ -1030,9 +1030,10 @@ const Categories = () => {
             display: "flex",
             flexDirection: "column",
             gap: 2,
-            p: { xs: 0, md: 2 },
+            p: { xs: 2, md: 2 },
             background: "#eee",
             borderRadius: 2,
+            m: 2,
           }}
         >
           {/* --------------------- CATEGORIES BOX --------------------- */}

@@ -27,15 +27,16 @@ import { collection, onSnapshot } from "firebase/firestore";
 
 // firebase services
 import { db } from "../../firebaseConfig";
+import { useSelector } from "react-redux";
 
 const Users = () => {
-
   // local states
   const [orderIDCard, setOrderIDCard] = useState("");
   const [orderData, setOrderData] = useState([]);
   const [ordersCount, setOrdersCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
-
+  const hotelData = useSelector((state) => state.auth.hotelData);
+  const hotelUID = hotelData[0]?.uid;
   // -------------------------------- USE EFFECTS --------------------------------
 
   useEffect(() => {
@@ -49,10 +50,14 @@ const Users = () => {
             ) // Ensure correct property access
             .map((doc) => doc.data());
 
-          setOrderData(ordersList);
-          setOrderIDCard(ordersList[0].phoneNumber);
-
-          setOrdersCount(ordersList.length);
+          const hotelOrders = ordersList.filter(
+            (data) => data?.hotelId === hotelUID
+          );
+          if (hotelOrders.length) {
+            setOrderData(hotelOrders);
+            setOrderIDCard(hotelOrders[0].phoneNumber);
+            setOrdersCount(hotelOrders.length);
+          }
         });
 
         // Cleanup subscription on unmount
@@ -157,8 +162,6 @@ const Users = () => {
       );
     });
 
-  
-
   const numberToWords = (num) => {
     const ones = [
       "Zero",
@@ -213,13 +216,17 @@ const Users = () => {
           width: { xs: "100%", md: "35%" },
           height: { xs: 450, md: 550 },
           mr: 1,
-          my: 2,
-          py: 2,
+          p: 1,
           backgroundColor: "#fff",
-
           borderRadius: 2,
         }}
       >
+        <Typography
+          gutterBottom
+          sx={{ color: "#000", fontSize: 20, mt: 1, fontWeight: 600 }}
+        >
+          User List
+        </Typography>
         <Box sx={{ px: 2, mb: 1 }}>
           <OutlinedInput
             value={searchQuery}
@@ -278,14 +285,19 @@ const Users = () => {
       <Box
         sx={{
           width: { xs: "100%", md: "65%" },
-          my: 2,
           height: 550,
-          mr: 1,
+
           backgroundColor: "#ffffff",
           ...scrollHorbarStyles,
           borderRadius: 2,
         }}
       >
+        <Typography
+          gutterBottom
+          sx={{ color: "#000", fontSize: 20, m: 1, fontWeight: 600 }}
+        >
+          Order Details
+        </Typography>
         {orderData
           .filter((x) => x.phoneNumber === orderIDCard)
           .map((order, index) => (
@@ -402,7 +414,7 @@ const Users = () => {
       sx={{
         display: { xs: "block", md: "block" },
         width: "100%",
-        // m: "10px",
+        m: 2,
       }}
     >
       <Box
