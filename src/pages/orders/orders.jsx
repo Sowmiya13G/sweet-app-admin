@@ -79,7 +79,7 @@ const Orders = () => {
     const fetchOrderData = () => {
       try {
         setLoader(true);
-        const ordersCollection = collection(db, "orders");
+        const ordersCollection = collection(db, `orders-${hotelUID}`);
         const unsubscribe = onSnapshot(ordersCollection, (orderSnapshot) => {
           const ordersList = orderSnapshot.docs
             .sort(
@@ -108,22 +108,7 @@ const Orders = () => {
     fetchOrderData();
   }, []);
 
-  useEffect(() => {
-    const sendTablesBookedToFirestore = async () => {
-      try {
-        const docRef = doc(db, "bookingData", "tablesBooked");
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setTablesBooked(docSnap.data().tablesBooked);
-        }
-        console.log("Data sent to Firestore successfully.");
-      } catch (error) {
-        console.error("Error sending data to Firestore: ", error);
-      }
-    };
 
-    sendTablesBookedToFirestore();
-  }, []);
 
   useEffect(() => {
     if (selectedTab === "Current") {
@@ -233,7 +218,7 @@ const Orders = () => {
     try {
       let orderDetails = { ...order };
       // let orderStatus = 3;
-      const orderDocRef = doc(db, "orders", order?.orderID);
+      const orderDocRef = doc(db, `orders-${hotelUID}`, order?.orderID);
       await updateDoc(orderDocRef, {
         ...orderDetails,
         orderStatus: 3,
@@ -249,7 +234,7 @@ const Orders = () => {
     try {
       let orderDetails = { ...order };
       let orderStatus = 2;
-      const orderDocRef = doc(db, "orders", order?.orderID);
+      const orderDocRef = doc(db, `orders-${hotelUID}`, order?.orderID);
       await updateDoc(orderDocRef, {
         ...orderDetails,
         orderStatus,
