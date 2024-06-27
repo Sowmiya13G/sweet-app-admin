@@ -63,6 +63,9 @@ const Tables = () => {
       if (docSnap.exists()) {
         const data = docSnap.data().tablesBooked;
         setTables(data);
+        if (data.length == 0) {
+          handleFunc();
+        }
         if (data.length > 0) {
           setSelectedTable(data[0]);
         }
@@ -188,7 +191,7 @@ const Tables = () => {
         id: chair.id,
         booked: true,
       },
-      hotelId:hotelUID
+      hotelId: hotelUID,
     };
     const jsonString = JSON.stringify(qrData);
     const base64Data = btoa(jsonString); // Encode JSON string in base64
@@ -226,6 +229,35 @@ const Tables = () => {
       console.error("Canvas element not found.");
     }
   };
+
+  const handleFunc = () => {
+    setOpen(true);
+    setAddNewOpen(true);
+    const newTableId = `${tables.length + 1}`;
+    setSelectedTable({
+      table: newTableId,
+      chairs: [
+        {
+          booked: false,
+          id: 1,
+        },
+        {
+          booked: false,
+          id: 2,
+        },
+        {
+          booked: false,
+          id: 3,
+        },
+        {
+          booked: false,
+          id: 4,
+        },
+      ],
+    });
+  };
+
+  console.log(tables.length);
 
   // -------------------------------- RENDER UI --------------------------------
 
@@ -456,7 +488,7 @@ const Tables = () => {
                 </>
               ) : (
                 <>
-                  <Typography> ADD TABLES </Typography>
+                  <Typography> NO TABLES </Typography>
                 </>
               )}
             </List>
@@ -576,7 +608,9 @@ const Tables = () => {
               >
                 <Button
                   variant="outlined"
-                  onClick={Boolean(addNewOpen) ? handleAddTable : handleDelete}
+                  onClick={() =>
+                    Boolean(addNewOpen) ? handleAddTable() : handleDelete()
+                  }
                   sx={{
                     height: 40,
                     // width: "100%",
@@ -598,9 +632,9 @@ const Tables = () => {
                   }}
                 >
                   {Boolean(addNewOpen) ? (
-                    <AddCircleOutlineIcon />
+                    <AddCircleOutlineIcon sx={{ mr: 2, fontSize: 16 }} />
                   ) : (
-                    <DeleteIcon />
+                    <DeleteIcon sx={{ mr: 2, fontSize: 16 }} />
                   )}
                   {Boolean(addNewOpen) ? "Add Table" : "Delete Table"}
                 </Button>

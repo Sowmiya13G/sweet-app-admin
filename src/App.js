@@ -68,17 +68,29 @@ function App() {
     if (Notification.permission !== "granted") {
       Notification.requestPermission();
     }
-
-    // Use a flag to skip initial snapshot
+    // Use a flag to skip the initial snapshot
     let initialLoad = true;
 
+    // Function to request and show notification
+    const showNotification = (orderID) => {
+      const notification = new Notification("New Order", {
+        body: `Order ID: ${orderID}`,
+        icon: "/path/to/icon.png", // Optional: specify an icon for the notification
+      });
+
+      notification.onclick = () => {
+        window.location.href = "http://localhost:3000/orders"; // Open the URL in the current tab
+      };
+    };
+
     // Listen for new orders in real-time using Firestore
-    const ordersRef = collection(db, "orders");
+    const ordersRef = collection(db, `orders-${hotelID}`);
     const unsubscribeOrders = onSnapshot(ordersRef, (snapshot) => {
       if (initialLoad) {
         initialLoad = false; // Skip the initial snapshot
         return;
       }
+
       snapshot.docChanges().forEach((change) => {
         if (change.type === "added") {
           const newOrder = change.doc.data();
@@ -94,20 +106,38 @@ function App() {
             draggable: true,
             progress: undefined,
           });
+
+          // Play sound notification
           playSound();
-          // Show web notification
+
+          // Check for notification permission
           if (Notification.permission === "granted") {
-            const notification = new Notification("New Order", {
-              body: `Order ID: ${newOrder.orderID}`,
-              icon: "/path/to/icon.png", // Optional: specify an icon for the notification
+            showNotification(newOrder.orderID);
+          } else if (Notification.permission !== "denied") {
+            Notification.requestPermission().then((permission) => {
+              if (permission === "granted") {
+                showNotification(newOrder.orderID);
+              }
             });
-            notification.onclick = () => {
-              window.open("http://localhost:3000/orders", "_blank"); // Open a new tab to localhost
-            };
+          } else {
+            // Handle cases where notifications are denied
+            console.log("Notifications are denied by the user.");
           }
         }
       });
     });
+
+    // Safari-specific check
+    if (
+      typeof Notification === "undefined" &&
+      window.safari &&
+      window.safari.pushNotification
+    ) {
+      console.log("This is Safari and Notification API is not available.");
+      // Handle Safari-specific notifications (typically, use webkitNotifications)
+      // Note: Safari has its own push notification system
+      // You can explore using window.safari.pushNotification for Safari-specific push notifications
+    }
 
     // Clean up the subscriptions when the component unmounts
     return () => {

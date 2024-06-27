@@ -113,17 +113,14 @@ const CompleteRegistration = () => {
             flexDirection: "column",
             gap: 2,
             p: { xs: 0, md: 2 },
-            background: "#eee",
+            m: "auto",
+            // background: "#eee",
+            width: { xs: "90%", md: 500 },
+            height: "100vh",
+            alignSelf: "center",
             borderRadius: 2,
           }}
         >
-          <Typography
-            gutterBottom
-            sx={{ color: "#000", fontSize: 20, mt: 1, fontWeight: 600 }}
-          >
-            Complete Registration
-          </Typography>
-
           <Box
             sx={{
               display: "flex",
@@ -138,7 +135,18 @@ const CompleteRegistration = () => {
                 elevation={6}
                 sx={{ padding: 3, margin: "auto", width: "100%", mt: 2 }}
               >
-                <Typography variant="h6">Hotel Registration</Typography>
+                <Typography
+                  gutterBottom
+                  sx={{
+                    color: "#000",
+                    fontSize: 20,
+                    mt: 1,
+                    fontWeight: 600,
+                    textAlign: "center",
+                  }}
+                >
+                  Complete Hotel Registration
+                </Typography>
                 <TextField
                   label="Hotel Name"
                   value={hotelName}

@@ -42,7 +42,7 @@ const Users = () => {
   useEffect(() => {
     const fetchOrderData = () => {
       try {
-        const ordersCollection = collection(db, "orders");
+        const ordersCollection = collection(db, `orders-${hotelUID}`);
         const unsubscribe = onSnapshot(ordersCollection, (orderSnapshot) => {
           const ordersList = orderSnapshot.docs
             .sort(
@@ -162,51 +162,6 @@ const Users = () => {
       );
     });
 
-  const numberToWords = (num) => {
-    const ones = [
-      "Zero",
-      "One",
-      "Two",
-      "Three",
-      "Four",
-      "Five",
-      "Six",
-      "Seven",
-      "Eight",
-      "Nine",
-    ];
-    const teens = [
-      "Eleven",
-      "Twelve",
-      "Thirteen",
-      "Fourteen",
-      "Fifteen",
-      "Sixteen",
-      "Seventeen",
-      "Eighteen",
-      "Nineteen",
-    ];
-    const tens = [
-      "Ten",
-      "Twenty",
-      "Thirty",
-      "Forty",
-      "Fifty",
-      "Sixty",
-      "Seventy",
-      "Eighty",
-      "Ninety",
-    ];
-
-    if (num < 10) return ones[num];
-    if (num > 10 && num < 20) return teens[num - 11];
-    if (num >= 10 && num < 100 && num % 10 === 0) return tens[num / 10 - 1];
-    if (num >= 10 && num < 100)
-      return tens[Math.floor(num / 10) - 1] + " " + ones[num % 10];
-
-    return num;
-  };
-
   // -------------------------------- RENDER UI --------------------------------
 
   const userList = () => {
@@ -223,7 +178,13 @@ const Users = () => {
       >
         <Typography
           gutterBottom
-          sx={{ color: "#000", fontSize: 20, mt: 1, fontWeight: 600 }}
+          sx={{
+            color: "#000",
+            fontSize: 20,
+            mt: 1,
+            fontWeight: 600,
+            textAlign: "center",
+          }}
         >
           User List
         </Typography>
@@ -236,46 +197,59 @@ const Users = () => {
             placeholder="Search Name"
           />
         </Box>
-        <Box
-          sx={{
-            ...scrollHorbarStyles,
-            width: "100%",
-            height: 460,
-          }}
-        >
-          {filteredOrders.map((order, index) => (
-            <Paper
-              key={index}
-              sx={{
-                ...taskGridItemStyles,
-                px: 2,
-              }}
-              onClick={() => handleOrderCardClick(order.phoneNumber, index)}
-            >
-              <Box
+        {filteredOrders.length ? (
+          <Box
+            sx={{
+              ...scrollHorbarStyles,
+              width: "100%",
+              height: 460,
+            }}
+          >
+            {filteredOrders.map((order, index) => (
+              <Paper
+                key={index}
                 sx={{
-                  ...nameCardStyle,
-                  borderLeft:
-                    orderIDCard === order.phoneNumber
-                      ? "5px solid #22222E"
-                      : "none",
-                  transition:
-                    "background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-left 0.2s ease-in-out",
-                  ":hover": {
-                    background: "#00000020",
-                  },
+                  ...taskGridItemStyles,
+                  px: 2,
                 }}
+                onClick={() => handleOrderCardClick(order.phoneNumber, index)}
               >
-                <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
-                  Name: {order.name}
-                </Typography>
-                <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
-                  Phone Number: {order.phoneNumber}
-                </Typography>
-              </Box>
-            </Paper>
-          ))}
-        </Box>
+                <Box
+                  sx={{
+                    ...nameCardStyle,
+                    borderLeft:
+                      orderIDCard === order.phoneNumber
+                        ? "5px solid #22222E"
+                        : "none",
+                    transition:
+                      "background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-left 0.2s ease-in-out",
+                    ":hover": {
+                      background: "#00000020",
+                    },
+                  }}
+                >
+                  <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
+                    Name: {order.name}
+                  </Typography>
+                  <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
+                    Phone Number: {order.phoneNumber}
+                  </Typography>
+                </Box>
+              </Paper>
+            ))}
+          </Box>
+        ) : (
+          <Box
+            sx={{
+              width: "100%",
+              height: 460,
+              textAlign:"center",
+              mt:"30%"
+            }}
+          >
+            No Users
+          </Box>
+        )}
       </Box>
     );
   };
@@ -294,7 +268,13 @@ const Users = () => {
       >
         <Typography
           gutterBottom
-          sx={{ color: "#000", fontSize: 20, m: 1, fontWeight: 600 }}
+          sx={{
+            color: "#000",
+            fontSize: 20,
+            m: 1,
+            fontWeight: 600,
+            textAlign: "center",
+          }}
         >
           Order Details
         </Typography>
@@ -423,49 +403,7 @@ const Users = () => {
           width: "100%",
           justifyContent: "space-between",
         }}
-      >
-        {/* <Box
-          sx={{
-            display: { xs: "block", md: "block" },
-            width: "35%",
-            padding: "10px",
-            borderRadius: "5px",
-            justifyItems: "center",
-            m: "5px",
-            background: "#22222E",
-          }}
-        >
-          <Typography sx={{ fontWeight: "bold", fontSize: 20, color: "#fff" }}>
-            Search users
-          </Typography>
-          <TextField
-            label=""
-            variant="outlined"
-            fullWidth
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            sx={{ borderRadius: "10px" }}
-          />
-        </Box> */}
-        {/* <Box
-          sx={{
-            display: { xs: "block", md: "block" },
-            width: "65%",
-            background: "linear-gradient(to right bottom, #626fa8,#22222E)",
-            padding: "10px",
-            borderRadius: "10px",
-            justifyItems: "center",
-            mt: "10px",
-          }}
-        >
-          <Typography sx={{ fontWeight: "bold", fontSize: 20, color: "#fff" }}>
-            Total Users {ordersCount}
-          </Typography>
-          <Typography sx={{ fontWeight: "bold", fontSize: 20, color: "#fff" }}>
-            {numberToWords(ordersCount)}
-          </Typography>
-        </Box> */}
-      </Box>
+      ></Box>
       <Box
         sx={{
           display: { xs: "block", md: "flex" },
@@ -473,7 +411,7 @@ const Users = () => {
         }}
       >
         {userList()}
-        {orderDetails()}
+        {orderIDCard && orderDetails()}
       </Box>
     </Box>
   );

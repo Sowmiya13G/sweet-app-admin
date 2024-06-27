@@ -56,6 +56,7 @@ const Orders = () => {
   const [tablesBooked, setTablesBooked] = useState([]);
   const [currentTabIndex, setCurrentTabIndex] = useState(1);
   const [loader, setLoader] = useState(true);
+  const [tables, setTables] = useState([]);
   const hotelData = useSelector((state) => state.auth.hotelData);
   const hotelUID = hotelData[0]?.uid;
 
@@ -107,8 +108,6 @@ const Orders = () => {
 
     fetchOrderData();
   }, []);
-
-
 
   useEffect(() => {
     if (selectedTab === "Current") {
@@ -223,13 +222,30 @@ const Orders = () => {
         ...orderDetails,
         orderStatus: 3,
       });
+
+      // Update the local tables data to set booked to false based on orderId
+      const updatedTables = tables.map((table) => ({
+        ...table,
+        chairs: table.chairs.map((chair) =>
+          chair.orderId === order.orderID
+            ? { ...chair, booked: false, orderId: null }
+            : chair
+        ),
+      }));
+      setTables(updatedTables);
+      console.log(updatedTables);
+      // Update the Firestore document with the new tables data
+      const bookingDataDocRef = doc(db, "bookingData", hotelUID);
+      await updateDoc(bookingDataDocRef, {
+        tablesBooked: updatedTables,
+      });
+
       console.log("Order cancelled successfully");
     } catch (error) {
       console.error("Error cancelling order:", error);
       console.log(JSON.stringify(error));
     }
   };
-
   const handlePayFoodItem = async (order) => {
     try {
       let orderDetails = { ...order };
@@ -239,12 +255,49 @@ const Orders = () => {
         ...orderDetails,
         orderStatus,
       });
-      console.log("Paid successfully");
+
+      // Update the local tables data to set booked to false based on orderId
+      const updatedTables = tables.map((table) => ({
+        ...table,
+        chairs: table.chairs.map((chair) =>
+          chair.orderId === order.orderID
+            ? { ...chair, booked: false, orderId: null }
+            : chair
+        ),
+      }));
+      setTables(updatedTables);
+      console.log(updatedTables);
+      // Update the Firestore document with the new tables data
+      const bookingDataDocRef = doc(db, "bookingData", hotelUID);
+      await updateDoc(bookingDataDocRef, {
+        tablesBooked: updatedTables,
+      });
+
+      console.log(
+        "Paid successfully and chair booking status updated in Firestore"
+      );
     } catch (error) {
       console.error("Error while payment:", error);
       console.log(JSON.stringify(error));
     }
   };
+
+  useEffect(() => {
+    const docRef = doc(db, "bookingData", hotelUID);
+    console.log(docRef);
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data().tablesBooked;
+        setTables(data);
+        console.log(data);
+      } else {
+        console.log("No such document!");
+      }
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []);
   // -------------------------------- RENDER UI --------------------------------
 
   return (
@@ -260,7 +313,7 @@ const Orders = () => {
         sx={{
           display: { xs: "block", md: "flex" },
           width: "100%",
-          justifyContent:"space-between"
+          justifyContent: "space-between",
         }}
       >
         <Box
