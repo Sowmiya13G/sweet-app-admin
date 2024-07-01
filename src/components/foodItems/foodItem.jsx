@@ -42,6 +42,7 @@ const SpecialOfferItem = ({
 
   // top recommend
   const handleCheckToggle = async (food) => {
+    console.log(food)
     try {
       const foodDoc = doc(db, "offers", food?.id);
       await updateDoc(foodDoc, {

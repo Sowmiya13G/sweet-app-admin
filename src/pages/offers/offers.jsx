@@ -85,7 +85,10 @@ const Offers = () => {
       try {
         const ordersCollection = collection(db, "offers");
         const unsubscribe = onSnapshot(ordersCollection, (orderSnapshot) => {
-          const ordersList = orderSnapshot.docs.map((doc) => doc.data());
+          const ordersList = orderSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
           console.log(ordersList);
           console.log(hotelUID);
 
