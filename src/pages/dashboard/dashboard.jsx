@@ -20,6 +20,7 @@ import {
 } from "recharts";
 import { db } from "../../firebaseConfig";
 import Loader from "../../components/loader/loader";
+import { useSelector } from "react-redux";
 
 const Dashboard = () => {
   const generateCurrentMonthData = (orders) => {
@@ -139,6 +140,8 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const yearlyChartData = generateMonthlyData(orderData);
   const weeklyChartData = generateCurrentMonthData(orderData);
+  const hotelData = useSelector((state) => state.auth.hotelData);
+  const hotelUID = hotelData[0]?.uid;
   // Calculate total available chairs
   const totalAvailableChairs = calculateTotalChairs(tablesData);
   console.log("Total available chairs:", totalAvailableChairs);
@@ -187,7 +190,7 @@ const Dashboard = () => {
     const fetchTablesBookedFromFirestore = async () => {
       try {
         setCusLoader(true);
-        const docRef = doc(db, "bookingData", "tablesBooked");
+        const docRef = doc(db, "bookingData", hotelUID);
         // Listen to real-time updates
         const unsubscribe = onSnapshot(docRef, (docSnap) => {
           if (docSnap.exists()) {
@@ -214,7 +217,7 @@ const Dashboard = () => {
       try {
         setCusLoader(true);
 
-        const ordersCollection = collection(db, "orders");
+        const ordersCollection = collection(db, `orders-${hotelUID}`);
         const unsubscribe = onSnapshot(ordersCollection, (orderSnapshot) => {
           const ordersList = orderSnapshot.docs.map((doc) => doc.data());
           console.log(ordersList);
