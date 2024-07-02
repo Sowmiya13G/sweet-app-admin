@@ -89,7 +89,7 @@ const HotelManagement = () => {
 
     try {
       const actionCodeSettings = {
-        url: `http://localhost:3000/completeRegistration?email=${encodeURIComponent(
+        url: `https://food-order-admin.vercel.app/completeRegistration?email=${encodeURIComponent(
           email
         )}&hotelName=${encodeURIComponent(hotelName)}`,
         handleCodeInApp: true,
