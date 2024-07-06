@@ -1,6 +1,6 @@
 import { Box, Button, Grid, Paper, TextField, Typography } from "@mui/material";
 import { sendSignInLinkToEmail } from "firebase/auth"; // Import auth methods
-import { collection, getDocs } from "firebase/firestore";
+import { collection, doc, getDocs, onSnapshot, updateDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -10,13 +10,21 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateHotelID } from "../../redux/reducers/authSlice";
 
 const HotelManagement = () => {
-  const disptach = useDispatch();
+  const dispatch = useDispatch();
+
   const [cusLoader, setCusLoader] = useState(false);
   const [hotelName, setHotelName] = useState("");
-  const [selectedHotel, setSelectedHotel] = useState(null);
   const [email, setEmail] = useState("");
+  const [editHotelName, seteditHotelName] = useState("");
+  const [selectedHotel, setSelectedHotel] = useState(null);
+  const [details, setDetails] = useState("");
+  const [title, setTitle] = useState("");
+  const [subTitle, setSubTitle] = useState("");
+
   const [password, setPassword] = useState("");
   const [hotels, setHotels] = useState([]);
+  const [editMode, setEditMode] = useState(false); // State for edit mode
+
   const hotelDetails = useSelector((state) => state.auth.hotelID);
   const navigate = useNavigate();
   console.log(hotelDetails);
@@ -60,25 +68,32 @@ const HotelManagement = () => {
   // -------------------------------- FUNCTIONALITIES --------------------------------
 
   useEffect(() => {
-    const fetchHotels = async () => {
-      setCusLoader(true);
-      const querySnapshot = await getDocs(collection(db, "hotels"));
-      const hotelsList = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+    const unsubscribe = onSnapshot(collection(db, "hotels"), (querySnapshot) => {
+      let hotelsList = [];
+      querySnapshot.forEach((doc) => {
+        hotelsList.push({
+          id: doc.id,
+          ...doc.data(),
+        });
+      });
+
       setHotels(hotelsList);
-      const filterHotelList = hotelsList.filter((x) => x.uid === hotelDetails);
-      setSelectedHotel(filterHotelList[0]);
 
-      setCusLoader(false);
-    };
+      // If hotelDetails is set, filter the hotels list
+      if (hotelDetails) {
+        const filterHotelList = hotelsList.filter((x) => x.uid === hotelDetails);
+        setSelectedHotel(filterHotelList[0]);
+      }
 
-    fetchHotels();
+      setCusLoader(false); // Set loading state to false after data fetch
+    });
+
+    // Cleanup function to unsubscribe from the snapshot listener
+    return () => unsubscribe();
   }, [hotelDetails]);
 
   const handleHotelClick = (item) => {
-    disptach(updateHotelID(item?.uid));
+    dispatch(updateHotelID(item?.uid));
   };
 
   const handleSendVerificationEmail = async () => {
@@ -131,30 +146,71 @@ const HotelManagement = () => {
     </Paper>
   );
 
+  // Handler to save hotel details to Firestore
+  const handleSaveHotelDetails = async () => {
+    try {
+      const hotelDocRef = doc(db, "hotels", selectedHotel.id); // Reference the hotel document
+
+      // Perform the update operation on the document reference
+      await updateDoc(hotelDocRef, {
+        name: editHotelName,
+        details: details,
+        title,
+        subTitle,
+      });
+
+      // If update succeeds, show a success message to the user
+      toast.success("Hotel details updated successfully!");
+    } catch (error) {
+      // If any error occurs during the update operation, log the error and show an error message
+      console.error("Error updating hotel details:", error);
+      toast.error(`Error updating hotel details: ${error.message}`);
+    }
+  };
+  const handleEdit = () => {
+    setEditMode(true);
+    seteditHotelName(selectedHotel.name);
+    setDetails(selectedHotel.details);
+  };
   const hotelDetailsListBox = () => (
     <Paper elevation={6} sx={categoriesStyle}>
       <Typography variant="h6">Selected Hotel Details</Typography>
       <TextField
         label="Hotel Name"
-        value={selectedHotel.name}
-        // onChange={(e) => setHotelName(e.target.value)}
+        value={editMode ? editHotelName : selectedHotel.name}
+        onChange={(e) => seteditHotelName(e.target.value)}
         fullWidth
-        disabled
         margin="normal"
+        disabled={!editMode}
       />
       <TextField
         label="Details"
-        value={selectedHotel.details}
-        // onChange={(e) => setEmail(e.target.value)}
+        value={editMode ? details : selectedHotel.details}
+        onChange={(e) => setDetails(e.target.value)}
         fullWidth
-        disabled
         margin="normal"
+        disabled={!editMode}
+      />
+      <TextField
+        label="Title"
+        value={editMode ? title : selectedHotel.title}
+        onChange={(e) => setTitle(e.target.value)}
+        fullWidth
+        margin="normal"
+        disabled={!editMode}
+      />
+      <TextField
+        label="SubTitle"
+        value={editMode ? subTitle : selectedHotel.subTitle}
+        onChange={(e) => setSubTitle(e.target.value)}
+        fullWidth
+        margin="normal"
+        disabled={!editMode}
       />
 
       <TextField
         label="Email"
         value={selectedHotel.emailId}
-        // onChange={(e) => setEmail(e.target.value)}
         fullWidth
         margin="normal"
         disabled
@@ -162,11 +218,29 @@ const HotelManagement = () => {
       <TextField
         label="Hotel-ID"
         value={selectedHotel.uid}
-        // onChange={(e) => setEmail(e.target.value)}
         fullWidth
         margin="normal"
         disabled
       />
+      {editMode ? (
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSaveHotelDetails}
+          sx={{ mt: 2 }}
+        >
+          Save
+        </Button>
+      ) : (
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => handleEdit()}
+          sx={{ mt: 2 }}
+        >
+          Edit Details
+        </Button>
+      )}
     </Paper>
   );
   console.log(selectedHotel);
