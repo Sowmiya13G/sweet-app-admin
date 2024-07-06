@@ -1,6 +1,12 @@
 import { Box, Button, Grid, Paper, TextField, Typography } from "@mui/material";
 import { sendSignInLinkToEmail } from "firebase/auth"; // Import auth methods
-import { collection, doc, getDocs, onSnapshot, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDocs,
+  onSnapshot,
+  updateDoc,
+} from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -68,25 +74,30 @@ const HotelManagement = () => {
   // -------------------------------- FUNCTIONALITIES --------------------------------
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "hotels"), (querySnapshot) => {
-      let hotelsList = [];
-      querySnapshot.forEach((doc) => {
-        hotelsList.push({
-          id: doc.id,
-          ...doc.data(),
+    const unsubscribe = onSnapshot(
+      collection(db, "hotels"),
+      (querySnapshot) => {
+        let hotelsList = [];
+        querySnapshot.forEach((doc) => {
+          hotelsList.push({
+            id: doc.id,
+            ...doc.data(),
+          });
         });
-      });
 
-      setHotels(hotelsList);
+        setHotels(hotelsList);
 
-      // If hotelDetails is set, filter the hotels list
-      if (hotelDetails) {
-        const filterHotelList = hotelsList.filter((x) => x.uid === hotelDetails);
-        setSelectedHotel(filterHotelList[0]);
+        // If hotelDetails is set, filter the hotels list
+        if (hotelDetails) {
+          const filterHotelList = hotelsList.filter(
+            (x) => x.uid === hotelDetails
+          );
+          setSelectedHotel(filterHotelList[0]);
+        }
+
+        setCusLoader(false); // Set loading state to false after data fetch
       }
-
-      setCusLoader(false); // Set loading state to false after data fetch
-    });
+    );
 
     // Cleanup function to unsubscribe from the snapshot listener
     return () => unsubscribe();
@@ -161,6 +172,7 @@ const HotelManagement = () => {
 
       // If update succeeds, show a success message to the user
       toast.success("Hotel details updated successfully!");
+      setEditMode(false);
     } catch (error) {
       // If any error occurs during the update operation, log the error and show an error message
       console.error("Error updating hotel details:", error);
