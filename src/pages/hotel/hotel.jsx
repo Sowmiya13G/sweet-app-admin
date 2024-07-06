@@ -183,6 +183,9 @@ const HotelManagement = () => {
     setEditMode(true);
     seteditHotelName(selectedHotel.name);
     setDetails(selectedHotel.details);
+    setTitle(selectedHotel?.title)
+    setSubTitle(selectedHotel?.subTitle)
+
   };
   const hotelDetailsListBox = () => (
     <Paper elevation={6} sx={categoriesStyle}>
