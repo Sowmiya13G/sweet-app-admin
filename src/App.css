@@ -1,9 +1,8 @@
 .sidebar {
-  display: block; /* Default display for all screens */
+  display: block; 
 }
 @media (max-width: 768px) {
-  /* Hide on screens smaller than 768px (adjust as needed) */
   .sidebar {
-    display: block; /* Default display for all screens */
+    display: block;
   }
 }

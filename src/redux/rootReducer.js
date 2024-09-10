@@ -6,7 +6,6 @@ const rootReducer = combineReducers({
   auth:authSlice,
   cart: cartSlice,
   order:orderSlice
-
 });
 
 export default rootReducer;

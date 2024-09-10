@@ -1,24 +1,26 @@
 import React, { useState } from "react";
+
+// mui components
+import FoodBankIcon from "@mui/icons-material/FoodBank";
+import MenuIcon from "@mui/icons-material/Menu";
+import NotificationsIcon from "@mui/icons-material/Notifications";
 import {
+  Badge,
   Box,
   CssBaseline,
-  ListItemIcon,
+  IconButton,
   Toolbar,
   Typography,
-  IconButton,
-  Badge,
 } from "@mui/material";
+
+// custom components
 import Sidebar from "./sideBar/sideBar";
-import MenuIcon from "@mui/icons-material/Menu";
-import CloseIcon from "@mui/icons-material/Close";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
-import { useSelector } from "react-redux";
-import FoodBankIcon from "@mui/icons-material/FoodBank";
+
 const Layout = ({ children }) => {
-  const [isOpen, setIsOpen] = useState(false); // State to track sidebar visibility
-  const superAdmin = useSelector((state) => state.auth.isuperAdmin);
-  const hotelData = useSelector((state) => state.auth.hotelData);
+  // local states
+  const [isOpen, setIsOpen] = useState(false);
+
+  // functions
   const handleToggleSidebar = () => {
     setIsOpen(false);
   };
@@ -57,28 +59,20 @@ const Layout = ({ children }) => {
               <MenuIcon style={{ color: "white" }} sx={{ fontSize: 30 }} />
             </IconButton>
 
-            {superAdmin ? (
-              <Typography variant="h6" sx={{ marginX: 2 }} noWrap>
-                Super Admin
-              </Typography>
-            ) : (
-              <Typography
-                variant="h6"
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  // justifyContent: "center",
-                }}
-                noWrap
-              >
-                <FoodBankIcon
-                  style={{ color: "white" }}
-                  sx={{ fontSize: 30, marginRight: 2 }}
-                />
-
-                {hotelData ? hotelData[0].name : "Foodie"}
-              </Typography>
-            )}
+            <Typography
+              variant="h6"
+              sx={{
+                display: "flex",
+                alignItems: "center",
+              }}
+              noWrap
+            >
+              <FoodBankIcon
+                style={{ color: "white" }}
+                sx={{ fontSize: 30, marginRight: 2 }}
+              />
+              Then Mittai
+            </Typography>
           </div>
 
           <Badge badgeContent={400} overlap="circular" color="success">

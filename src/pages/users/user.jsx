@@ -16,52 +16,22 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
-  Paper,
-  Typography,
-  TextField,
   OutlinedInput,
+  Paper,
+  Typography
 } from "@mui/material";
-
-// firebase
-import { collection, onSnapshot } from "firebase/firestore";
-
-// firebase services
-import { db } from "../../firebaseConfig";
-import { useSelector } from "react-redux";
 
 const Users = () => {
   // local states
   const [orderIDCard, setOrderIDCard] = useState("");
   const [orderData, setOrderData] = useState([]);
-  const [ordersCount, setOrdersCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
-  const hotelData = useSelector((state) => state.auth.hotelData);
-  const hotelUID = hotelData[0]?.uid;
   // -------------------------------- USE EFFECTS --------------------------------
 
   useEffect(() => {
     const fetchOrderData = () => {
       try {
-        const ordersCollection = collection(db, `orders-${hotelUID}`);
-        const unsubscribe = onSnapshot(ordersCollection, (orderSnapshot) => {
-          const ordersList = orderSnapshot.docs
-            .sort(
-              (a, b) => b.data().orderTime.seconds - a.data().orderTime.seconds
-            ) // Ensure correct property access
-            .map((doc) => doc.data());
-
-          const hotelOrders = ordersList.filter(
-            (data) => data?.hotelId === hotelUID
-          );
-          if (hotelOrders.length) {
-            setOrderData(hotelOrders);
-            setOrderIDCard(hotelOrders[0].phoneNumber);
-            setOrdersCount(hotelOrders.length);
-          }
-        });
-
-        // Cleanup subscription on unmount
-        return () => unsubscribe();
+        // write logic to fetch data
       } catch (error) {
         console.error("Error fetching order data: ", error);
       }
@@ -105,8 +75,8 @@ const Users = () => {
     "&::-webkit-scrollbar-thumb": {
       backgroundColor: "transparent",
     },
-    "-ms-overflow-style": "none", // IE and Edge
-    "scrollbar-width": "none", // Firefox
+    "-ms-overflow-style": "none", 
+    "scrollbar-width": "none", 
   };
 
   const iconContainerStyle = {
@@ -116,7 +86,7 @@ const Users = () => {
     alignItems: "center",
     justifyContent: "space-around",
     borderRadius: 2,
-    backgroundColor: "#00000011", // Adjust opacity for background color
+    backgroundColor: "#00000011", 
     marginBottom: 1,
   };
   const textalignCenter = {
@@ -243,8 +213,8 @@ const Users = () => {
             sx={{
               width: "100%",
               height: 460,
-              textAlign:"center",
-              mt:"30%"
+              textAlign: "center",
+              mt: "30%",
             }}
           >
             No Users

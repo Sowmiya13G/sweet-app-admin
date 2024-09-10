@@ -1,39 +1,38 @@
 import React, { useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+
+// mui components
+import ContentPasteSearchIcon from "@mui/icons-material/ContentPasteSearch";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import DinnerDiningIcon from "@mui/icons-material/DinnerDining";
+import LocalOfferIcon from "@mui/icons-material/LocalOffer";
+import PeopleIcon from "@mui/icons-material/People";
+import PlaceIcon from "@mui/icons-material/Place";
 import {
   Drawer,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
-  Toolbar,
-  Typography,
 } from "@mui/material";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import PeopleIcon from "@mui/icons-material/People";
-import ContentPasteSearchIcon from "@mui/icons-material/ContentPasteSearch";
-import DinnerDiningIcon from "@mui/icons-material/DinnerDining";
-import TableBarIcon from "@mui/icons-material/TableBar";
-import LocalOfferIcon from "@mui/icons-material/LocalOffer";
-import PlaceIcon from "@mui/icons-material/Place";
-import { signOut } from "firebase/auth";
-import { auth } from "../../firebaseConfig";
+
+// custom components
+
+// firebase
+
+// other packages
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom";
-import CorporateFareIcon from "@mui/icons-material/CorporateFare";
-import { useSelector } from "react-redux";
+
 const Sidebar = ({ open, setOpen }) => {
-  const [isOpen, setIsOpen] = React.useState(false); // State for sidebar visibility
-  const [selectedLink, setSelectedLink] = React.useState(""); // State to track selected link
+  // local states
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [selectedLink, setSelectedLink] = React.useState("");
   const navigate = useNavigate();
   const location = useLocation();
-  const superAdmin = useSelector((state) => state.auth.isuperAdmin);
-  console.log(superAdmin);
-  const hotelData = useSelector((state) => state.auth.hotelData);
-  console.log(hotelData, "hotel");
+
   useEffect(() => {
-    setSelectedLink(location.pathname); // Update selected link based on current path
+    setSelectedLink(location.pathname);
   }, [location]);
 
   const drawerWidth = open ? "80%" : 240;
@@ -52,11 +51,11 @@ const Sidebar = ({ open, setOpen }) => {
   useEffect(() => {
     setIsOpen(open);
   }, [open]);
+  
   const handleLogout = async () => {
     try {
-      await signOut(auth);
       toast.success("Logout successful");
-      navigate("/login"); // Navigate to /login after logout
+      navigate("/login");
     } catch (error) {
       toast.error(`Error: ${error.message}`);
     }
@@ -94,7 +93,7 @@ const Sidebar = ({ open, setOpen }) => {
             height: "70px",
             borderRadius: "15px",
             backgroundColor:
-              selectedLink === "/dashboard" ? "#d79f11" : "transparent", // Set background color to gold (hex code #d79f11) for selected link
+              selectedLink === "/dashboard" ? "#d79f11" : "transparent",
           }}
           selected={selectedLink === "/dashboard"}
           onClick={() => handleClick("/dashboard")}
@@ -108,31 +107,6 @@ const Sidebar = ({ open, setOpen }) => {
             primary="Dashboard"
           />
         </ListItem>
-        {superAdmin && (
-          <ListItem
-            button
-            component={Link}
-            to="/hotels"
-            style={{
-              margin: "15px",
-              height: "70px",
-              borderRadius: "15px",
-              backgroundColor:
-                selectedLink === "/hotels" ? "#d79f11" : "transparent", // Set background color to gold (hex code #d79f11) for selected link
-            }}
-            selected={selectedLink === "/hotels"}
-            onClick={() => handleClick("/hotels")}
-          >
-            {" "}
-            <ListItemIcon>
-              <CorporateFareIcon style={{ color: "white" }} />
-            </ListItemIcon>
-            <ListItemText
-              style={{ display: isOpen ? "flex" : "none" }}
-              primary="Hotels Management"
-            />
-          </ListItem>
-        )}
         <ListItem
           button
           component={Link}
@@ -142,7 +116,7 @@ const Sidebar = ({ open, setOpen }) => {
             height: "70px",
             borderRadius: "15px",
             backgroundColor:
-              selectedLink === "/categories" ? "#d79f11" : "transparent", // Set background color to gold (hex code #d79f11) for selected link
+              selectedLink === "/categories" ? "#d79f11" : "transparent",
           }}
           onClick={() => handleClick("/categories")}
         >
@@ -185,7 +159,7 @@ const Sidebar = ({ open, setOpen }) => {
             height: "70px",
             borderRadius: "15px",
             backgroundColor:
-              selectedLink === "/orders" ? "#d79f11" : "transparent", // Set background color to gold (hex code #d79f11) for selected link
+              selectedLink === "/orders" ? "#d79f11" : "transparent",
           }}
           onClick={() => handleClick("/orders")}
         >
@@ -197,27 +171,6 @@ const Sidebar = ({ open, setOpen }) => {
             primary="Order List"
           />
         </ListItem>
-        {/*   <ListItem
-          button
-          component={Link}
-          to="/tables"
-          style={{
-            margin: "15px",
-            height: "70px",
-            borderRadius: "15px",
-            backgroundColor:
-              selectedLink === "/tables" ? "#d79f11" : "transparent", // Set background color to gold (hex code #d79f11) for selected link
-          }}
-          onClick={() => handleClick("/tables")}
-        >
-          <ListItemIcon>
-            <TableBarIcon style={{ color: "white" }} />
-          </ListItemIcon>
-          <ListItemText
-            style={{ display: isOpen ? "flex" : "none" }}
-            primary="Tables"
-          />
-        </ListItem>*/}
         <ListItem
           button
           component={Link}
@@ -227,7 +180,7 @@ const Sidebar = ({ open, setOpen }) => {
             height: "70px",
             borderRadius: "15px",
             backgroundColor:
-              selectedLink === "/users" ? "#d79f11" : "transparent", // Set background color to gold (hex code #d79f11) for selected link
+              selectedLink === "/users" ? "#d79f11" : "transparent",
           }}
           onClick={() => handleClick("/users")}
         >
@@ -248,7 +201,7 @@ const Sidebar = ({ open, setOpen }) => {
             height: "70px",
             borderRadius: "15px",
             backgroundColor:
-              selectedLink === "/location" ? "#d79f11" : "transparent", // Set background color to gold (hex code #d79f11) for selected link
+              selectedLink === "/location" ? "#d79f11" : "transparent",
           }}
           onClick={() => handleClick("/location")}
         >
@@ -269,7 +222,7 @@ const Sidebar = ({ open, setOpen }) => {
             height: "70px",
             borderRadius: "15px",
             backgroundColor:
-              selectedLink === "/logout" ? "#d79f11" : "transparent", // Set background color to gold (hex code #d79f11) for selected link
+              selectedLink === "/logout" ? "#d79f11" : "transparent",
           }}
           onClick={() => handleLogout("/logout")}
         >

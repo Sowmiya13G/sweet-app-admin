@@ -3,6 +3,7 @@ import EventSeatIcon from "@mui/icons-material/EventSeat";
 import { Box, Divider, Grid, Paper, Typography } from "@mui/material";
 import { collection, doc, onSnapshot } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
   Area,
@@ -18,9 +19,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { db } from "../../firebaseConfig";
 import Loader from "../../components/loader/loader";
-import { useSelector } from "react-redux";
+import { db } from "../../firebaseConfig";
 
 const Dashboard = () => {
   const generateCurrentMonthData = (orders) => {
@@ -144,8 +144,6 @@ const Dashboard = () => {
   const hotelUID = hotelData[0]?.uid;
   // Calculate total available chairs
   const totalAvailableChairs = calculateTotalChairs(tablesData);
-  console.log("Total available chairs:", totalAvailableChairs);
-  console.log(tablesData);
   const salesMap = {};
 
   orderData.forEach((order) => {
@@ -190,20 +188,7 @@ const Dashboard = () => {
     const fetchTablesBookedFromFirestore = async () => {
       try {
         setCusLoader(true);
-        const docRef = doc(db, "bookingData", hotelUID);
-        // Listen to real-time updates
-        const unsubscribe = onSnapshot(docRef, (docSnap) => {
-          if (docSnap.exists()) {
-            const data = docSnap.data().tablesBooked;
-            setTables(data);
-            setCusLoader(false);
-          } else {
-            console.log("No such document!");
-          }
-        });
-
-        // Cleanup subscription on unmount
-        return () => unsubscribe();
+        // write logic to fetch data
       } catch (error) {
         console.error("Error fetching data from Firestore: ", error);
       }
@@ -216,17 +201,7 @@ const Dashboard = () => {
     const fetchOrderData = () => {
       try {
         setCusLoader(true);
-
-        const ordersCollection = collection(db, `orders-${hotelUID}`);
-        const unsubscribe = onSnapshot(ordersCollection, (orderSnapshot) => {
-          const ordersList = orderSnapshot.docs.map((doc) => doc.data());
-          console.log(ordersList);
-          setOrdersCount(ordersList.length);
-          setOrderData(ordersList);
-          setCusLoader(false);
-        });
-
-        return () => unsubscribe();
+        // write logic to fetch data
       } catch (error) {
         console.error("Error fetching order data: ", error);
       }
@@ -239,15 +214,7 @@ const Dashboard = () => {
     const fetchFoodList = () => {
       try {
         setCusLoader(true);
-
-        const foodCollection = collection(db, "foodList");
-        const unsubscribe = onSnapshot(foodCollection, (foodSnapshot) => {
-          const foodList = foodSnapshot.docs.map((doc) => doc.data());
-          setFoodList(foodList);
-          setCusLoader(false);
-        });
-
-        return () => unsubscribe();
+        // write logic to fetch data
       } catch (error) {
         console.error("Error fetching food list: ", error);
       }
@@ -611,7 +578,7 @@ const Dashboard = () => {
             justifyContent: "center",
             gap: 2,
             mt: 2,
-            height:"80vh",
+            height: "80vh",
             p: { xs: 0, md: 2 },
           }}
         >

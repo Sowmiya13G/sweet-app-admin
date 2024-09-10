@@ -23,42 +23,23 @@ import {
   Typography,
 } from "@mui/material";
 
-// firebase
-import {
-  collection,
-  doc,
-  getDoc,
-  onSnapshot,
-  updateDoc,
-} from "firebase/firestore";
-
-// firebase service
-import { db } from "../../firebaseConfig";
-
 // component
 import TabBar from "../../components/tabBar/tabBar";
 
 // assets
 import foodOnPlate1 from "../../assets/images/plateOnfood1.png";
-import sadEmoji from "../../assets/images/sadEmoji.png";
-
 import emptyPlate from "../../assets/images/emptyPlate.png";
 
 // styles
 import "./style.css";
-import { useSelector } from "react-redux";
 
 const Orders = () => {
   const [orderData, setOrderData] = useState([]);
   const [selectedTab, setSelectedTab] = useState("Current");
   const [orderIDCard, setOrderIDCard] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [tablesBooked, setTablesBooked] = useState([]);
   const [currentTabIndex, setCurrentTabIndex] = useState(1);
   const [loader, setLoader] = useState(true);
-  const [tables, setTables] = useState([]);
-  const hotelData = useSelector((state) => state.auth.hotelData);
-  const hotelUID = hotelData[0]?.uid;
 
   const tabs = [
     // { tbName: "All", id: 1 },
@@ -80,27 +61,9 @@ const Orders = () => {
     const fetchOrderData = () => {
       try {
         setLoader(true);
-        const ordersCollection = collection(db, `orders-${hotelUID}`);
-        const unsubscribe = onSnapshot(ordersCollection, (orderSnapshot) => {
-          const ordersList = orderSnapshot.docs
-            .sort(
-              (a, b) => b.data().orderTime.seconds - a.data().orderTime.seconds
-            ) // Ensure correct property access
-            .map((doc) => doc.data());
-          const hotelOrders = ordersList.filter(
-            (data) => data?.hotelId === hotelUID
-          );
-          if (hotelOrders.length) {
-            setOrderData(hotelOrders);
-            setOrderIDCard(hotelOrders[0].orderID);
-          }
-        });
-        setTimeout(() => {
-          setLoader(false);
-        }, 1000);
+        // write logic to fetch data
 
-        // Cleanup subscription on unmount
-        return () => unsubscribe();
+
       } catch (error) {
         console.error("Error fetching order data: ", error);
       }
@@ -215,31 +178,7 @@ const Orders = () => {
 
   const handleCancelFoodItem = async (order) => {
     try {
-      let orderDetails = { ...order };
-      // let orderStatus = 3;
-      const orderDocRef = doc(db, `orders-${hotelUID}`, order?.orderID);
-      await updateDoc(orderDocRef, {
-        ...orderDetails,
-        orderStatus: 3,
-      });
-
-      // Update the local tables data to set booked to false based on orderId
-      const updatedTables = tables.map((table) => ({
-        ...table,
-        chairs: table.chairs.map((chair) =>
-          chair.orderId === order.orderID
-            ? { ...chair, booked: false, orderId: null }
-            : chair
-        ),
-      }));
-      setTables(updatedTables);
-      console.log(updatedTables);
-      // Update the Firestore document with the new tables data
-      const bookingDataDocRef = doc(db, "bookingData", hotelUID);
-      await updateDoc(bookingDataDocRef, {
-        tablesBooked: updatedTables,
-      });
-
+      // write logic to cancel
       console.log("Order cancelled successfully");
     } catch (error) {
       console.error("Error cancelling order:", error);
@@ -248,31 +187,7 @@ const Orders = () => {
   };
   const handlePayFoodItem = async (order) => {
     try {
-      let orderDetails = { ...order };
-      let orderStatus = 2;
-      const orderDocRef = doc(db, `orders-${hotelUID}`, order?.orderID);
-      await updateDoc(orderDocRef, {
-        ...orderDetails,
-        orderStatus,
-      });
-
-      // Update the local tables data to set booked to false based on orderId
-      const updatedTables = tables.map((table) => ({
-        ...table,
-        chairs: table.chairs.map((chair) =>
-          chair.orderId === order.orderID
-            ? { ...chair, booked: false, orderId: null }
-            : chair
-        ),
-      }));
-      setTables(updatedTables);
-      console.log(updatedTables);
-      // Update the Firestore document with the new tables data
-      const bookingDataDocRef = doc(db, "bookingData", hotelUID);
-      await updateDoc(bookingDataDocRef, {
-        tablesBooked: updatedTables,
-      });
-
+      // write logic for payment
       console.log(
         "Paid successfully and chair booking status updated in Firestore"
       );
@@ -282,22 +197,22 @@ const Orders = () => {
     }
   };
 
-  useEffect(() => {
-    const docRef = doc(db, "bookingData", hotelUID);
-    console.log(docRef);
-    const unsubscribe = onSnapshot(docRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data().tablesBooked;
-        setTables(data);
-        console.log(data);
-      } else {
-        console.log("No such document!");
-      }
-    });
+  // useEffect(() => {
+  //   const docRef = doc(db, "bookingData", hotelUID);
+  //   console.log(docRef);
+  //   const unsubscribe = onSnapshot(docRef, (docSnap) => {
+  //     if (docSnap.exists()) {
+  //       const data = docSnap.data().tablesBooked;
+  //       setTables(data);
+  //       console.log(data);
+  //     } else {
+  //       console.log("No such document!");
+  //     }
+  //   });
 
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
-  }, []);
+  //   // Cleanup subscription on unmount
+  //   return () => unsubscribe();
+  // }, []);
   // -------------------------------- RENDER UI --------------------------------
 
   return (
@@ -321,7 +236,6 @@ const Orders = () => {
             width: { xs: "100%", md: "34%" },
             height: { xs: 400, md: 600 },
             py: 2,
-            // mx:1,
             backgroundColor: "#fff",
             borderRadius: 2,
           }}
@@ -396,9 +310,6 @@ const Orders = () => {
                             orderIDCard === order.orderID
                               ? "5px solid #22222E"
                               : "none",
-                          // backgroundColor:
-                          //   orderIDCard === order.orderID ? "#22222e" : "#00000011",
-                          // color: orderIDCard === order.orderID ? "#fff" : "#000",
                           px: 2,
                           transition:
                             "background-color 0.2s ease-in-out, color 0.2s ease-in-out , border-left 0.2s ease-in-out",
@@ -410,9 +321,6 @@ const Orders = () => {
                         <Typography sx={{ fontWeight: "bold", fontSize: 16 }}>
                           # Order ID: {order.orderID}
                         </Typography>
-                        {/* <ArrowCircleRightIcon
-                    sx={{ ...iconStyle, color: "#626fa0", mb: 0 }}
-                  /> */}
                       </Box>
                     </Paper>
                   ))

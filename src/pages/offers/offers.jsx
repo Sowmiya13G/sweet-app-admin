@@ -5,7 +5,6 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import {
   Box,
   Button,
-  Checkbox,
   Chip,
   CircularProgress,
   Divider,
@@ -17,22 +16,9 @@ import {
   Typography,
 } from "@mui/material";
 
-// firebase
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  onSnapshot,
-  updateDoc,
-} from "firebase/firestore";
-// firebase service
-import { db } from "../../firebaseConfig";
-
 //packages
-import SpecialOfferItem from "../../components/foodItems/foodItem";
 import { Toaster } from "react-hot-toast";
-import { useSelector } from "react-redux";
+import SpecialOfferItem from "../../components/foodItems/foodItem";
 
 const Offers = () => {
   // local states
@@ -54,54 +40,14 @@ const Offers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCard, setSelectedCard] = useState(null);
   const [edit, setEdit] = useState(false);
-  const hotelData = useSelector((state) => state.auth.hotelData);
-  const hotelUID = hotelData[0]?.uid;
 
   // -------------------------------- USE EFFECTS --------------------------------
   useEffect(() => {
     const fetchOrderData = () => {
       try {
-        const ordersCollection = collection(db, "foodList");
-        const unsubscribe = onSnapshot(ordersCollection, (orderSnapshot) => {
-          const ordersList = orderSnapshot.docs.map((doc) => doc.data());
-          const filterofferList = ordersList.filter(
-            (data) => data?.hotelId === hotelUID
-          );
-          setFoods(filterofferList);
-        });
+        // write logic to fetch data
 
-        // Cleanup subscription on unmount
-        return () => unsubscribe();
-      } catch (error) {
-        console.error("Error fetching order data: ", error);
-      }
-    };
 
-    fetchOrderData();
-  }, []);
-
-  useEffect(() => {
-    const fetchOrderData = () => {
-      try {
-        const ordersCollection = collection(db, "offers");
-        const unsubscribe = onSnapshot(ordersCollection, (orderSnapshot) => {
-          const ordersList = orderSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          console.log(ordersList);
-          console.log(hotelUID);
-
-          const filterofferList = ordersList.filter(
-            (data) => data?.hotelId === hotelUID
-          );
-          console.log(filterofferList);
-
-          setFoodList(filterofferList);
-        });
-
-        // Cleanup subscription on unmount
-        return () => unsubscribe();
       } catch (error) {
         console.error("Error fetching order data: ", error);
       }
@@ -235,21 +181,7 @@ const Offers = () => {
       try {
         let updatedFoodDetails = { ...foodDetails }; // Create a copy of foodDetails
 
-        // Check if the food type is "combo" and comboImages array has items
-        if (foodDetails.type == "combo" && comboImages.length > 0) {
-          updatedFoodDetails.img = comboImages; // Update img property with comboImages
-        }
-
-        // Calculate price after offer using a function
-        const priceAfterOffer = calculateAfterOfferPrice();
-
-        // Add foodDetails to Firestore collection "offers" with additional priceAfterOffer property
-        await addDoc(collection(db, "offers"), {
-          ...updatedFoodDetails,
-          priceAfterOffer,
-          hotelId: hotelUID,
-        });
-
+        // write logic to add food
         // Reset foodDetails state to initial values after adding to Firestore
         setFoodDetails({
           dishName: "",
@@ -369,18 +301,7 @@ const Offers = () => {
       try {
         let updatedFoodDetails = { ...foodDetails }; // Create a copy of foodDetails
 
-        // Check if the food type is "combo" and comboImages array has items
-        if (foodDetails.type == "combo" && comboImages.length > 0) {
-          updatedFoodDetails.img = comboImages; // Update img property with comboImages
-        }
-
-        const priceAfterOffer = calculateAfterOfferPrice();
-        const foodDocRef = doc(db, "offers", selectedCard?.id);
-        await updateDoc(foodDocRef, {
-          ...updatedFoodDetails,
-          priceAfterOffer,
-          hotelId: hotelUID,
-        });
+        // write logic to update
         setSelectedCard(null);
         setFoodDetails({
           dishName: "",
@@ -408,8 +329,7 @@ const Offers = () => {
 
   const handleDeleteFood = async (food) => {
     try {
-      const foodDoc = doc(db, "offers", food?.id);
-      await deleteDoc(foodDoc);
+      // write logic to delete
       setSelectedCard(null);
     } catch (e) {
       console.error("Error deleting food item: ", e);

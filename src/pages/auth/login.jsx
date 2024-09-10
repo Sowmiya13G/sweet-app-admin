@@ -1,37 +1,30 @@
-import React, { useState } from "react";
-import { auth } from "../../firebaseConfig";
-import {
-  createUserWithEmailAndPassword,
-  sendPasswordResetEmail,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Box,
   Button,
   Grid,
-  TextField,
-  Typography,
-  Link,
   IconButton,
   InputAdornment,
+  Link,
+  TextField,
+  Typography,
 } from "@mui/material";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom";
 
 const Auth = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [username, setUsername] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+   // write logic to login
       toast.success("Login successful");
       navigate("/dashboard");
     } catch (error) {
@@ -49,7 +42,7 @@ const Auth = () => {
 
   const handleForgotPassword = async () => {
     try {
-      await sendPasswordResetEmail(auth, email);
+      // logic to reset password
       toast.success("Password reset email sent. Please check your email.");
     } catch (error) {
       toast.error(`Error sending reset email: ${error.message}`);
@@ -69,9 +62,9 @@ const Auth = () => {
       },
     },
     "& .MuiInputLabel-root": {
-      color: "#fff", // Default label color
+      color: "#fff", 
       "&.Mui-focused": {
-        color: "#fff", // Label color when focused
+        color: "#fff", 
       },
     },
     "& .MuiInputBase-input": {
@@ -87,7 +80,6 @@ const Auth = () => {
         alignItems: "center",
         justifyContent: "center",
         height: "100vh",
-        // bgcolor: "#333",
         padding: { xs: 2, md: 0 },
       }}
     >

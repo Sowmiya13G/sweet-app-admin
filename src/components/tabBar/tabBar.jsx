@@ -1,7 +1,14 @@
 import React from "react";
+
+// mui components
 import { Box, Paper, Typography } from "@mui/material";
 
 const TabBar = ({ tabs, selectedTab, setSelectedTab, fontSize }) => {
+  // functions
+  const handleTabSelect = (id) => {
+    setSelectedTab(id);
+  };
+  // styles
   const tabContainer = {
     display: "flex",
     width: "100%",
@@ -21,10 +28,6 @@ const TabBar = ({ tabs, selectedTab, setSelectedTab, fontSize }) => {
     cursor: "pointer",
     transition:
       "transform 0.3s ease, background-color 0.3s ease, color 0.3s ease",
-  };
-
-  const handleTabSelect = (id) => {
-    setSelectedTab(id);
   };
 
   return (

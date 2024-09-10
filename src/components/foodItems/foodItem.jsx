@@ -5,18 +5,9 @@ import BorderColorIcon from "@mui/icons-material/BorderColor";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Box, Button, Checkbox, IconButton, Typography } from "@mui/material";
 
-// firestore
-import { doc, updateDoc } from "firebase/firestore";
-
 // packages
 import { toast } from "react-hot-toast";
 import { useSwipeable } from "react-swipeable";
-
-// fb services
-import { db } from "../../firebaseConfig";
-
-// styles
-import "./style.css";
 
 const SpecialOfferItem = ({
   food,
@@ -42,12 +33,9 @@ const SpecialOfferItem = ({
 
   // top recommend
   const handleCheckToggle = async (food) => {
-    console.log(food)
+    console.log(food);
     try {
-      const foodDoc = doc(db, "offers", food?.id);
-      await updateDoc(foodDoc, {
-        topRec: !food.topRec,
-      });
+      // write logic for update item
       toast.success("Updated successfully");
       console.log("updated successfully");
     } catch (e) {

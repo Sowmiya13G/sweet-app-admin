@@ -22,8 +22,7 @@ import {
   collection,
   deleteDoc,
   doc,
-  onSnapshot,
-  updateDoc,
+  updateDoc
 } from "firebase/firestore";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 
@@ -34,11 +33,11 @@ import { db } from "../../firebaseConfig";
 import TabBar from "../../components/tabBar/tabBar";
 
 // icons
-import nonVegIcon from "../../assets/images/nonVeg.png";
-import vegIcon from "../../assets/images/veg.png";
-import plusIcon from "../../assets/images/plus.png";
-import Loader from "../../components/loader/loader";
 import { useSelector } from "react-redux";
+import nonVegIcon from "../../assets/images/nonVeg.png";
+import plusIcon from "../../assets/images/plus.png";
+import vegIcon from "../../assets/images/veg.png";
+import Loader from "../../components/loader/loader";
 
 const Categories = () => {
   const tabs = [
@@ -88,63 +87,11 @@ const Categories = () => {
             food.categorized === (selectedTab === "Veg" ? "veg" : "non-veg")
         );
   // -------------------------------- USE EFFECTS --------------------------------
-  useEffect(() => {
-    setCusLoader(true);
-
-    const unsubscribe = onSnapshot(
-      collection(db, "categories"),
-      (snapshot) => {
-        setCusLoader(true);
-        const items = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        const hotelCategories = items.filter(
-          (data) => data?.hotelId === hotelUID
-        );
-        const newItem = {
-          id: "new-id",
-          name: "Add New",
-        };
-        const updatedItems = [newItem, ...hotelCategories];
-
-        setCategories(updatedItems);
-        setTimeout(() => {
-          setCusLoader(false);
-        }, 100);
-
-        // Select the first category initially
-        if (updatedItems.length > 0) {
-          handleCardClick(updatedItems[1]);
-        }
-      },
-      (error) => {
-        console.error("Error fetching documents: ", error);
-      }
-    );
-
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
-  }, []);
 
   useEffect(() => {
     const fetchOrderData = () => {
       try {
-        const ordersCollection = collection(db, "foodList");
-        const unsubscribe = onSnapshot(ordersCollection, (orderSnapshot) => {
-          const ordersList = orderSnapshot.docs.map((doc) => ({
-            id: doc.id, // Store document ID
-            ...doc.data(), // Include document data
-          }));
-          const hotelFoodsList = ordersList.filter(
-            (data) => data?.hotelId === hotelUID
-          );
-
-          setFoodList(hotelFoodsList || []);
-        });
-
-        // Cleanup subscription on unmount
-        return () => unsubscribe();
+        // write logic to fetch data
       } catch (error) {
         setCusLoader(false);
 
