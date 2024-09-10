@@ -30,8 +30,8 @@ const Sidebar = ({ open, setOpen }) => {
   const location = useLocation();
   const superAdmin = useSelector((state) => state.auth.isuperAdmin);
   console.log(superAdmin);
-  const hotelData = useSelector((state)=> state.auth.hotelData);
-  console.log(hotelData, "hotel")
+  const hotelData = useSelector((state) => state.auth.hotelData);
+  console.log(hotelData, "hotel");
   useEffect(() => {
     setSelectedLink(location.pathname); // Update selected link based on current path
   }, [location]);
@@ -197,7 +197,7 @@ const Sidebar = ({ open, setOpen }) => {
             primary="Order List"
           />
         </ListItem>
-        <ListItem
+        {/*   <ListItem
           button
           component={Link}
           to="/tables"
@@ -217,7 +217,7 @@ const Sidebar = ({ open, setOpen }) => {
             style={{ display: isOpen ? "flex" : "none" }}
             primary="Tables"
           />
-        </ListItem>
+        </ListItem>*/}
         <ListItem
           button
           component={Link}
