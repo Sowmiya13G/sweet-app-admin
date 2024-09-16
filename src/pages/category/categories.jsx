@@ -53,7 +53,10 @@ const Categories = () => {
   const [foodImgUploading, setFoodImgUploading] = useState(false);
   const [foodList, setFoodList] = useState([]);
   const [cusLoader, setCusLoader] = useState(false);
-
+  const [showEditFields, setShowEditFields] = useState(true);
+  const [addNewFoodList, setAddNewFoodList] = useState(true);
+  const [selectedCard, setSelectedCard] = useState("");
+  const [selectedTab, setSelectedTab] = useState("All");
   const [editedCategory, setEditedCategory] = useState({
     name: "",
     img: "",
@@ -65,10 +68,7 @@ const Categories = () => {
     categorized: "",
     img: "",
   });
-  const [showEditFields, setShowEditFields] = useState(true);
-  const [addNewFoodList, setAddNewFoodList] = useState(true);
-  const [selectedCard, setSelectedCard] = useState("");
-  const [selectedTab, setSelectedTab] = useState("All");
+
 
   // variables
   const filteredFoodList = foodList.filter(
@@ -447,7 +447,7 @@ const Categories = () => {
   const renderAddFoodFields = () => {
     return (
       <Paper sx={categoriesStyle} elevation={6}>
-        {showEditFields && selectedCategory && (
+        {/* {showEditFields && selectedCategory && ( */}
           <Box
             sx={{
               ...categoriesStyle,
@@ -457,9 +457,9 @@ const Categories = () => {
               gutterBottom
               sx={{ color: "#000", fontSize: 20, fontWeight: 600 }}
             >
-              {!addNewFoodList
+              {/* {!addNewFoodList
                 ? `Edit ${foodDetails.dishName}  `
-                : ` Add food item under ${selectedCategory.name}`}
+                : ` Add food item under ${selectedCategory.name}`} */}
             </Typography>
             <Divider
               sx={{
@@ -677,7 +677,7 @@ const Categories = () => {
               )}
             </Box>
           </Box>
-        )}
+        {/* )} */}
       </Paper>
     );
   };
@@ -1083,11 +1083,9 @@ const Categories = () => {
                 {foodListBox()}
               </Box>
             )}
-            {isShowEditFields && (
               <Box sx={{ width: { xs: "100%", md: "36%" }, my: 1 }}>
                 {renderAddFoodFields()}
               </Box>
-            )}
           </Box>
         </Box>
       ) : (
