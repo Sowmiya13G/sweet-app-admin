@@ -7,6 +7,7 @@ import DinnerDiningIcon from "@mui/icons-material/DinnerDining";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import PeopleIcon from "@mui/icons-material/People";
 import PlaceIcon from "@mui/icons-material/Place";
+import ViewCarouselIcon from '@mui/icons-material/ViewCarousel';
 import {
   Drawer,
   List,
@@ -195,18 +196,18 @@ const Sidebar = ({ open, setOpen }) => {
         <ListItem
           button
           component={Link}
-          to="/location"
+          to="/banner"
           style={{
             margin: "15px",
             height: "70px",
             borderRadius: "15px",
             backgroundColor:
-              selectedLink === "/location" ? "#d79f11" : "transparent",
+              selectedLink === "/banner" ? "#d79f11" : "transparent",
           }}
-          onClick={() => handleClick("/location")}
+          onClick={() => handleClick("/banner")}
         >
           <ListItemIcon>
-            <PlaceIcon style={{ color: "white" }} />
+            <ViewCarouselIcon style={{ color: "white" }} />
           </ListItemIcon>
           <ListItemText
             style={{ display: isOpen ? "flex" : "none" }}

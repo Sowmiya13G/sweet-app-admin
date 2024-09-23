@@ -11,40 +11,21 @@ import {
   CircularProgress,
   Divider,
   Grid,
-  MenuItem,
   Paper,
   TextField,
   Typography,
 } from "@mui/material";
-// firebase
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  updateDoc
-} from "firebase/firestore";
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
-
-// firebase service
-import { db } from "../../firebaseConfig";
-
-// component
-import TabBar from "../../components/tabBar/tabBar";
 
 // icons
-import { useSelector } from "react-redux";
 import nonVegIcon from "../../assets/images/nonVeg.png";
 import plusIcon from "../../assets/images/plus.png";
 import vegIcon from "../../assets/images/veg.png";
 import Loader from "../../components/loader/loader";
+import apiClient from "../../apiServices/apiClient";
+import { ENDPOINTS } from "../../apiServices/endPoints";
+import { handleApiError } from "../../apiServices/methods";
 
 const Categories = () => {
-  const tabs = [
-    { tbName: "All", id: 1 },
-    { tbName: "Veg", id: 2 },
-    { tbName: "Non-Veg", id: 3 },
-  ];
   // local states
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -69,13 +50,10 @@ const Categories = () => {
     img: "",
   });
 
-
   // variables
   const filteredFoodList = foodList.filter(
     (food) => food.category === selectedCategory?.name
   );
-  const hotelData = useSelector((state) => state.auth.hotelData);
-  const hotelUID = hotelData[0]?.uid;
 
   const isShowEditFields = editedCategory?.id !== "new-id" && selectedCategory;
 
@@ -89,6 +67,7 @@ const Categories = () => {
   // -------------------------------- USE EFFECTS --------------------------------
 
   useEffect(() => {
+    // getSweetList()
     const fetchOrderData = () => {
       try {
         // write logic to fetch data
@@ -180,24 +159,19 @@ const Categories = () => {
     ":hover": {
       background: "#00000030",
     },
-
-    // borderLeftColor: Boolean(selectedCard) ? "#000" : "#fff",
-    // borderLeftWidth: "100px",
   };
 
   const scrollVerbarStyles = {
     overflowY: "auto",
     width: "100%",
-
-    // overflowX: "auto",
     "&::-webkit-scrollbar": {
       height: 0,
     },
     "&::-webkit-scrollbar-thumb": {
       backgroundColor: "transparent",
     },
-    "-ms-overflow-style": "none", // IE and Edge
-    "scrollbar-width": "none", // Firefox
+    "-ms-overflow-style": "none", 
+    "scrollbar-width": "none", 
   };
 
   // -------------------------------- FUNCTIONALITIES --------------------------------
@@ -225,19 +199,7 @@ const Categories = () => {
   };
 
   // upload image file for the category
-  const handleFileChange = async (e) => {
-    let file = e.target.files[0];
-    if (file) {
-      let img = editedCategory.img;
-      setUploading(true);
-      const storage = getStorage();
-      const storageRef = ref(storage, `categories/${file.name}`);
-      await uploadBytes(storageRef, file);
-      img = await getDownloadURL(storageRef);
-      setEditedCategory((prev) => ({ ...prev, imgSrc: img }));
-      setUploading(false);
-    }
-  };
+  const handleFileChange = () => {};
 
   // adding new category
   const handleAddChanges = async () => {
@@ -245,11 +207,6 @@ const Categories = () => {
 
     if (selectedCategory && editedCategory.name.trim() !== "") {
       try {
-        await addDoc(collection(db, "categories"), {
-          name: editedCategory.name,
-          imgSrc: editedCategory.imgSrc,
-          hotelId: hotelUID,
-        });
         setCusLoader(false);
       } catch (e) {
         console.error("Error updating document: ", e);
@@ -264,12 +221,6 @@ const Categories = () => {
 
     if (selectedCategory && editedCategory.name.trim() !== "") {
       try {
-        const categoryDoc = doc(db, "categories", selectedCategory.id);
-        await updateDoc(categoryDoc, {
-          name: editedCategory.name,
-          imgSrc: editedCategory.imgSrc,
-          hotelId: hotelUID,
-        });
         setCusLoader(false);
 
         // setEditMode(false);
@@ -286,8 +237,6 @@ const Categories = () => {
 
     if (selectedCategory && selectedCategory.id !== "new-id") {
       try {
-        const categoryDoc = doc(db, "categories", selectedCategory.id);
-        await deleteDoc(categoryDoc);
         setCusLoader(false);
       } catch (e) {
         console.error("Error deleting document: ", e);
@@ -303,60 +252,96 @@ const Categories = () => {
   };
 
   // upload image file for the food item
-  const handleFoodFileChange = async (e) => {
-    let file = e.target.files[0];
-    if (file) {
-      let img = foodDetails.img;
-      setFoodImgUploading(true);
-      const storage = getStorage();
-      const storageRef = ref(storage, `foodList/${file.name}`);
-      await uploadBytes(storageRef, file);
-      img = await getDownloadURL(storageRef);
-      setFoodDetails((prev) => ({ ...prev, img: img }));
-      setFoodImgUploading(false);
-    }
+  const handleFoodFileChange =  (e) => {
+    
   };
 
   // adding food item under selected category
+  // const handleAddFoodItem = async () => {
+  //   if (
+  //     selectedCategory &&
+  //     foodDetails.name?.trim() !== "" &&
+  //     foodDetails.price?.trim() !== ""
+  //   ) {
+  //     try {
+
+  //       // Reset form
+  //       setFoodDetails({
+  //         category: "",
+  //         dishName: "",
+  //         price: "",
+  //         categorized: "",
+  //         img: "",
+  //       });
+  //       setCusLoader(false);
+
+  //       // setShowEditFields(false);
+  //     } catch (e) {
+  //       console.error("Error adding food item: ", e);
+  //       setCusLoader(false);
+  //     }
+  //   } else {
+  //     console.error("missing");
+  //   }
+  // };
+
   const handleAddFoodItem = async () => {
-    if (
-      selectedCategory &&
-      foodDetails.name?.trim() !== "" &&
-      foodDetails.price?.trim() !== ""
-    ) {
-      try {
-        setCusLoader(true);
-        await addDoc(collection(db, "foodList"), {
-          categoryId: selectedCategory?.id,
-          category: selectedCategory?.name,
-          dishName: foodDetails.dishName,
-          categorized: foodDetails.categorized,
-          price: foodDetails.price,
-          img: foodDetails.img,
-          isSoldOut: false,
-          hotelId: hotelUID,
-        });
+    // Basic validation
+    // if (selectedCategory && foodDetails.dishName?.trim() !== "" && foodDetails.price?.trim() !== "") {
+    try {
+      // Prepare the request payload
+      const payload = {
+        // category: selectedCategory.name,
+        productName: foodDetails.dishName,
+        price: foodDetails.price,
+        categorized: foodDetails.categorized,
+        // img: foodDetails.img,
+      };
 
-        // Reset form
-        setFoodDetails({
-          category: "",
-          dishName: "",
-          price: "",
-          categorized: "",
-          img: "",
-        });
-        setCusLoader(false);
+      //   {
+      //     "productName":foodDetails.dishName,
+      //     "price":  foodDetails.price,
+      //     // "offerPrice": "dsfd",
+      //     "description":"Sdfsdf",
+      //     "quantity":"sdgsdfsdf",
+      //     "image":[{
+      //         "url":"sdfsdf"
+      //     }]
+      // }
 
-        // setShowEditFields(false);
-      } catch (e) {
-        console.error("Error adding food item: ", e);
-        setCusLoader(false);
-      }
-    } else {
-      console.error("missing");
+      // Make the API call to add the food item
+      const response = await apiClient.post(ENDPOINTS.addProducts, payload);
+
+      // Handle successful response
+      console.log("Food item added successfully:", response.data);
+
+      // Reset form and loading state
+      setFoodDetails({
+        category: "",
+        dishName: "",
+        price: "",
+        categorized: "",
+        img: "",
+      });
+      setCusLoader(false);
+    } catch (error) {
+      // Handle errors
+      console.error("Error adding food item:", error);
+      setCusLoader(false);
     }
+    // } else {
+    //   console.error('Please fill in all required fields.');
+    // }
   };
 
+  const getSweetList = async () => {
+    try {
+      const response = await apiClient.get(ENDPOINTS.addProducts);
+      console.log("call", response);
+    } catch (error) {
+      handleApiError(error);
+    }
+  };
   // update food item under selected category
   const handleSaveFoodItem = async (foodDetails) => {
     // Check if required fields are filled
@@ -369,21 +354,6 @@ const Categories = () => {
     ) {
       try {
         setCusLoader(true);
-        // Reference to the document in Firestore
-        const foodItemRef = doc(db, "foodList", foodDetails.id);
-
-        // Update the document with new data
-        await updateDoc(foodItemRef, {
-          categoryId: selectedCategory.id,
-          category: selectedCategory.name,
-          dishName: foodDetails.dishName,
-          categorized: foodDetails.categorized || "",
-          price: foodDetails.price,
-          img: foodDetails.img || "",
-          hotelId: hotelUID,
-        });
-        setCusLoader(false);
-
         // Optionally update state or reset form fields after successful update
         console.log("Food item updated successfully!");
       } catch (error) {
@@ -413,15 +383,6 @@ const Categories = () => {
       try {
         setCusLoader(true);
 
-        await deleteDoc(doc(db, "foodList", food.id));
-        setSelectedCard(null);
-        setFoodDetails({
-          category: "",
-          dishName: "",
-          price: "",
-          categorized: "",
-          img: "",
-        });
         setCusLoader(false);
       } catch (e) {
         console.error("Error deleting food item: ", e);
@@ -433,10 +394,6 @@ const Categories = () => {
   const handleSoldOutToggle = async (food) => {
     console.log(food);
     try {
-      const foodDoc = doc(db, "foodList", food.id);
-      await updateDoc(foodDoc, {
-        isSoldOut: !food.isSoldOut,
-      });
     } catch (e) {
       console.error("Error toggling sold out status: ", e);
     }
@@ -448,52 +405,53 @@ const Categories = () => {
     return (
       <Paper sx={categoriesStyle} elevation={6}>
         {/* {showEditFields && selectedCategory && ( */}
-          <Box
-            sx={{
-              ...categoriesStyle,
-            }}
+        <Box
+          sx={{
+            ...categoriesStyle,
+          }}
+        >
+          <Typography
+            gutterBottom
+            sx={{ color: "#000", fontSize: 20, fontWeight: 600 }}
           >
-            <Typography
-              gutterBottom
-              sx={{ color: "#000", fontSize: 20, fontWeight: 600 }}
-            >
-              {/* {!addNewFoodList
+            {!addNewFoodList ? `Edit   ` : ` Add item under`}
+            {/* {!addNewFoodList
                 ? `Edit ${foodDetails.dishName}  `
                 : ` Add food item under ${selectedCategory.name}`} */}
-            </Typography>
-            <Divider
-              sx={{
-                backgroundColor: "#00000090",
-                width: "100%",
-                my: 1,
-                mb: 2,
-              }}
-            />
-            <TextField
+          </Typography>
+          <Divider
+            sx={{
+              backgroundColor: "#00000090",
+              width: "100%",
+              my: 1,
+              mb: 2,
+            }}
+          />
+          {/* <TextField
               label="Category"
               name="category"
               value={selectedCategory?.name}
               onChange={handleFoodInputChange}
               fullWidth
               sx={{ mb: 2, ...textInputStyle }}
-            />
-            <TextField
-              label="Food Name"
-              name="dishName"
-              value={foodDetails.dishName}
-              onChange={handleFoodInputChange}
-              fullWidth
-              sx={{ mb: 2, ...textInputStyle }}
-            />
-            <TextField
-              label="Price"
-              name="price"
-              value={foodDetails.price}
-              onChange={handleFoodInputChange}
-              fullWidth
-              sx={{ mb: 2, ...textInputStyle }}
-            />
-            <TextField
+            /> */}
+          <TextField
+            label="Food Name"
+            name="dishName"
+            value={foodDetails.dishName}
+            onChange={handleFoodInputChange}
+            fullWidth
+            sx={{ mb: 2, ...textInputStyle }}
+          />
+          <TextField
+            label="Price"
+            name="price"
+            value={foodDetails.price}
+            onChange={handleFoodInputChange}
+            fullWidth
+            sx={{ mb: 2, ...textInputStyle }}
+          />
+          {/* <TextField
               select
               label="Categorized"
               name="categorized"
@@ -504,8 +462,8 @@ const Categories = () => {
             >
               <MenuItem value="veg">Veg</MenuItem>
               <MenuItem value="non-veg">Non-Veg</MenuItem>
-            </TextField>
-            {/* <Box sx={{ my: 2, width: 200, height: 200 }}>
+            </TextField> */}
+          {/* <Box sx={{ my: 2, width: 200, height: 200 }}>
               {foodImgUploading ? (
                 <Box
                   sx={{
@@ -532,128 +490,102 @@ const Categories = () => {
                 )
               )}
             </Box> */}
-            <Box sx={{ my: 2, width: "100px", height: "100px" }}>
-              {foodImgUploading ? (
-                <Box
-                  sx={{
-                    width: "100%",
-                    height: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    filter: 10,
-                    borderRadius: 5,
+          <Box sx={{ my: 2, width: "100px", height: "100px" }}>
+            {foodImgUploading ? (
+              <Box
+                sx={{
+                  width: "100%",
+                  height: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  filter: 10,
+                  borderRadius: 5,
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            ) : (
+              foodDetails.img && (
+                <img
+                  src={foodDetails.img}
+                  width={"100%"}
+                  height={"100%"}
+                  style={{
+                    borderRadius: "50%",
+                    background: "#fff",
+                    objectFit: "contain",
+                    boxShadow: "0px 15px 20px 0px #00000031",
                   }}
-                >
-                  <CircularProgress />
-                </Box>
-              ) : (
-                foodDetails.img && (
-                  <img
-                    src={foodDetails.img}
-                    width={"100%"}
-                    height={"100%"}
-                    style={{
-                      borderRadius: "50%",
-                      background: "#fff",
-                      objectFit: "contain",
-                      boxShadow: "0px 15px 20px 0px #00000031",
-                    }}
-                    alt="img"
-                  />
-                )
-              )}
-            </Box>
-            <Button
-              variant="outlined"
-              component="label"
-              sx={{
-                justifyContent: "space-between",
-                display: "flex",
-                height: 50,
-                background: "transparent",
-                marginBottom: "10px",
-              }}
-            >
-              Upload Image
-              <CloudUploadIcon />
-              <input
-                type="file"
-                accept=".png,.jpg,.jpeg"
-                hidden
-                onChange={handleFoodFileChange}
-              />
-            </Button>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "end",
-              }}
-            >
-              {!addNewFoodList ? (
-                <Box
-                  sx={{
-                    width: "50%",
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Button
-                    variant="outlined"
-                    sx={{
-                      height: 40,
-                      marginBottom: "10px",
-                      width: "40%",
-                      // width: "100%",
-                      color: "red",
-                      background: "#fff",
-                      alignItems: "center",
-                      justifyContent: "space-around",
-                      fontWeight: "bold",
-                      fontSize: { xs: 12, md: 12 },
-                      borderColor: "red",
-                      textTransform: "capitalize",
-                      "&:hover": {
-                        borderColor: "red",
-                        background: "#fff",
-                      },
-                    }}
-                    onClick={() => handleDeleteFood(foodDetails)}
-                  >
-                    Delete
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    onClick={() => handleSaveFoodItem(foodDetails)}
-                    sx={{
-                      height: 40,
-                      marginBottom: "10px",
-                      width: "40%",
-                      color: "#fff",
-                      background: "#125238",
-                      alignItems: "center",
-                      justifyContent: "space-around",
-                      fontWeight: "bold",
-                      fontSize: { xs: 12, md: 12 },
-                      borderColor: "#125238",
-                      textTransform: "capitalize",
-                      "&:hover": {
-                        borderColor: "#125238",
-                        background: "#125238",
-                      },
-                    }}
-                  >
-                    Save
-                  </Button>
-                </Box>
-              ) : (
+                  alt="img"
+                />
+              )
+            )}
+          </Box>
+          <Button
+            variant="outlined"
+            component="label"
+            sx={{
+              justifyContent: "space-between",
+              display: "flex",
+              height: 50,
+              background: "transparent",
+              marginBottom: "10px",
+            }}
+          >
+            Upload Image
+            <CloudUploadIcon />
+            <input
+              type="file"
+              accept=".png,.jpg,.jpeg"
+              hidden
+              onChange={handleFoodFileChange}
+            />
+          </Button>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "end",
+            }}
+          >
+            {!addNewFoodList ? (
+              <Box
+                sx={{
+                  width: "50%",
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
                 <Button
                   variant="outlined"
-                  onClick={() => handleAddFoodItem()}
+                  sx={{
+                    height: 40,
+                    marginBottom: "10px",
+                    width: "40%",
+                    color: "red",
+                    background: "#fff",
+                    alignItems: "center",
+                    justifyContent: "space-around",
+                    fontWeight: "bold",
+                    fontSize: { xs: 12, md: 12 },
+                    borderColor: "red",
+                    textTransform: "capitalize",
+                    "&:hover": {
+                      borderColor: "red",
+                      background: "#fff",
+                    },
+                  }}
+                  onClick={() => handleDeleteFood(foodDetails)}
+                >
+                  Delete
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={() => handleSaveFoodItem(foodDetails)}
                   sx={{
                     height: 40,
                     marginBottom: "10px",
@@ -672,11 +604,36 @@ const Categories = () => {
                     },
                   }}
                 >
-                  Add Food
+                  Save
                 </Button>
-              )}
-            </Box>
+              </Box>
+            ) : (
+              <Button
+                variant="outlined"
+                onClick={() => handleAddFoodItem()}
+                sx={{
+                  height: 40,
+                  marginBottom: "10px",
+                  width: "40%",
+                  color: "#fff",
+                  background: "#125238",
+                  alignItems: "center",
+                  justifyContent: "space-around",
+                  fontWeight: "bold",
+                  fontSize: { xs: 12, md: 12 },
+                  borderColor: "#125238",
+                  textTransform: "capitalize",
+                  "&:hover": {
+                    borderColor: "#125238",
+                    background: "#125238",
+                  },
+                }}
+              >
+                Add Food
+              </Button>
+            )}
           </Box>
+        </Box>
         {/* )} */}
       </Paper>
     );
@@ -690,7 +647,6 @@ const Categories = () => {
             display: "flex",
             flexDirection: { xs: "column" },
             justifyContent: "space-between",
-            // height: "100%",
           }}
         >
           <TextField
@@ -776,7 +732,6 @@ const Categories = () => {
                 height: 40,
                 marginBottom: "10px",
                 width: "40%",
-                // width: "100%",
                 color: "red",
                 background: "#fff",
                 alignItems: "center",
@@ -846,7 +801,7 @@ const Categories = () => {
               color: "#000",
             }}
           >
-            Food List
+            Sweet List
           </Typography>
 
           <Button
@@ -865,11 +820,11 @@ const Categories = () => {
             <AddIcon style={{ color: "#000" }} />
           </Button>
         </Box>
-        <TabBar
+        {/* <TabBar
           tabs={tabs}
           selectedTab={selectedTab}
           setSelectedTab={setSelectedTab}
-        />
+        /> */}
         <Divider sx={{ backgroundColor: "#00000090", width: "100%", mb: 2 }} />
         {filteredFoodListByTab.length ? (
           <Box sx={{ ...scrollVerbarStyles }}>
@@ -961,7 +916,7 @@ const Categories = () => {
               gutterBottom
               sx={{ color: "#000", fontSize: 20, fontWeight: 600 }}
             >
-              No Foods added in list
+              No Sweets added in list
             </Typography>
           </>
         )}
@@ -1021,7 +976,6 @@ const Categories = () => {
                             borderRadius: "50%",
                             objectFit: "contain",
                             backgroundColor: "#ffff",
-                            // boxShadow: "0px 0px 20px 0px #00000090",
                             boxShadow: "0px 15px 20px 0px #00000031",
                           }}
                           alt="img"
@@ -1035,7 +989,6 @@ const Categories = () => {
                             borderRadius: "50%",
                             objectFit: "contain",
                             backgroundColor: "#ffff",
-                            // boxShadow: "0px 0px 20px 0px #00000090",
                             boxShadow: "0px 15px 20px 0px #00000031",
                           }}
                           alt="img"
@@ -1050,7 +1003,6 @@ const Categories = () => {
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
                         px: 2,
-                        // mb: 1,
                       }}
                       noWrap={true}
                     >
@@ -1083,9 +1035,9 @@ const Categories = () => {
                 {foodListBox()}
               </Box>
             )}
-              <Box sx={{ width: { xs: "100%", md: "36%" }, my: 1 }}>
-                {renderAddFoodFields()}
-              </Box>
+            <Box sx={{ width: { xs: "100%", md: "36%" }, my: 1 }}>
+              {renderAddFoodFields()}
+            </Box>
           </Box>
         </Box>
       ) : (

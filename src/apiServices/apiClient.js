@@ -2,25 +2,25 @@ import axios from 'axios';
 
 // Create an Axios instance with default configuration
 const apiClient = axios.create({
-  baseURL: 'https://api.example.com', 
+  baseURL: 'https://sweetserver.onrender.com/api', 
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
 // Request interceptor to add authentication tokens or modify requests
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+// apiClient.interceptors.request.use(
+//   (config) => {
+//     const token = localStorage.getItem('authToken');
+//     if (token) {
+//       config.headers.Authorization = `Bearer ${token}`;
+//     }
+//     return config;
+//   },
+//   (error) => {
+//     return Promise.reject(error);
+//   }
+// );
 
 // Response interceptor to handle errors or modify responses
 apiClient.interceptors.response.use(

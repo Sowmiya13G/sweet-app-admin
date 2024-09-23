@@ -14,7 +14,7 @@ import Dashboard from "./pages/dashboard/dashboard";
 import Offers from "./pages/offers/offers";
 import Orders from "./pages/orders/orders";
 import Users from "./pages/users/user";
-
+import Banner from "./pages/banner/banner";
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -81,6 +81,18 @@ function App() {
               element={
                 <Layout>
                   <Orders />
+                </Layout>
+              }
+            />
+          }
+        />
+        <Route
+          path="/banner"
+          element={
+            <ProtectedRoute
+              element={
+                <Layout>
+                  <Banner />
                 </Layout>
               }
             />

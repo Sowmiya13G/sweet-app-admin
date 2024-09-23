@@ -1,4 +1,5 @@
 export const ENDPOINTS = {
-  USERS: `/users`,
-  POSTS: `/posts`,
+  addProducts: "/products",
+  categories: "/categories",
+  carousel:"/carousel"
 };

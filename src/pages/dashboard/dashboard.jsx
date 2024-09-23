@@ -239,6 +239,8 @@ const Dashboard = () => {
       navigate("/users");
     } else if (index === 3) {
       navigate("/categories");
+    } else if (index === 4) {
+      navigate("/banner");
     }
     // setSelectedCard(index);
   };
